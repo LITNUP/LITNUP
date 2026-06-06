@@ -65,7 +65,7 @@ function useAddresses() {
 // Token hooks
 // =============================================================================
 
-/** Read $LIT balance for the connected account (or a specific account). */
+/** Read $LITNUP balance for the connected account (or a specific account). */
 export function useAlphaBalance(account?: Address) {
   const { alphaToken } = useAddresses();
   // @ts-ignore wagmi

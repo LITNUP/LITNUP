@@ -91,7 +91,7 @@ export class LITNUP {
   // ============================================================
 
   /**
-   * Total $LIT staked across all agent vaults.
+   * Total $LITNUP staked across all agent vaults.
    * Indexer is preferred; fallback enumerates on-chain.
    */
   async getTotalTVL(): Promise<bigint> {
@@ -124,7 +124,7 @@ export class LITNUP {
     return total;
   }
 
-  /** Total $LIT burned (computed: MAX_SUPPLY - currentSupply). */
+  /** Total $LITNUP burned (computed: MAX_SUPPLY - currentSupply). */
   async getTotalBurned(): Promise<bigint> {
     const max = (await this.publicClient.readContract({
       address: this.addresses.LitToken,

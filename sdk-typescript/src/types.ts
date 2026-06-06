@@ -22,7 +22,7 @@ export interface AgentInfo {
   controller: Address;
   status: AgentStatus;
   strategy: AgentStrategy;
-  bond: bigint;            // current bond amount in $LIT wei
+  bond: bigint;            // current bond amount in $LITNUP wei
   protocolFeeBps: number;  // 0..10_000
   metadataHash: Hex;       // IPFS CID hash
   enrolledAt: number;      // unix seconds

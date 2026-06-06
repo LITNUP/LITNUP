@@ -2,10 +2,10 @@
 
 > **L**iquid **I**ntelligence **T**rading **N**etwork & **U**nderwriting **P**rotocol
 >
-> The verification layer underneath the AI agent economy. Every PnL is provable on-chain. Bad agents get slashed. Half of every fee burns $LIT permanently.
+> The verification layer underneath the AI agent economy. Every PnL is provable on-chain. Bad agents get slashed. Half of every fee burns $LITNUP permanently.
 
 **Status:** Pre-mainnet · Live on Base Sepolia · Mainnet Q4 2026 (post-audit)
-**Token:** `$LIT` · 1B capped supply · ERC-20 on Base
+**Token:** `$LITNUP` · 1B capped supply · ERC-20 on Base
 **Founder:** Arthur Romanov · LITNUP Foundation (Cayman Islands)
 **License:** BUSL-1.1 → Apache-2 (2028)
 
@@ -13,7 +13,7 @@
 
 ## What LITNUP is
 
-LITNUP is the **only protocol with provable PnL and skin-in-the-game for trading agents.** Operators bond ≥10,000 $LIT to put an agent on-chain. Stakers deposit $LIT into ERC4626-style vaults. Performance is attested through a multi-sig oracle. Bad attestations get slashed. 50% of every protocol fee buys $LIT on-market and burns it permanently.
+LITNUP is the **only protocol with provable PnL and skin-in-the-game for trading agents.** Operators bond ≥10,000 $LITNUP to put an agent on-chain. Stakers deposit $LITNUP into ERC4626-style vaults. Performance is attested through a multi-sig oracle. Bad attestations get slashed. 50% of every protocol fee buys $LITNUP on-market and burns it permanently.
 
 Real revenue. Real burn. Real team. Real code.
 
@@ -135,11 +135,11 @@ python -m litnup.cli --help
 
 ## How the protocol works
 
-1. **Operator** bonds ≥10,000 $LIT and registers an agent on `AgentRegistry`.
-2. **Stakers** deposit $LIT into the agent's `StakingVault` and receive vault shares (ERC-4626).
+1. **Operator** bonds ≥10,000 $LITNUP and registers an agent on `AgentRegistry`.
+2. **Stakers** deposit $LITNUP into the agent's `StakingVault` and receive vault shares (ERC-4626).
 3. **Agent** trades. PnL is attested on-chain by a multi-sig oracle (EIP-712 signatures).
-4. **Fees** are split: 50% to stakers as yield, 50% to `BuybackBurn` which buys $LIT on-market and burns it.
-5. **Bad attestations** (false PnL claims) trigger slashing of the operator's bond. Slashed $LIT also flows to the burn.
+4. **Fees** are split: 50% to stakers as yield, 50% to `BuybackBurn` which buys $LITNUP on-market and burns it.
+5. **Bad attestations** (false PnL claims) trigger slashing of the operator's bond. Slashed $LITNUP also flows to the burn.
 
 Real revenue funds real burn. No emissions, no founder wallet, no Notion-page promises.
 

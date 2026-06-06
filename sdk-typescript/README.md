@@ -32,7 +32,7 @@ const protocol = new LITNUP({ client, network: 'base' });
 
 // Read current TVL across all vaults
 const tvl = await protocol.getTotalTVL();
-console.log(`Total staked: ${tvl} $LIT`);
+console.log(`Total staked: ${tvl} $LITNUP`);
 
 // Get top agents by 30-day Sharpe
 const top = await protocol.agents.list({ sortBy: 'sharpe', limit: 10 });
@@ -56,7 +56,7 @@ const wallet = createWalletClient({
 
 const protocol = new LITNUP({ client: wallet, network: 'base' });
 
-// 1. Approve $LIT for the vault
+// 1. Approve $LITNUP for the vault
 const approvalTx = await protocol.token.approve(
   protocol.addresses.StakingVault,
   parseEther('1000')
@@ -105,7 +105,7 @@ console.log('Signature valid:', isValid);
 - `protocol.unstakeComplete({ agentId })` — claim after 7-day cooldown
 - `protocol.governance.lock({ amount, unlockTime })` — veAGENTIC lock
 - `protocol.governance.proposals()` — list active proposals
-- `protocol.token.balanceOf(address)` — $LIT balance
+- `protocol.token.balanceOf(address)` — $LITNUP balance
 - `protocol.token.approve(spender, amount)` — token approval
 
 ### `attestation/`
