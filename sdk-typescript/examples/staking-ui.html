@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>LITNUP SDK · Staking UI example</title>
+<style>
+  :root {
+    --ink: #08090C; --ink-1: #0C0E13; --ink-2: #11141B; --ink-3: #181C25;
+    --line: #1E2230; --cream: #F2F4F8; --mute: #9097A5; --violet: #7C5CFF;
+    --green: #34D399; --red: #F87171; --amber: #FBBF24;
+    --f-mono: ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, monospace;
+    --f-sans: -apple-system, 'Segoe UI', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--ink); color: var(--cream); font-family: var(--f-sans); line-height: 1.5; }
+  .container { max-width: 980px; margin: 0 auto; padding: 40px 24px; }
+  h1 { font-size: 28px; font-weight: 600; margin: 0 0 8px; }
+  .lead { color: var(--mute); margin: 0 0 32px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+  .card {
+    background: var(--ink-1);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 20px;
+  }
+  .card h3 { margin: 0 0 12px; font-size: 13px; color: var(--mute); font-family: var(--f-mono); font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; }
+  .stat { font-family: var(--f-mono); font-size: 24px; font-weight: 500; color: var(--cream); }
+  .stat.small { font-size: 14px; }
+  .row { display: flex; gap: 12px; align-items: center; margin: 12px 0; }
+  input, button {
+    background: var(--ink-2);
+    border: 1px solid var(--line);
+    color: var(--cream);
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-family: var(--f-mono);
+    font-size: 13px;
+  }
+  input { flex: 1; }
+  button {
+    background: var(--violet);
+    border-color: var(--violet);
+    cursor: pointer;
+    font-weight: 600;
+    transition: opacity 0.2s;
+  }
+  button:hover { opacity: 0.85; }
+  button:disabled { opacity: 0.3; cursor: not-allowed; }
+  button.ghost { background: var(--ink-2); border-color: var(--line); }
+  pre.console {
+    background: #000;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 11px;
+    color: var(--mute);
+    max-height: 200px;
+    overflow-y: auto;
+    margin-top: 16px;
+  }
+  pre.console .ok { color: var(--green); }
+  pre.console .err { color: var(--red); }
+  pre.console .info { color: var(--cream); }
+  .pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: var(--ink-2);
+    font-family: var(--f-mono);
+    font-size: 10px;
+    color: var(--mute);
+    border: 1px solid var(--line);
+  }
+  .pill.live { background: rgba(52,211,153,0.1); color: var(--green); border-color: var(--green); }
+  hr { border: none; border-top: 1px solid var(--line); margin: 32px 0; }
+  .footer { color: var(--mute); font-size: 12px; margin-top: 40px; text-align: center; }
+  .footer a { color: var(--violet); text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>LITNUP SDK · staking UI example</h1>
+  <p class="lead">
+    Reference HTML page that uses <code>@alphagentic/sdk</code> via viem to read protocol state
+    and execute staking flows. <span class="pill" id="network-pill">checking</span>
+    <span class="pill" id="address-pill">no wallet</span>
+  </p>
+
+  <div class="grid">
+    <div class="card">
+      <h3>Protocol stats</h3>
+      <div>Total supply: <span class="stat small" id="total-supply">—</span></div>
+      <div>Active agents: <span class="stat small" id="agent-count">—</span></div>
+      <div>Total TVL: <span class="stat small" id="total-tvl">—</span></div>
+    </div>
+
+    <div class="card">
+      <h3>Your wallet</h3>
+      <div>$LIT balance: <span class="stat small" id="balance">—</span></div>
+      <div>Voting weight: <span class="stat small" id="ve-weight">—</span></div>
+      <button id="connect-btn">Connect wallet</button>
+    </div>
+  </div>
+
+  <hr />
+
+  <h2 style="font-size: 18px; margin: 0 0 16px;">Stake on an agent</h2>
+  <div class="card">
+    <div class="row">
+      <input id="agent-id" type="number" placeholder="Agent ID (e.g. 1)" value="1" />
+      <input id="stake-amount" type="number" placeholder="Amount (AGENTIC)" value="100" />
+      <button id="approve-btn">1. Approve</button>
+      <button id="stake-btn">2. Stake</button>
+    </div>
+    <div>
+      Preview shares: <span class="stat small" id="preview-shares">—</span>
+    </div>
+    <div>
+      Vault share price: <span class="stat small" id="share-price">—</span>
+    </div>
+  </div>
+
+  <hr />
+
+  <h2 style="font-size: 18px; margin: 0 0 16px;">Your position</h2>
+  <div class="card">
+    <div>Shares: <span class="stat small" id="my-shares">—</span></div>
+    <div>Pending withdraw: <span class="stat small" id="my-pending">—</span></div>
+    <div>Estimated assets: <span class="stat small" id="my-assets">—</span></div>
+    <div class="row" style="margin-top: 16px;">
+      <input id="unstake-shares" type="number" placeholder="Shares to unstake" />
+      <button id="unstake-init-btn" class="ghost">Initiate unstake</button>
+      <button id="unstake-complete-btn" class="ghost">Complete unstake</button>
+    </div>
+  </div>
+
+  <pre class="console" id="console"></pre>
+
+  <p class="footer">
+    Read the SDK docs at <a href="https://alphagentic.xyz/builders.html">/builders</a>. ·
+    This file is reference code under Apache-2.
+  </p>
+</div>
+
+<script type="module">
+/**
+ * Reference example showing how to use @alphagentic/sdk in a vanilla HTML page.
+ *
+ * In a real app you'd import from npm:
+ *   import { LITNUP } from "@alphagentic/sdk";
+ *
+ * For this static example we use a CDN ESM build of viem so the page works
+ * standalone without any build step. In production, bundle properly.
+ */
+
+import {
+  createPublicClient,
+  createWalletClient,
+  custom,
+  http,
+  formatEther,
+  parseEther,
+} from "https://esm.sh/viem@2.21.0";
+import { base, baseSepolia } from "https://esm.sh/viem@2.21.0/chains";
+
+// =============================================================================
+// Configuration — replace placeholders with your deployment addresses
+// =============================================================================
+
+const CONTRACT_ADDRESSES = {
+  // Replace these after deployment (or load from /addresses.base-sepolia.json)
+  alphaToken: "0x0000000000000000000000000000000000000000",
+  agentRegistry: "0x0000000000000000000000000000000000000000",
+  stakingVault: "0x0000000000000000000000000000000000000000",
+  performanceOracle: "0x0000000000000000000000000000000000000000",
+  votingEscrow: "0x0000000000000000000000000000000000000000",
+};
+
+// Minimal ABIs (a real app imports from @alphagentic/sdk)
+const ERC20_ABI = [
+  { type: "function", name: "balanceOf", stateMutability: "view", inputs: [{ name: "a", type: "address" }], outputs: [{ type: "uint256" }] },
+  { type: "function", name: "totalSupply", stateMutability: "view", inputs: [], outputs: [{ type: "uint256" }] },
+  { type: "function", name: "allowance", stateMutability: "view", inputs: [{ name: "o", type: "address" }, { name: "s", type: "address" }], outputs: [{ type: "uint256" }] },
+  { type: "function", name: "approve", stateMutability: "nonpayable", inputs: [{ name: "s", type: "address" }, { name: "v", type: "uint256" }], outputs: [{ type: "bool" }] },
+];
+
+const VAULT_ABI = [
+  { type: "function", name: "vaults", stateMutability: "view", inputs: [{ name: "agentId", type: "uint256" }], outputs: [
+    { name: "totalAssets", type: "uint128" }, { name: "totalShares", type: "uint128" }, { name: "lastAttestation", type: "uint64" }, { name: "cooldown", type: "uint64" },
+  ] },
+  { type: "function", name: "stakers", stateMutability: "view", inputs: [{ name: "a", type: "uint256" }, { name: "s", type: "address" }], outputs: [
+    { name: "shares", type: "uint128" }, { name: "unlockAt", type: "uint64" }, { name: "pendingShares", type: "uint128" },
+  ] },
+  { type: "function", name: "sharePrice", stateMutability: "view", inputs: [{ name: "a", type: "uint256" }], outputs: [{ type: "uint256" }] },
+  { type: "function", name: "previewStake", stateMutability: "view", inputs: [{ name: "a", type: "uint256" }, { name: "amt", type: "uint128" }], outputs: [{ type: "uint128" }] },
+  { type: "function", name: "stake", stateMutability: "nonpayable", inputs: [{ name: "a", type: "uint256" }, { name: "amt", type: "uint128" }], outputs: [{ name: "sh", type: "uint128" }] },
+  { type: "function", name: "unstakeInit", stateMutability: "nonpayable", inputs: [{ name: "a", type: "uint256" }, { name: "sh", type: "uint128" }], outputs: [] },
+  { type: "function", name: "unstakeComplete", stateMutability: "nonpayable", inputs: [{ name: "a", type: "uint256" }], outputs: [{ name: "amt", type: "uint128" }] },
+];
+
+const REGISTRY_ABI = [
+  { type: "function", name: "nextAgentId", stateMutability: "view", inputs: [], outputs: [{ type: "uint256" }] },
+];
+
+const VE_ABI = [
+  { type: "function", name: "balanceOf", stateMutability: "view", inputs: [{ name: "u", type: "address" }], outputs: [{ type: "uint256" }] },
+];
+
+// =============================================================================
+// Wallet + RPC setup
+// =============================================================================
+
+const chain = baseSepolia;
+const publicClient = createPublicClient({ chain, transport: http() });
+let walletClient = null;
+let account = null;
+
+const $ = (sel) => document.querySelector(sel);
+const log = (msg, kind = "info") => {
+  const c = $("#console");
+  const span = document.createElement("div");
+  span.className = kind;
+  span.textContent = `[${new Date().toISOString().slice(11, 19)}] ${msg}`;
+  c.appendChild(span);
+  c.scrollTop = c.scrollHeight;
+};
+
+// =============================================================================
+// Display formatters
+// =============================================================================
+
+function fmt(bigint, decimals = 18) {
+  if (!bigint) return "—";
+  return parseFloat(formatEther(bigint)).toLocaleString("en-US", { maximumFractionDigits: 4 });
+}
+
+// =============================================================================
+// Read flow
+// =============================================================================
+
+async function refreshProtocolStats() {
+  try {
+    const [supply, nextId] = await Promise.all([
+      publicClient.readContract({ abi: ERC20_ABI, address: CONTRACT_ADDRESSES.alphaToken, functionName: "totalSupply" }),
+      publicClient.readContract({ abi: REGISTRY_ABI, address: CONTRACT_ADDRESSES.agentRegistry, functionName: "nextAgentId" }),
+    ]);
+    $("#total-supply").textContent = `${fmt(supply)} AGENTIC`;
+    $("#agent-count").textContent = (Number(nextId) - 1).toString();
+    log("Protocol stats refreshed");
+  } catch (e) {
+    log(`Stats fetch failed (likely placeholder addresses): ${e.message?.slice(0, 80)}`, "err");
+  }
+}
+
+async function refreshVault() {
+  const agentId = BigInt(Number($("#agent-id").value) || 1);
+  try {
+    const [vault, sp, amount] = await Promise.all([
+      publicClient.readContract({ abi: VAULT_ABI, address: CONTRACT_ADDRESSES.stakingVault, functionName: "vaults", args: [agentId] }),
+      publicClient.readContract({ abi: VAULT_ABI, address: CONTRACT_ADDRESSES.stakingVault, functionName: "sharePrice", args: [agentId] }),
+      Promise.resolve(parseEther($("#stake-amount").value || "0")),
+    ]);
+    $("#total-tvl").textContent = `${fmt(vault[0])} AGENTIC`;
+    $("#share-price").textContent = fmt(sp);
+
+    if (amount > 0n) {
+      const previewSh = await publicClient.readContract({
+        abi: VAULT_ABI, address: CONTRACT_ADDRESSES.stakingVault,
+        functionName: "previewStake", args: [agentId, amount],
+      });
+      $("#preview-shares").textContent = fmt(previewSh);
+    }
+  } catch (e) {
+    log(`Vault fetch failed: ${e.message?.slice(0, 80)}`, "err");
+  }
+}
+
+async function refreshWallet() {
+  if (!account) return;
+  try {
+    const [bal, weight] = await Promise.all([
+      publicClient.readContract({ abi: ERC20_ABI, address: CONTRACT_ADDRESSES.alphaToken, functionName: "balanceOf", args: [account] }),
+      publicClient.readContract({ abi: VE_ABI, address: CONTRACT_ADDRESSES.votingEscrow, functionName: "balanceOf", args: [account] }),
+    ]);
+    $("#balance").textContent = `${fmt(bal)} AGENTIC`;
+    $("#ve-weight").textContent = fmt(weight);
+
+    const agentId = BigInt(Number($("#agent-id").value) || 1);
+    const position = await publicClient.readContract({
+      abi: VAULT_ABI, address: CONTRACT_ADDRESSES.stakingVault,
+      functionName: "stakers", args: [agentId, account],
+    });
+    $("#my-shares").textContent = fmt(position[0]);
+    $("#my-pending").textContent = fmt(position[2]);
+
+    const sp = await publicClient.readContract({
+      abi: VAULT_ABI, address: CONTRACT_ADDRESSES.stakingVault,
+      functionName: "sharePrice", args: [agentId],
+    });
+    const assets = (position[0] * sp) / 10n ** 18n;
+    $("#my-assets").textContent = `${fmt(assets)} AGENTIC`;
+  } catch (e) {
+    log(`Wallet fetch failed: ${e.message?.slice(0, 80)}`, "err");
+  }
+}
+
+// =============================================================================
+// Write flow
+// =============================================================================
+
+async function connect() {
+  if (!window.ethereum) {
+    log("No wallet detected. Install MetaMask or another EIP-1193 wallet.", "err");
+    return;
+  }
+  walletClient = createWalletClient({ chain, transport: custom(window.ethereum) });
+  const [addr] = await walletClient.requestAddresses();
+  account = addr;
+  $("#address-pill").textContent = addr.slice(0, 6) + "…" + addr.slice(-4);
+  $("#address-pill").classList.add("live");
+  log(`Connected: ${addr}`, "ok");
+  await refreshWallet();
+}
+
+async function approve() {
+  if (!account) return log("connect wallet first", "err");
+  const amount = parseEther($("#stake-amount").value || "0");
+  try {
+    const hash = await walletClient.writeContract({
+      account, abi: ERC20_ABI, address: CONTRACT_ADDRESSES.alphaToken,
+      functionName: "approve", args: [CONTRACT_ADDRESSES.stakingVault, amount],
+    });
+    log(`Approve tx: ${hash}`, "ok");
+  } catch (e) {
+    log(`Approve failed: ${e.shortMessage || e.message}`, "err");
+  }
+}
+
+async function stake() {
+  if (!account) return log("connect wallet first", "err");
+  const agentId = BigInt(Number($("#agent-id").value) || 1);
+  const amount = parseEther($("#stake-amount").value || "0");
+  try {
+    const hash = await walletClient.writeContract({
+      account, abi: VAULT_ABI, address: CONTRACT_ADDRESSES.stakingVault,
+      functionName: "stake", args: [agentId, amount],
+    });
+    log(`Stake tx: ${hash}`, "ok");
+    setTimeout(() => { refreshWallet(); refreshVault(); }, 3000);
+  } catch (e) {
+    log(`Stake failed: ${e.shortMessage || e.message}`, "err");
+  }
+}
+
+async function unstakeInit() {
+  if (!account) return log("connect wallet first", "err");
+  const agentId = BigInt(Number($("#agent-id").value) || 1);
+  const shares = parseEther($("#unstake-shares").value || "0");
+  try {
+    const hash = await walletClient.writeContract({
+      account, abi: VAULT_ABI, address: CONTRACT_ADDRESSES.stakingVault,
+      functionName: "unstakeInit", args: [agentId, shares],
+    });
+    log(`unstakeInit tx: ${hash} — cooldown 7 days`, "ok");
+    setTimeout(refreshWallet, 3000);
+  } catch (e) {
+    log(`unstakeInit failed: ${e.shortMessage || e.message}`, "err");
+  }
+}
+
+async function unstakeComplete() {
+  if (!account) return log("connect wallet first", "err");
+  const agentId = BigInt(Number($("#agent-id").value) || 1);
+  try {
+    const hash = await walletClient.writeContract({
+      account, abi: VAULT_ABI, address: CONTRACT_ADDRESSES.stakingVault,
+      functionName: "unstakeComplete", args: [agentId],
+    });
+    log(`unstakeComplete tx: ${hash}`, "ok");
+    setTimeout(refreshWallet, 3000);
+  } catch (e) {
+    log(`unstakeComplete failed: ${e.shortMessage || e.message}`, "err");
+  }
+}
+
+// =============================================================================
+// Wire up event handlers
+// =============================================================================
+
+$("#network-pill").textContent = chain.name;
+$("#connect-btn").addEventListener("click", connect);
+$("#approve-btn").addEventListener("click", approve);
+$("#stake-btn").addEventListener("click", stake);
+$("#unstake-init-btn").addEventListener("click", unstakeInit);
+$("#unstake-complete-btn").addEventListener("click", unstakeComplete);
+$("#agent-id").addEventListener("change", () => { refreshVault(); refreshWallet(); });
+$("#stake-amount").addEventListener("input", () => refreshVault());
+
+log("Page loaded. Connect a wallet on Base Sepolia to begin.");
+log("⚠️  This example uses placeholder addresses — replace with real deployments before use.");
+refreshProtocolStats();
+refreshVault();
+</script>
+</body>
+</html>

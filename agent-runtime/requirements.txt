@@ -1,0 +1,12 @@
+web3>=6.20.0
+eth-account>=0.13.0
+eth-typing>=4.0.0
+hexbytes>=1.2.0
+requests>=2.31.0
+pandas>=2.2.0
+numpy>=1.26.0
+python-dotenv>=1.0.0
+pydantic>=2.5.0
+rich>=13.7.0
+click>=8.1.0
+tomli>=2.0.1; python_version < "3.11"

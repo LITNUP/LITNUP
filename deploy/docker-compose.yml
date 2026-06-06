@@ -1,0 +1,87 @@
+# AlphAgentic Agent Runtime — isolated docker-compose
+#
+# Designed to run alongside your existing KVM2 services WITHOUT touching them.
+# - Own network namespace (no port conflicts)
+# - Read-only host filesystem (only /app/logs is writable)
+# - No privileged access
+# - No host networking
+# - Resource limits keep blast radius small
+#
+# To start:    docker-compose -f deploy/docker-compose.yml up -d
+# To stop:     docker-compose -f deploy/docker-compose.yml down
+# To remove:   docker-compose -f deploy/docker-compose.yml down --rmi all --volumes
+
+version: "3.8"
+
+services:
+  agent-momentum:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.agent-runtime
+    image: alphagentic-agent:latest
+    container_name: alphagentic-agent-momentum
+    env_file:
+      - ../agent-runtime/.env
+    environment:
+      - AGENT_ID=1
+      - STRATEGY=momentum
+      - ASSET=BTC
+    command: ["python", "-m", "agent_runtime.paper_trade", "--strategy", "momentum", "--asset", "BTC", "--duration", "24h", "--interval", "60s", "--agent-id", "1"]
+    volumes:
+      - ./logs/momentum:/app/logs
+    restart: unless-stopped
+    # Resource caps so this can never crowd out your other services
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 256M
+    # Security
+    read_only: true
+    tmpfs:
+      - /tmp:size=64M
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - agentic-net
+
+  agent-meanrev:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.agent-runtime
+    image: alphagentic-agent:latest
+    container_name: alphagentic-agent-meanrev
+    env_file:
+      - ../agent-runtime/.env
+    environment:
+      - AGENT_ID=2
+      - STRATEGY=meanrev
+      - ASSET=ETH
+    command: ["python", "-m", "agent_runtime.paper_trade", "--strategy", "meanrev", "--asset", "ETH", "--duration", "24h", "--interval", "60s", "--agent-id", "2"]
+    volumes:
+      - ./logs/meanrev:/app/logs
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 256M
+    read_only: true
+    tmpfs:
+      - /tmp:size=64M
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - agentic-net
+
+networks:
+  agentic-net:
+    driver: bridge
+    # Custom subnet so it can't collide with anything you already run
+    ipam:
+      config:
+        - subnet: 172.31.99.0/24

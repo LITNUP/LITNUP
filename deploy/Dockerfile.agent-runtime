@@ -1,0 +1,31 @@
+FROM python:3.11-slim
+
+# Non-root user (don't run agents as root)
+RUN groupadd -r agent && useradd -r -g agent -d /app -s /sbin/nologin agent
+
+WORKDIR /app
+
+# System deps (minimal)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Python deps (cache layer)
+COPY agent-runtime/requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir -r /app/requirements.txt
+
+# Code
+COPY agent-runtime/ /app/
+
+# Logs directory
+RUN mkdir -p /app/logs && chown -R agent:agent /app
+
+USER agent
+
+# Health: container exits if main process dies; Docker restarts (configured in compose)
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+
+# Default: run paper trader. Override with `docker run ... <command>` for backtest etc.
+CMD ["python", "-m", "agent_runtime.paper_trade", "--strategy", "momentum", "--asset", "BTC", "--duration", "24h", "--interval", "60s"]
