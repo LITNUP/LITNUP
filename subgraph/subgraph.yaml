@@ -1,0 +1,173 @@
+specVersion: 1.0.0
+description: AlphAgentic — agents, vaults, attestations, fees, burns
+repository: https://github.com/alphagentic/alphagentic
+schema:
+  file: ./schema.graphql
+
+dataSources:
+  # =====================================================================
+  # AgentRegistry — agent enrollments + bond changes + slashing
+  # =====================================================================
+  - kind: ethereum/contract
+    name: AgentRegistry
+    network: base-sepolia
+    source:
+      address: "0x0000000000000000000000000000000000000000"  # replace post-deploy
+      abi: AgentRegistry
+      startBlock: 0
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/registry.ts
+      entities:
+        - Agent
+        - Operator
+        - BondChange
+      abis:
+        - name: AgentRegistry
+          file: ../contracts/out/AgentRegistry.sol/AgentRegistry.json
+      eventHandlers:
+        - event: AgentEnrolled(indexed uint256,indexed address,uint128,bytes32,uint16)
+          handler: handleAgentEnrolled
+        - event: AgentBondTopUp(indexed uint256,uint128)
+          handler: handleBondTopUp
+        - event: AgentMetadataUpdated(indexed uint256,bytes32)
+          handler: handleMetadataUpdated
+        - event: AgentPaused(indexed uint256)
+          handler: handleAgentPaused
+        - event: AgentResumed(indexed uint256)
+          handler: handleAgentResumed
+        - event: AgentSlashed(indexed uint256,uint128,indexed address)
+          handler: handleAgentSlashed
+        - event: AgentWithdrawInit(indexed uint256,uint64)
+          handler: handleAgentWithdrawInit
+        - event: AgentWithdrawn(indexed uint256,uint128)
+          handler: handleAgentWithdrawn
+
+  # =====================================================================
+  # StakingVault — stakes, unstakes, PnL applications, fees, slashes
+  # =====================================================================
+  - kind: ethereum/contract
+    name: StakingVault
+    network: base-sepolia
+    source:
+      address: "0x0000000000000000000000000000000000000000"
+      abi: StakingVault
+      startBlock: 0
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/vault.ts
+      entities:
+        - Vault
+        - StakerPosition
+        - StakeEvent
+        - UnstakeEvent
+        - PnlEvent
+        - FeeEvent
+        - SlashEvent
+      abis:
+        - name: StakingVault
+          file: ../contracts/out/StakingVault.sol/StakingVault.json
+      eventHandlers:
+        - event: Staked(indexed uint256,indexed address,uint128,uint128)
+          handler: handleStaked
+        - event: UnstakeInit(indexed uint256,indexed address,uint128,uint64)
+          handler: handleUnstakeInit
+        - event: Unstaked(indexed uint256,indexed address,uint128,uint128)
+          handler: handleUnstaked
+        - event: PnlApplied(indexed uint256,int128,uint128)
+          handler: handlePnlApplied
+        - event: FeesTaken(indexed uint256,uint128,uint128)
+          handler: handleFeesTaken
+        - event: StakerSlashed(indexed uint256,uint128)
+          handler: handleStakerSlashed
+
+  # =====================================================================
+  # PerformanceOracle — every applied attestation
+  # =====================================================================
+  - kind: ethereum/contract
+    name: PerformanceOracle
+    network: base-sepolia
+    source:
+      address: "0x0000000000000000000000000000000000000000"
+      abi: PerformanceOracle
+      startBlock: 0
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/oracle.ts
+      entities:
+        - Attestation
+        - OracleSigner
+      abis:
+        - name: PerformanceOracle
+          file: ../contracts/out/PerformanceOracle.sol/PerformanceOracle.json
+      eventHandlers:
+        - event: AttestationApplied(indexed uint256,indexed uint64,int256,uint256)
+          handler: handleAttestationApplied
+        - event: SignerAdded(address)
+          handler: handleSignerAdded
+        - event: SignerRemoved(address)
+          handler: handleSignerRemoved
+        - event: ThresholdUpdated(uint8)
+          handler: handleThresholdUpdated
+
+  # =====================================================================
+  # BuybackBurn — every buy + burn event
+  # =====================================================================
+  - kind: ethereum/contract
+    name: BuybackBurn
+    network: base-sepolia
+    source:
+      address: "0x0000000000000000000000000000000000000000"
+      abi: BuybackBurn
+      startBlock: 0
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/buyback.ts
+      entities:
+        - BurnEvent
+        - ProtocolStats
+      abis:
+        - name: BuybackBurn
+          file: ../contracts/out/BuybackBurn.sol/BuybackBurn.json
+      eventHandlers:
+        - event: SwapAndBurn(indexed address,uint256,uint256,uint256)
+          handler: handleSwapAndBurn
+
+  # =====================================================================
+  # VotingEscrow — locks, extensions, withdraws
+  # =====================================================================
+  - kind: ethereum/contract
+    name: VotingEscrow
+    network: base-sepolia
+    source:
+      address: "0x0000000000000000000000000000000000000000"
+      abi: VotingEscrow
+      startBlock: 0
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/voting.ts
+      entities:
+        - Lock
+        - LockEvent
+      abis:
+        - name: VotingEscrow
+          file: ../contracts/out/VotingEscrow.sol/VotingEscrow.json
+      eventHandlers:
+        - event: Locked(indexed address,uint128,uint64)
+          handler: handleLocked
+        - event: LockExtended(indexed address,uint64)
+          handler: handleLockExtended
+        - event: LockToppedUp(indexed address,uint128,uint128)
+          handler: handleLockToppedUp
+        - event: Withdrawn(indexed address,uint128)
+          handler: handleWithdrawn

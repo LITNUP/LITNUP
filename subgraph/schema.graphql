@@ -1,0 +1,281 @@
+# AlphAgentic Subgraph Schema
+# The Graph node indexes Base Sepolia + Base mainnet contracts and exposes the
+# entities below for fast querying by the dApp / SDK / dashboards.
+
+# ============================================================
+# CORE PROTOCOL ENTITIES
+# ============================================================
+
+type Agent @entity(immutable: false) {
+  id: ID!                      # uint256(agentId).toString()
+  agentId: BigInt!
+  controller: Bytes!
+  operator: Operator!
+  enrolledAt: BigInt!
+  unbondedAt: BigInt
+  bond: BigInt!
+  status: AgentStatus!
+  metadataHash: Bytes!
+  protocolFeeBps: Int!
+
+  # Vault state (derived from StakingVault)
+  totalAssets: BigInt!         # current vault assets
+  totalShares: BigInt!         # current outstanding shares
+  sharePrice: BigDecimal!      # totalAssets / totalShares (scaled to 1e18)
+
+  # Aggregates (derived)
+  totalStakers: Int!           # currently > 0 shares
+  cumulativeStakedDeposits: BigInt!  # all-time deposits in
+  cumulativeStakedWithdrawals: BigInt! # all-time withdrawals out
+  cumulativePnL: BigInt!       # signed sum of all PnL applied
+  cumulativeFees: BigInt!      # all fees taken
+  cumulativeBuybackPortion: BigInt!
+  cumulativeStakerPortion: BigInt!
+  cumulativeSlashed: BigInt!
+
+  # Performance metrics (computed by indexer mapping)
+  pnl30dPct: BigDecimal!
+  sharpe30d: BigDecimal!
+  maxDrawdownPct: BigDecimal!
+
+  # Relations
+  stakerPositions: [StakerPosition!]! @derivedFrom(field: "agent")
+  attestations: [Attestation!]! @derivedFrom(field: "agent")
+  stakeEvents: [StakeEvent!]! @derivedFrom(field: "agent")
+  unstakeEvents: [UnstakeEvent!]! @derivedFrom(field: "agent")
+  pnlEvents: [PnlEvent!]! @derivedFrom(field: "agent")
+  bondChanges: [BondChange!]! @derivedFrom(field: "agent")
+  slashEvents: [SlashEvent!]! @derivedFrom(field: "agent")
+}
+
+enum AgentStatus {
+  Active
+  Paused
+  Slashed
+  Withdrawn
+}
+
+type Operator @entity(immutable: false) {
+  id: ID!                      # address.toHex()
+  address: Bytes!
+  agents: [Agent!]! @derivedFrom(field: "operator")
+  totalAgentsEnrolled: Int!
+  totalBondPosted: BigInt!
+  totalBondSlashed: BigInt!
+  firstSeenAt: BigInt!
+}
+
+type StakerPosition @entity(immutable: false) {
+  id: ID!                      # agentId-stakerAddress
+  agent: Agent!
+  staker: Staker!
+  shares: BigInt!
+  pendingShares: BigInt!
+  unlockAt: BigInt!
+  cumulativeDeposits: BigInt!
+  cumulativeWithdrawals: BigInt!
+  realizedPnL: BigInt!
+}
+
+type Staker @entity(immutable: false) {
+  id: ID!                      # address.toHex()
+  address: Bytes!
+  positions: [StakerPosition!]! @derivedFrom(field: "staker")
+  totalSharesAcrossAgents: BigInt!
+  cumulativeStaked: BigInt!
+  cumulativeUnstaked: BigInt!
+  firstStakeAt: BigInt!
+}
+
+# ============================================================
+# EVENT ENTITIES (immutable historical records)
+# ============================================================
+
+type StakeEvent @entity(immutable: true) {
+  id: ID!                      # txHash-logIdx
+  agent: Agent!
+  staker: Bytes!
+  amount: BigInt!
+  shares: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+}
+
+type UnstakeEvent @entity(immutable: true) {
+  id: ID!
+  agent: Agent!
+  staker: Bytes!
+  shares: BigInt!
+  amount: BigInt!              # 0 on init; final amount on complete
+  phase: UnstakePhase!
+  unlockAt: BigInt              # only set on init
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+}
+
+enum UnstakePhase {
+  Init
+  Complete
+}
+
+type PnlEvent @entity(immutable: true) {
+  id: ID!
+  agent: Agent!
+  delta: BigInt!               # signed
+  newTotalAssets: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+}
+
+type FeeEvent @entity(immutable: true) {
+  id: ID!
+  agent: Agent!
+  toBuyback: BigInt!
+  toStakers: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+}
+
+type SlashEvent @entity(immutable: true) {
+  id: ID!
+  agent: Agent!
+  amount: BigInt!
+  reason: SlashReason!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+}
+
+enum SlashReason {
+  BondSlashByAdmin
+  VaultDrawdown
+}
+
+type BondChange @entity(immutable: true) {
+  id: ID!
+  agent: Agent!
+  delta: BigInt!               # signed
+  kind: BondChangeKind!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+}
+
+enum BondChangeKind {
+  Enroll
+  TopUp
+  WithdrawInit
+  WithdrawComplete
+  Slash
+}
+
+# ============================================================
+# ORACLE
+# ============================================================
+
+type Attestation @entity(immutable: true) {
+  id: ID!                      # agentId-epoch
+  agent: Agent!
+  epoch: BigInt!
+  pnlDelta: BigInt!
+  feeOnGross: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+}
+
+type OracleSigner @entity(immutable: false) {
+  id: ID!                      # address.toHex()
+  address: Bytes!
+  active: Boolean!
+  addedAt: BigInt!
+  removedAt: BigInt
+}
+
+type OracleConfig @entity(immutable: false) {
+  id: ID!                      # always "singleton"
+  threshold: Int!
+  signerCount: Int!
+  lastUpdatedAt: BigInt!
+}
+
+# ============================================================
+# BUYBACK / BURN
+# ============================================================
+
+type BurnEvent @entity(immutable: true) {
+  id: ID!
+  inputToken: Bytes!
+  inputAmount: BigInt!
+  burnedAmount: BigInt!
+  bountyAmount: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+}
+
+# ============================================================
+# GOVERNANCE
+# ============================================================
+
+type Lock @entity(immutable: false) {
+  id: ID!                      # address.toHex()
+  user: Bytes!
+  amount: BigInt!
+  unlockTime: BigInt!
+  createdAt: BigInt!
+  events: [LockEvent!]! @derivedFrom(field: "lock")
+}
+
+type LockEvent @entity(immutable: true) {
+  id: ID!
+  lock: Lock!
+  kind: LockEventKind!
+  amountDelta: BigInt
+  newUnlockTime: BigInt
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+}
+
+enum LockEventKind {
+  Locked
+  Extended
+  ToppedUp
+  Withdrawn
+}
+
+# ============================================================
+# PROTOCOL ROLLUPS
+# ============================================================
+
+type ProtocolStats @entity(immutable: false) {
+  id: ID!                      # always "singleton"
+  totalActiveAgents: Int!
+  totalAgentsEverEnrolled: Int!
+  totalTVL: BigInt!            # sum of all vault.totalAssets
+  totalStakers: Int!
+  cumulativeAttestations: Int!
+  cumulativeFeesUsd: BigDecimal!  # estimated USD value at time of fee taken
+  cumulativeBurnedTokens: BigInt!
+  cumulativeBurnedUsd: BigDecimal!
+  totalLocked: BigInt!         # veAGENTIC totalLocked
+  lastUpdatedAt: BigInt!
+}
+
+type DailyStats @entity(immutable: false) {
+  id: ID!                      # YYYY-MM-DD
+  date: BigInt!                # unix midnight
+  agentsActive: Int!
+  agentsEnrolled: Int!         # newly enrolled today
+  totalTVL: BigInt!            # snapshot at end of day
+  attestations: Int!
+  netPnl: BigInt!              # sum of pnlDelta across all agents today
+  feesCollected: BigInt!
+  tokensBurned: BigInt!
+  newStakers: Int!
+}
