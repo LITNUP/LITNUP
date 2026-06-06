@@ -316,7 +316,7 @@ def backtest(strategy, asset, start, end, initial_equity, prices_csv, report_dir
 # ===========================================================================
 
 @cli.command()
-@click.option("--bond", required=True, type=float, help="Bond amount in $LIT (e.g. 50000)")
+@click.option("--bond", required=True, type=float, help="Bond amount in $LITNUP (e.g. 50000)")
 @click.option("--metadata-uri", required=True,
               help="IPFS URI to operator metadata JSON")
 @click.option("--protocol-fee-bps", default=200, type=int,
@@ -339,7 +339,7 @@ def enroll(ctx, bond, metadata_uri, protocol_fee_bps, dry_run):
         return
 
     CONSOLE.print("[yellow]note[/yellow]: live enroll requires the operator to have approved "
-                  "the AgentRegistry to spend $LIT. Run `alphagentic-cli token approve` first.")
+                  "the AgentRegistry to spend $LITNUP. Run `alphagentic-cli token approve` first.")
     CONSOLE.print("[red]not yet implemented[/red] — the enroll() web3 call will land in v0.2; "
                   "for now use the public Foundry script.")
 

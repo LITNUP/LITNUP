@@ -22,7 +22,7 @@ The foundation treasury target composition, calculated quarterly:
 |---|---:|---|---|
 | **USDC** | 35% | 25-50% | Operational runway, payroll, audits, vendors |
 | **ETH** | 25% | 15-35% | Strategic reserve, gas, on-chain ops |
-| **$LIT** | 30% | 20-40% | Native token; held NOT for sale, but for governance & strategic use |
+| **$LITNUP** | 30% | 20-40% | Native token; held NOT for sale, but for governance & strategic use |
 | **BTC** | 5% | 0-15% | Long-tail reserve |
 | **Stablecoin diversification** (USDT, DAI) | 5% | 0-10% | Counterparty diversification of stables |
 
@@ -103,7 +103,7 @@ Published in the quarterly transparency report. Granular monthly figures availab
 
 ## Tokens held by treasury — usage rules
 
-Treasury holds 25% of total supply (250M $LIT) at TGE, vesting per the foundation schedule. These tokens are NOT for sale. They are for:
+Treasury holds 25% of total supply (250M $LITNUP) at TGE, vesting per the foundation schedule. These tokens are NOT for sale. They are for:
 
 1. **Governance reserves.** Treasury votes its tokens via veAGENTIC according to council direction; never for self-dealing proposals.
 2. **Emission backing.** Source of truth for the EmissionScheduler, which streams to staker/operator rewards over 24mo.
@@ -120,7 +120,7 @@ Treasury tokens are NEVER:
 
 ## OTC sale policy
 
-When the treasury sells $LIT, the policy is:
+When the treasury sells $LITNUP, the policy is:
 
 - **Buyer eligibility:** Long-term-aligned partner (institutional, not retail). Min $250K ticket. Disclosed identity to the foundation board (may be anonymous to public if the buyer requests, but identity is logged).
 - **Pricing:** 30-day VWAP floor + buyer-paid premium for the strategic value of the relationship.
@@ -137,9 +137,9 @@ We will NOT do:
 
 ## Insurance fund
 
-5% of supply (50M $LIT) is reserved for the InsuranceFund contract. Per protocol policy:
+5% of supply (50M $LITNUP) is reserved for the InsuranceFund contract. Per protocol policy:
 
-- **Funding:** Initial seed of 50M $LIT + ongoing top-up from 5% of all protocol fees
+- **Funding:** Initial seed of 50M $LITNUP + ongoing top-up from 5% of all protocol fees
 - **Disbursements:** Only from `DISBURSER_ROLE`, gated through governance
 - **Use cases:**
   - Partial reimbursement of slashed stakers on first-time slashing events (50% on first slash, 0% on subsequent)
@@ -181,7 +181,7 @@ Reports are published on /transparency on the same day they're filed with the fo
 
 Foundation board, employees, and core contributors must:
 
-- Disclose any beneficial ownership above 0.1% of $LIT, $ETH/Base ecosystem tokens that compete with us, or other tokens held in the treasury
+- Disclose any beneficial ownership above 0.1% of $LITNUP, $ETH/Base ecosystem tokens that compete with us, or other tokens held in the treasury
 - Recuse from any vote materially affecting their disclosed holdings
 - Publish any sales of foundation-allocated tokens in advance (7-day notice for >$50K worth)
 - Decline gifts/benefits from third parties seeking treasury allocation above $250 in value

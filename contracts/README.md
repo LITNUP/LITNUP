@@ -8,7 +8,7 @@ Solidity 0.8.24, Foundry-based. Deployed to Base (mainnet) and Base Sepolia (tes
 contracts/
 ├── foundry.toml
 ├── src/
-│   ├── LitToken.sol         ← $LIT token (ERC20Votes + Permit, capped 1B)
+│   ├── LitToken.sol         ← $LITNUP token (ERC20Votes + Permit, capped 1B)
 │   ├── AgentRegistry.sol      ← agent enrollment, bonds, slashing hooks
 │   ├── StakingVault.sol       ← per-agent share-based staking
 │   ├── PerformanceOracle.sol  ← multisig PnL attestation
@@ -97,5 +97,5 @@ forge script script/Deploy.s.sol --rpc-url base_sepolia --broadcast --verify
 - [ ] StakingVault slashing path needs to handle rounding edge cases on small share amounts
 - [ ] Need a `Pausable` mux for emergency on every external entrypoint
 - [ ] Need a comprehensive invariant test suite (separate file)
-- [ ] Add SafeERC20 for any token transfers beyond $LIT
+- [ ] Add SafeERC20 for any token transfers beyond $LITNUP
 - [ ] Consider rate-limiting stake/unstake to mitigate flash-staking around oracle attestation timing

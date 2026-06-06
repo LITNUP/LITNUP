@@ -90,7 +90,7 @@ contract PerformanceOracle is AccessControl, EIP712 {
 
     /// @notice Apply an attestation signed by `threshold` signers.
     /// @param agentId The agent
-    /// @param pnlDelta Signed PnL change in $LIT for this epoch
+    /// @param pnlDelta Signed PnL change in $LITNUP for this epoch
     /// @param feeOnGross Fee portion (taken only on positive PnL)
     /// @param toBuybackBps Fraction of fee to buyback (rest to stakers)
     /// @param epoch Monotonic epoch counter; used for replay protection

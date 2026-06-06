@@ -1,10 +1,10 @@
-# $LIT Tokenomics
+# $LITNUP Tokenomics
 
 > Working draft — locked numbers require legal + economic audit before TGE.
 
 ## 1. Headline numbers
 
-- **Total supply:** 1,000,000,000 $LIT (capped, no inflation)
+- **Total supply:** 1,000,000,000 $LITNUP (capped, no inflation)
 - **Initial circulating at TGE:** ~110M (11%)
 - **Initial DEX liquidity:** 30M (3%)
 - **Public sale (LBP/Echo):** 50M (5%)
@@ -52,11 +52,11 @@ Assumes TGE at month 0. "Circulating" = liquid + airdrop-claimed-but-not-vested-
 
 ### 4.1 Agent enrollment bonds
 
-Every new agent locks ≥10,000 $LIT. Slashed on misbehavior. With 500 agents at year 1, this sinks 5M $LIT permanently (until unbonding) — small in absolute terms but signals quality.
+Every new agent locks ≥10,000 $LITNUP. Slashed on misbehavior. With 500 agents at year 1, this sinks 5M $LITNUP permanently (until unbonding) — small in absolute terms but signals quality.
 
 ### 4.2 Stake on agents
 
-Stakers' $LIT is locked in the StakingVault while staked, plus 7-day cooldown. Target: $50M+ TVL by year 1 = ~25–50M $LIT locked at typical prices.
+Stakers' $LITNUP is locked in the StakingVault while staked, plus 7-day cooldown. Target: $50M+ TVL by year 1 = ~25–50M $LITNUP locked at typical prices.
 
 ### 4.3 veAGENTIC governance lock
 
@@ -64,7 +64,7 @@ Stakers' $LIT is locked in the StakingVault while staked, plus 7-day cooldown. T
 
 ### 4.4 Buyback & burn (deflationary)
 
-50% of all protocol fees → BuybackBurn contract → buys $LIT on DEX → burns. The other 50% pays stakers in-kind ($LIT re-distribution). Estimated buy pressure scales linearly with TVL × agent gross profit.
+50% of all protocol fees → BuybackBurn contract → buys $LITNUP on DEX → burns. The other 50% pays stakers in-kind ($LITNUP re-distribution). Estimated buy pressure scales linearly with TVL × agent gross profit.
 
 **Steady-state estimate (conservative):**
 - TVL: $50M (year 1 target)
@@ -80,7 +80,7 @@ Flywheel: more TVL → more fees → more burn → higher token price → more a
 
 Two fees:
 
-1. **Performance fee.** Charged per attestation epoch on positive PnL. Configurable per agent (default 10%, capped at 50%). Paid in $LIT.
+1. **Performance fee.** Charged per attestation epoch on positive PnL. Configurable per agent (default 10%, capped at 50%). Paid in $LITNUP.
 2. **Withdrawal fee.** 0% for cooldown-respecting withdrawals; 1% emergency-withdrawal fee for users who skip cooldown (planned v1.5 — not in v1).
 
 **No deposit fees.** No protocol-level take on entry. Friction-free staking is critical for early growth.
@@ -107,8 +107,8 @@ S3 (5%, M+12): governance participants, contributors.
 
 ## 7. Governance
 
-- **Voting token:** $LIT delegated, OR veAGENTIC (4y lock) for boosted weight (4× max).
-- **Proposal threshold:** 100k $LIT delegated.
+- **Voting token:** $LITNUP delegated, OR veAGENTIC (4y lock) for boosted weight (4× max).
+- **Proposal threshold:** 100k $LITNUP delegated.
 - **Quorum:** 4% of supply delegated.
 - **Voting period:** 7 days.
 - **Timelock on execution:** 48 hours (governance-controlled timelock can be raised to 14 days for sensitive changes).
@@ -116,7 +116,7 @@ S3 (5%, M+12): governance participants, contributors.
 
 ## 8. Comparison to peers
 
-| Metric | $LIT | $TAO | $VIRTUAL | $AI16Z |
+| Metric | $LITNUP | $TAO | $VIRTUAL | $AI16Z |
 |---|---:|---:|---:|---:|
 | Total supply | 1B (capped) | 21M (capped) | 1B (capped) | 1.1B |
 | Inflation | None | High (block reward) | None | None |
@@ -142,7 +142,7 @@ Even in the conservative scenario the flywheel is positive. Optimistic-case 2%+ 
 
 ## 10. Open questions
 
-- **Should fees be denominated in stablecoins or $LIT?** Currently designed in-kind ($LIT). Consider stable-denom for institutional appeal.
+- **Should fees be denominated in stablecoins or $LITNUP?** Currently designed in-kind ($LITNUP). Consider stable-denom for institutional appeal.
 - **Should ve-locks have transfer NFTs (like Curve)?** Probably yes — secondary market improves capital efficiency.
 - **Foundation buyback fund: how large?** Currently 100M (10% of supply). Could be smaller if confident in fee flywheel.
 - **Stake migration on agent withdrawal:** UX TBD.

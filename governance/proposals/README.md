@@ -38,7 +38,7 @@ Example: `AAIP-014: Reduce Drawdown Threshold from 25% to 22%`
 
 - Proposals with less than 7 days of discussion
 - Proposals that bypass templates
-- Proposals from accounts with <100 veAGENTIC weight (anti-spam threshold; can be paid for by lifetime $LIT stakers >50k tokens)
+- Proposals from accounts with <100 veAGENTIC weight (anti-spam threshold; can be paid for by lifetime $LITNUP stakers >50k tokens)
 - Multi-action proposals that bundle unrelated changes
 
 ## Required veAGENTIC weights for execution

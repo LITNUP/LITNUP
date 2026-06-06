@@ -7,7 +7,7 @@ import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /// @title AgentRegistry
-/// @notice Permissionless registry for autonomous trading agents. Operators post a $LIT bond
+/// @notice Permissionless registry for autonomous trading agents. Operators post a $LITNUP bond
 ///         to enroll. Bonds are slashed by the StakingVault on confirmed misbehavior (oracle fraud,
 ///         exploit attempts, sustained drawdown beyond limit).
 contract AgentRegistry is AccessControl, ReentrancyGuard {
@@ -22,7 +22,7 @@ contract AgentRegistry is AccessControl, ReentrancyGuard {
         address controller;       // address authorized to update agent metadata + post attestations
         uint64 enrolledAt;        // block.timestamp at enrollment
         uint64 unbondedAt;        // 0 unless withdraw initiated
-        uint128 bond;             // $LIT posted at enrollment (incl. top-ups)
+        uint128 bond;             // $LITNUP posted at enrollment (incl. top-ups)
         AgentStatus status;
         bytes32 metadataHash;     // IPFS CID of off-chain manifest (strategy, venues, code hash)
         uint16 protocolFeeBps;    // protocol fee on agent gross profit, in bps (e.g. 1000 = 10%)
@@ -31,7 +31,7 @@ contract AgentRegistry is AccessControl, ReentrancyGuard {
     IERC20 public immutable alphaToken;
 
     /// @notice Minimum bond required to enroll (configurable)
-    uint128 public minBond = 10_000 ether; // 10,000 $LIT default
+    uint128 public minBond = 10_000 ether; // 10,000 $LITNUP default
 
     /// @notice Cooldown before bond can be withdrawn after `withdrawInit`
     uint64 public unbondingPeriod = 14 days;

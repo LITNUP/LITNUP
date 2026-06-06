@@ -26,8 +26,8 @@ interface IBurnable {
 }
 
 /// @title BuybackBurn
-/// @notice Receives fee revenue (in $LIT, USDC, or other accepted tokens), swaps non-native
-///         to $LIT via the router, and burns it. Burns are batched and execute on `swapAndBurn()`
+/// @notice Receives fee revenue (in $LITNUP, USDC, or other accepted tokens), swaps non-native
+///         to $LITNUP via the router, and burns it. Burns are batched and execute on `swapAndBurn()`
 ///         which can be called by anyone (gas-paid by caller, optional bounty).
 contract BuybackBurn is AccessControl, ReentrancyGuard {
     using SafeERC20 for IERC20;
@@ -70,7 +70,7 @@ contract BuybackBurn is AccessControl, ReentrancyGuard {
 
     // -------- main --------
 
-    /// @notice Burn $LIT currently in the contract. No swap needed if already in token.
+    /// @notice Burn $LITNUP currently in the contract. No swap needed if already in token.
     function burnDirect() public nonReentrant {
         uint256 bal = alphaToken.balanceOf(address(this));
         if (bal == 0) revert NoBalance();
@@ -78,7 +78,7 @@ contract BuybackBurn is AccessControl, ReentrancyGuard {
         emit SwapAndBurn(address(alphaToken), bal, bal, 0);
     }
 
-    /// @notice Swap a whitelisted input token into $LIT and burn the proceeds.
+    /// @notice Swap a whitelisted input token into $LITNUP and burn the proceeds.
     /// @param tokenIn Whitelisted ERC20 (e.g. USDC)
     /// @param amountIn How much to swap; 0 = full balance
     /// @param expectedAmountOut Off-chain quoted output (callers protect against MEV)

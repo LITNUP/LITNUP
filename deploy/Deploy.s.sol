@@ -175,7 +175,7 @@ contract Deploy is Script {
         console2.log("Oracle signer count:        %d", cfg.oracleSigners.length);
         console2.log("Oracle threshold:           %d", cfg.oracleThreshold);
         console2.log("Timelock delay:             %d seconds", cfg.timelockDelay);
-        console2.log("Emission total:             %d LIT over %d days", cfg.emissionTotal / 1e18, cfg.emissionDuration / 1 days);
+        console2.log("Emission total:             %d LITNUP over %d days", cfg.emissionTotal / 1e18, cfg.emissionDuration / 1 days);
         console2.log("");
         console2.log("============================================================");
         console2.log("NEXT STEPS");

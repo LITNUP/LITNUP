@@ -92,7 +92,7 @@ class Agent:
         """Produce a signed attestation reflecting PnL since the last attestation.
 
         Note: scales USD-PnL into protocol-token-units 1:1 for paper-trading purposes.
-        Real protocol integration uses a price oracle to convert USD-denominated PnL into $LIT.
+        Real protocol integration uses a price oracle to convert USD-denominated PnL into $LITNUP.
         """
         if not self.signer_private_key:
             return None

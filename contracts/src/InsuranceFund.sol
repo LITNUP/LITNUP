@@ -7,7 +7,7 @@ import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /// @title InsuranceFund
-/// @notice Reserves $LIT + USDC to compensate stakers in unforeseen-loss events
+/// @notice Reserves $LITNUP + USDC to compensate stakers in unforeseen-loss events
 ///         (smart contract exploits, oracle compromise, mass slashing of innocent stakers).
 ///
 ///         Funded by: (1) initial Foundation grant (~1-2% of supply at TGE), (2) a fraction of
@@ -25,7 +25,7 @@ contract InsuranceFund is AccessControl, ReentrancyGuard {
     address public emergencyPause;
 
     /// @notice Per-token disbursement limit per epoch. Hard cap on blast radius.
-    uint256 public maxDisbursementPerEpoch = 1_000_000 ether; // 1M $LIT default
+    uint256 public maxDisbursementPerEpoch = 1_000_000 ether; // 1M $LITNUP default
     uint256 public epochLength = 7 days;
     uint256 public lastEpochStart;
     uint256 public disbursedThisEpoch;
@@ -54,7 +54,7 @@ contract InsuranceFund is AccessControl, ReentrancyGuard {
 
     // -------- deposits (anyone can fund) --------
 
-    /// @notice Deposit $LIT or any other ERC20 (e.g. USDC) to grow the fund.
+    /// @notice Deposit $LITNUP or any other ERC20 (e.g. USDC) to grow the fund.
     function deposit(IERC20 token, uint256 amount) external nonReentrant {
         token.safeTransferFrom(msg.sender, address(this), amount);
         emit Deposited(address(token), msg.sender, amount);

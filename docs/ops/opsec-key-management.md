@@ -29,7 +29,7 @@ We do NOT assume:
 Every cryptographic key in the protocol fits one of these categories:
 
 ### Category A — Foundation Treasury (5-of-9 cold)
-Holds: most of the foundation's $LIT, USDC, ETH, BTC reserves
+Holds: most of the foundation's $LITNUP, USDC, ETH, BTC reserves
 - Hardware: Ledger Nano X or Plus, fresh-from-manufacturer, sealed shipping verified
 - 9 distinct individuals across 9 distinct jurisdictions
 - Each signer keeps:

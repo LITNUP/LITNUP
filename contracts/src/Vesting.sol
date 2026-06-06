@@ -7,7 +7,7 @@ import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /// @title Vesting
-/// @notice Cliff-then-linear vesting of $LIT for team, investors, and advisors.
+/// @notice Cliff-then-linear vesting of $LITNUP for team, investors, and advisors.
 ///         Each schedule is identified by a beneficiary; one schedule per beneficiary.
 ///         Tokens accrue continuously after cliff; beneficiaries claim by calling release().
 ///
@@ -19,7 +19,7 @@ contract Vesting is AccessControl, ReentrancyGuard {
     bytes32 public constant CONFIG_ROLE = keccak256("CONFIG_ROLE");
 
     struct Schedule {
-        uint128 totalAmount;       // total $LIT vested over the full schedule
+        uint128 totalAmount;       // total $LITNUP vested over the full schedule
         uint128 released;          // amount already released
         uint64  startTime;         // unix; vesting math is anchored here
         uint64  cliffSeconds;      // duration of cliff from start

@@ -39,7 +39,7 @@ We propose to change:
 
 | Parameter | Current | Proposed | Δ |
 |---|---:|---:|---:|
-| `perVaultCap` | 1,000,000 LIT | 1,500,000 LIT | +50% |
+| `perVaultCap` | 1,000,000 LITNUP | 1,500,000 LITNUP | +50% |
 
 The change will be effected by calling:
 

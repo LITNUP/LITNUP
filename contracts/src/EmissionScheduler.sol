@@ -7,7 +7,7 @@ import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /// @title EmissionScheduler
-/// @notice Streams ecosystem-incentive $LIT to authorized recipient contracts (e.g.
+/// @notice Streams ecosystem-incentive $LITNUP to authorized recipient contracts (e.g.
 ///         a stake-rewards distributor, a gauge controller, an LP-incentive contract)
 ///         on a fixed linear schedule.
 ///

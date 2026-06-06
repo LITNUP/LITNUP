@@ -7,7 +7,7 @@ import {ERC20Votes} from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Vo
 import {Nonces} from "@openzeppelin/contracts/utils/Nonces.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
-/// @title LitToken — $LIT governance + utility token
+/// @title LitToken — $LITNUP governance + utility token
 /// @notice ERC20 with capped supply, Permit (EIP-2612), and Votes (ERC20Votes) for governance.
 ///         Burning is permissionless (anyone can burn their own tokens). Minting is one-time at deploy.
 contract LitToken is ERC20, ERC20Permit, ERC20Votes, Ownable {
@@ -19,7 +19,7 @@ contract LitToken is ERC20, ERC20Permit, ERC20Votes, Ownable {
     bool private _initialMinted;
 
     constructor(address _treasury)
-        ERC20("LITNUP", "LIT")
+        ERC20("LITNUP", "LITNUP")
         ERC20Permit("LITNUP")
         Ownable(_treasury)
     {

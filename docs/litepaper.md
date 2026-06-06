@@ -8,7 +8,7 @@
 
 ## Abstract
 
-LITNUP is a permissionless protocol that turns the open question — *"which AI agents can actually trade well?"* — into a market with on-chain answers. Anyone can deploy an autonomous agent. Anyone can stake tokens behind the agents they believe in. Performance is verified by a hybrid oracle of on-chain settlement records and multi-signer attestations, denominated in USD-equivalents. Underperforming agents get slashed. Fees flow to stakers and to a buyback-and-burn engine on the protocol token, **$LIT**. The result: a meritocratic, capital-efficient marketplace for the AI-agent economy that, unlike every comparable protocol, makes the central question — *is this agent any good?* — answerable.
+LITNUP is a permissionless protocol that turns the open question — *"which AI agents can actually trade well?"* — into a market with on-chain answers. Anyone can deploy an autonomous agent. Anyone can stake tokens behind the agents they believe in. Performance is verified by a hybrid oracle of on-chain settlement records and multi-signer attestations, denominated in USD-equivalents. Underperforming agents get slashed. Fees flow to stakers and to a buyback-and-burn engine on the protocol token, **$LITNUP**. The result: a meritocratic, capital-efficient marketplace for the AI-agent economy that, unlike every comparable protocol, makes the central question — *is this agent any good?* — answerable.
 
 ---
 
@@ -34,7 +34,7 @@ This is the design of LITNUP.
 
 ```
                      ┌──────────────────────┐
-                     │     $LIT token   │
+                     │     $LITNUP token   │
                      │  ERC20Votes / Permit │
                      └──────────┬───────────┘
                                 │
@@ -56,20 +56,20 @@ This is the design of LITNUP.
 
 ### 3.1 Components
 
-**$LIT token (ERC20Votes + Permit, capped supply 1B).** The unit of account for staking, bonding, and governance. Capped, deflationary via buyback-and-burn, and gas-less approvals via EIP-2612.
+**$LITNUP token (ERC20Votes + Permit, capped supply 1B).** The unit of account for staking, bonding, and governance. Capped, deflationary via buyback-and-burn, and gas-less approvals via EIP-2612.
 
-**Agent Registry.** A permissionless registry where any address can enroll an "agent." Enrollment requires posting a $LIT bond (configurable, e.g. 10,000 $LIT). The bond is at risk if the agent commits a registry-level offense (oracle fraud, exploit attempts).
+**Agent Registry.** A permissionless registry where any address can enroll an "agent." Enrollment requires posting a $LITNUP bond (configurable, e.g. 10,000 $LITNUP). The bond is at risk if the agent commits a registry-level offense (oracle fraud, exploit attempts).
 
-**Staking Vault.** For each registered agent, anyone can stake $LIT. Stakes earn share-based exposure to the agent's trading PnL, denominated in $LIT. The vault uses ERC4626-style share accounting. Withdrawals are subject to a cooldown (default 7 days) to prevent front-running of slashing events.
+**Staking Vault.** For each registered agent, anyone can stake $LITNUP. Stakes earn share-based exposure to the agent's trading PnL, denominated in $LITNUP. The vault uses ERC4626-style share accounting. Withdrawals are subject to a cooldown (default 7 days) to prevent front-running of slashing events.
 
 **Performance Oracle.** A multi-signer oracle (5-of-7 at launch, transitioning to 13-of-21, then ZK-proven) that attests to each agent's PnL on a regular cadence (every 4 hours initially). Attestations are cryptographically signed, recorded on-chain, and feed into the vault's pricing.
 
-**Buyback & Burn.** Protocol fees (10–25% of agent gross profits, configurable per agent at enrollment) flow into a buyback contract that periodically buys $LIT on the open market and burns it. Creates persistent buy pressure proportional to total agent profit.
+**Buyback & Burn.** Protocol fees (10–25% of agent gross profits, configurable per agent at enrollment) flow into a buyback contract that periodically buys $LITNUP on the open market and burns it. Creates persistent buy pressure proportional to total agent profit.
 
 ### 3.2 Agent lifecycle
 
 1. **Deploy.** A developer publishes their agent (any execution venue: Hyperliquid, Aerodrome, Pendle, Drift, etc.) and registers a controller address on `AgentRegistry.enroll()`.
-2. **Bond.** The controller posts a $LIT bond. The agent goes live with a unique `agentId`.
+2. **Bond.** The controller posts a $LITNUP bond. The agent goes live with a unique `agentId`.
 3. **Stake.** Stakers call `StakingVault.stake(agentId, amount)`. They receive shares.
 4. **Trade.** The agent's controller executes trades on its chosen venue(s). Each venue has either: (a) an on-chain settlement record (the case for Hyperliquid spot, perp DEXs, AMMs); or (b) a verifiable off-chain record signed by the venue.
 5. **Attest.** Every 4 hours, the Performance Oracle queries the agent's positions/PnL across whitelisted venues and attests on-chain. The vault marks-to-market.
@@ -92,9 +92,9 @@ This is the design of LITNUP.
 
 **Capital concentration to winners.** Top-performing agents accumulate stake organically. This is the same mechanism that lets the top 10% of Hyperliquid vault traders manage 80%+ of vault TVL.
 
-**Token utility from day one.** $LIT is needed for: bonding, staking, governance (vote-escrow / veAGENTIC), and fee-rebate tiers. Demand sinks scale with TVL.
+**Token utility from day one.** $LITNUP is needed for: bonding, staking, governance (vote-escrow / veAGENTIC), and fee-rebate tiers. Demand sinks scale with TVL.
 
-**Buy pressure proportional to ecosystem profit.** Unlike most "buyback" tokens where buyback depends on fees of an unrelated business, $LIT buyback is directly proportional to *total agent profit*. As the protocol succeeds, the token compounds.
+**Buy pressure proportional to ecosystem profit.** Unlike most "buyback" tokens where buyback depends on fees of an unrelated business, $LITNUP buyback is directly proportional to *total agent profit*. As the protocol succeeds, the token compounds.
 
 ## 5. Differentiation
 
@@ -112,7 +112,7 @@ The closest comp is **Bittensor's subnet 8 (Taoshi) for prediction-market agents
 
 ## 6. Tokenomics
 
-**Total supply:** 1,000,000,000 $LIT (hard cap, no inflation)
+**Total supply:** 1,000,000,000 $LITNUP (hard cap, no inflation)
 
 | Allocation | % | Vesting | Notes |
 |---|---:|---|---|
@@ -128,10 +128,10 @@ The closest comp is **Bittensor's subnet 8 (Taoshi) for prediction-market agents
 
 **Demand sinks:**
 
-1. **Agent-launch bonds:** every new agent locks ≥10,000 $LIT.
-2. **Staking lockups:** stakers' $LIT is locked while staked + 7-day cooldown.
+1. **Agent-launch bonds:** every new agent locks ≥10,000 $LITNUP.
+2. **Staking lockups:** stakers' $LITNUP is locked while staked + 7-day cooldown.
 3. **veAGENTIC governance lock:** up to 4-year lock for governance weight + fee rebates.
-4. **Buyback & burn:** 50% of all protocol fees → buy & burn $LIT.
+4. **Buyback & burn:** 50% of all protocol fees → buy & burn $LITNUP.
 
 **Emission schedule:** all unlocks listed are linear except airdrop (which streams into stake to suppress dump).
 
@@ -200,7 +200,7 @@ Full register: [`plan/risk-register.md`](../plan/risk-register.md).
 
 ## 11. Legal & compliance
 
-The $LIT token is intended to function as a **utility token for protocol use** (bonding, staking, governance) and a **fee-rebate / governance instrument**. It is NOT a security, NOT an investment contract, and NOT marketed to retail investors in the United States. The protocol foundation is intended to incorporate in [Cayman Islands / BVI / Marshall Islands — pending counsel guidance]. Public sale and airdrop will exclude US persons via geofencing and on-chain attestation. EU participants will be served via a MiCA-compliant whitepaper.
+The $LITNUP token is intended to function as a **utility token for protocol use** (bonding, staking, governance) and a **fee-rebate / governance instrument**. It is NOT a security, NOT an investment contract, and NOT marketed to retail investors in the United States. The protocol foundation is intended to incorporate in [Cayman Islands / BVI / Marshall Islands — pending counsel guidance]. Public sale and airdrop will exclude US persons via geofencing and on-chain attestation. EU participants will be served via a MiCA-compliant whitepaper.
 
 Full structure: [`plan/legal-checklist.md`](../plan/legal-checklist.md).
 

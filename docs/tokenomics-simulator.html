@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>$LITNUP Tokenomics Simulator</title>
+<style>
+  :root {
+    --bg: #0b0d12; --bg-2: #11141c; --card: #161a25; --card-2: #1c2030;
+    --border: #262b3d; --text: #e7e9ee; --muted: #9aa3b2;
+    --accent: #7c5cff; --accent-2: #22d3ee;
+    --green: #34d399; --amber: #fbbf24; --red: #f87171;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif;
+    background: radial-gradient(900px 600px at 80% -10%, rgba(124,92,255,0.12), transparent 60%), var(--bg);
+    color: var(--text); line-height: 1.5;
+  }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 32px 28px; }
+  h1 {
+    font-size: 32px; margin: 0 0 6px; letter-spacing: -0.02em;
+    background: linear-gradient(90deg, #fff, #b6a8ff 60%, #6ee7f4);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  p.lead { color: var(--muted); margin: 0 0 24px; max-width: 760px; }
+
+  .grid { display: grid; grid-template-columns: 380px 1fr; gap: 22px; }
+  @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+
+  .panel { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 22px; }
+  .panel h3 { font-size: 16px; margin: 0 0 14px; }
+
+  .input-row { margin-bottom: 14px; }
+  .input-row label {
+    display: flex; justify-content: space-between; align-items: baseline;
+    font-size: 12px; color: var(--muted); margin-bottom: 6px;
+    text-transform: uppercase; letter-spacing: 1px; font-weight: 600;
+  }
+  .input-row label b { color: var(--accent-2); font-size: 14px; font-family: ui-monospace, monospace; }
+  .input-row input[type="range"] {
+    width: 100%; appearance: none; background: var(--bg-2); height: 6px;
+    border-radius: 4px; outline: none; cursor: pointer;
+  }
+  .input-row input[type="range"]::-webkit-slider-thumb {
+    appearance: none; width: 16px; height: 16px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    border-radius: 50%; cursor: pointer; border: 2px solid #0b0d12;
+  }
+  .input-row .hint { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+  .stats-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
+  .kpi { background: var(--bg-2); border: 1px solid var(--border); border-radius: 12px; padding: 14px; }
+  .kpi .l { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 6px; }
+  .kpi .v { font-size: 22px; font-weight: 800; line-height: 1; letter-spacing: -0.01em; }
+
+  .chart-wrap { background: var(--bg-2); border: 1px solid var(--border); border-radius: 12px; padding: 22px; }
+  .chart-wrap h4 { margin: 0 0 6px; font-size: 14px; }
+  .chart-wrap p { margin: 0 0 14px; font-size: 12px; color: var(--muted); }
+  svg { display: block; width: 100%; height: 260px; }
+
+  .legend { display: flex; gap: 18px; flex-wrap: wrap; font-size: 12px; color: var(--muted); margin-top: 12px; }
+  .legend .it { display: flex; align-items: center; gap: 6px; }
+  .legend .sw { width: 10px; height: 10px; border-radius: 3px; }
+
+  .preset-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+  .preset {
+    background: var(--bg-2); color: var(--muted); border: 1px solid var(--border);
+    padding: 6px 12px; border-radius: 999px; font-size: 12px; cursor: pointer;
+  }
+  .preset:hover { border-color: var(--accent); color: var(--text); }
+  .preset.active { background: rgba(124,92,255,0.15); color: var(--accent-2); border-color: rgba(124,92,255,0.4); }
+
+  .note {
+    margin-top: 18px; padding: 12px 16px;
+    background: rgba(251,191,36,0.07); border: 1px solid rgba(251,191,36,0.3);
+    border-left: 3px solid var(--amber);
+    border-radius: 0 10px 10px 0; font-size: 13px; color: #fde6a8;
+  }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 14px; }
+  td, th { padding: 8px 12px; border-bottom: 1px solid var(--border); }
+  th { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; text-align: left; font-weight: 600; }
+  td.num { font-family: ui-monospace, monospace; text-align: right; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>$LITNUP Tokenomics Simulator</h1>
+  <p class="lead">Adjust the dials to see how $LITNUP's buyback flywheel behaves under different assumptions about TVL, agent performance, fee rates, and FDV. All simulations are deterministic; nothing is fitted.</p>
+
+  <div class="preset-row">
+    <span class="preset active" data-preset="conservative">Conservative</span>
+    <span class="preset" data-preset="base">Base case</span>
+    <span class="preset" data-preset="optimistic">Optimistic</span>
+    <span class="preset" data-preset="stretch">Stretch</span>
+  </div>
+
+  <div class="grid">
+
+    <!-- LEFT: INPUTS -->
+    <div class="panel">
+      <h3>Inputs</h3>
+
+      <div class="input-row">
+        <label>TVL (USD) <b id="tvlLabel">$50,000,000</b></label>
+        <input type="range" id="tvl" min="1000000" max="500000000" step="1000000" value="50000000" />
+        <div class="hint">Total value staked across all agents</div>
+      </div>
+
+      <div class="input-row">
+        <label>Avg agent return (annualized) <b id="retLabel">25%</b></label>
+        <input type="range" id="ret" min="0" max="100" step="1" value="25" />
+        <div class="hint">Selection-effect average — bad agents lose stakers, leaving avg above market</div>
+      </div>
+
+      <div class="input-row">
+        <label>Protocol fee on profit <b id="feeLabel">15%</b></label>
+        <input type="range" id="fee" min="0" max="50" step="1" value="15" />
+        <div class="hint">Performance fee per agent (configurable, capped at 50%)</div>
+      </div>
+
+      <div class="input-row">
+        <label>% of fees → buyback <b id="bbLabel">50%</b></label>
+        <input type="range" id="bb" min="0" max="100" step="5" value="50" />
+        <div class="hint">Other portion stays in vaults for stakers</div>
+      </div>
+
+      <div class="input-row">
+        <label>Token FDV (USD) <b id="fdvLabel">$200,000,000</b></label>
+        <input type="range" id="fdv" min="20000000" max="2000000000" step="10000000" value="200000000" />
+        <div class="hint">Used to compute % of supply burned per year</div>
+      </div>
+
+      <div class="input-row">
+        <label>Time horizon (years) <b id="yearsLabel">5</b></label>
+        <input type="range" id="years" min="1" max="10" step="1" value="5" />
+      </div>
+
+      <div class="note">
+        Buyback flywheel works only if avg agent return is positive. Bear markets crush this. Conservative scenario assumes TVL collapses 60% in a downturn.
+      </div>
+    </div>
+
+    <!-- RIGHT: OUTPUT -->
+    <div>
+      <div class="stats-row">
+        <div class="kpi"><div class="l">Annual fees (USD)</div><div class="v" id="kAnnualFees">$0</div></div>
+        <div class="kpi"><div class="l">Annual buyback (USD)</div><div class="v" id="kBuyback">$0</div></div>
+        <div class="kpi"><div class="l">% supply burned / yr</div><div class="v" id="kBurnPct">0%</div></div>
+        <div class="kpi"><div class="l">Stakers' share of fees / yr</div><div class="v" id="kStakerShare">$0</div></div>
+      </div>
+
+      <div class="chart-wrap" style="margin-bottom: 20px;">
+        <h4>Cumulative supply burned</h4>
+        <p>Holding inputs constant, here's how the burn compounds over time. Real-world FDV would change with token price; this assumes flat FDV for clarity.</p>
+        <svg id="burnChart" viewBox="0 0 600 260" preserveAspectRatio="none"></svg>
+        <div class="legend">
+          <div class="it"><span class="sw" style="background:#22d3ee;"></span>$LITNUP burned (cumulative)</div>
+          <div class="it"><span class="sw" style="background:#7c5cff;"></span>% of total supply</div>
+        </div>
+      </div>
+
+      <div class="chart-wrap">
+        <h4>Sensitivity table</h4>
+        <p>Annual buyback (USD) across TVL × avg return combos, holding fee rate + buyback split fixed.</p>
+        <table id="sensTable">
+          <thead><tr><th>TVL ↓ / Return →</th><th class="num">10%</th><th class="num">20%</th><th class="num">30%</th><th class="num">50%</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const TOTAL_SUPPLY = 1_000_000_000;
+
+const presets = {
+  conservative: { tvl: 20_000_000, ret: 15, fee: 10, bb: 50, fdv: 100_000_000 },
+  base:         { tvl: 50_000_000, ret: 25, fee: 15, bb: 50, fdv: 200_000_000 },
+  optimistic:   { tvl: 200_000_000, ret: 30, fee: 15, bb: 50, fdv: 800_000_000 },
+  stretch:      { tvl: 500_000_000, ret: 35, fee: 20, bb: 50, fdv: 2_000_000_000 },
+};
+
+function fmt$(n) {
+  if (n >= 1e9) return `$${(n / 1e9).toFixed(2)}B`;
+  if (n >= 1e6) return `$${(n / 1e6).toFixed(1)}M`;
+  if (n >= 1e3) return `$${(n / 1e3).toFixed(0)}k`;
+  return `$${Math.round(n)}`;
+}
+function fmtN(n) {
+  if (n >= 1e9) return `${(n / 1e9).toFixed(2)}B`;
+  if (n >= 1e6) return `${(n / 1e6).toFixed(1)}M`;
+  if (n >= 1e3) return `${(n / 1e3).toFixed(0)}k`;
+  return `${Math.round(n)}`;
+}
+
+function compute(inputs) {
+  const annualGrossProfit = inputs.tvl * (inputs.ret / 100);
+  const annualFees = annualGrossProfit * (inputs.fee / 100);
+  const annualBuyback = annualFees * (inputs.bb / 100);
+  const stakerShare = annualFees - annualBuyback;
+  const burnPctYr = (annualBuyback / inputs.fdv) * 100;
+  const tokensBurnedYr = burnPctYr / 100 * TOTAL_SUPPLY;
+  return { annualGrossProfit, annualFees, annualBuyback, stakerShare, burnPctYr, tokensBurnedYr };
+}
+
+function render() {
+  const inputs = {
+    tvl:   +document.getElementById('tvl').value,
+    ret:   +document.getElementById('ret').value,
+    fee:   +document.getElementById('fee').value,
+    bb:    +document.getElementById('bb').value,
+    fdv:   +document.getElementById('fdv').value,
+    years: +document.getElementById('years').value,
+  };
+
+  // Update labels
+  document.getElementById('tvlLabel').textContent = fmt$(inputs.tvl);
+  document.getElementById('retLabel').textContent = `${inputs.ret}%`;
+  document.getElementById('feeLabel').textContent = `${inputs.fee}%`;
+  document.getElementById('bbLabel').textContent = `${inputs.bb}%`;
+  document.getElementById('fdvLabel').textContent = fmt$(inputs.fdv);
+  document.getElementById('yearsLabel').textContent = `${inputs.years}`;
+
+  const r = compute(inputs);
+
+  // KPIs
+  document.getElementById('kAnnualFees').textContent = fmt$(r.annualFees);
+  document.getElementById('kBuyback').textContent = fmt$(r.annualBuyback);
+  document.getElementById('kBurnPct').textContent = `${r.burnPctYr.toFixed(2)}%`;
+  document.getElementById('kStakerShare').textContent = fmt$(r.stakerShare);
+
+  // Burn chart
+  const svg = document.getElementById('burnChart');
+  svg.innerHTML = '';
+  const W = 600, H = 260, pad = 30;
+  const yearsArr = [];
+  for (let y = 0; y <= inputs.years; y++) yearsArr.push(y);
+  const cumPct = yearsArr.map(y => Math.min(100, r.burnPctYr * y));
+  const maxPct = Math.max(1, cumPct[cumPct.length - 1] * 1.15);
+
+  // Gridlines
+  for (let i = 0; i <= 4; i++) {
+    const y = pad + (H - 2 * pad) * (i / 4);
+    svg.insertAdjacentHTML('beforeend', `<line x1="${pad}" y1="${y}" x2="${W - pad}" y2="${y}" stroke="#262b3d" stroke-width="0.5"/>`);
+  }
+
+  // Burn cumulative bars
+  const barW = (W - 2 * pad) / inputs.years;
+  for (let i = 1; i <= inputs.years; i++) {
+    const x = pad + (i - 1) * barW;
+    const v = cumPct[i];
+    const h = (v / maxPct) * (H - 2 * pad);
+    const y = H - pad - h;
+    svg.insertAdjacentHTML('beforeend', `<rect x="${x + barW * 0.15}" y="${y}" width="${barW * 0.7}" height="${h}" fill="#22d3ee" opacity="0.85" rx="2"/>`);
+    // Year label
+    svg.insertAdjacentHTML('beforeend', `<text x="${x + barW / 2}" y="${H - 8}" text-anchor="middle" font-size="10" fill="#9aa3b2">Yr ${i}</text>`);
+    // Value label
+    svg.insertAdjacentHTML('beforeend', `<text x="${x + barW / 2}" y="${y - 6}" text-anchor="middle" font-size="10" fill="#7c5cff" font-weight="700">${v.toFixed(1)}%</text>`);
+  }
+
+  // Sensitivity table
+  const tvls = [10_000_000, 50_000_000, 200_000_000, 500_000_000];
+  const rets = [10, 20, 30, 50];
+  const tbody = document.querySelector('#sensTable tbody');
+  tbody.innerHTML = '';
+  tvls.forEach(t => {
+    const cells = [`<td>${fmt$(t)}</td>`];
+    rets.forEach(rr => {
+      const fees = t * (rr / 100) * (inputs.fee / 100);
+      const buyback = fees * (inputs.bb / 100);
+      cells.push(`<td class="num">${fmt$(buyback)}</td>`);
+    });
+    tbody.insertAdjacentHTML('beforeend', `<tr>${cells.join('')}</tr>`);
+  });
+}
+
+// Wire inputs
+['tvl', 'ret', 'fee', 'bb', 'fdv', 'years'].forEach(id => {
+  document.getElementById(id).addEventListener('input', render);
+});
+
+// Wire presets
+document.querySelectorAll('.preset').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.preset').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const p = presets[btn.dataset.preset];
+    document.getElementById('tvl').value = p.tvl;
+    document.getElementById('ret').value = p.ret;
+    document.getElementById('fee').value = p.fee;
+    document.getElementById('bb').value = p.bb;
+    document.getElementById('fdv').value = p.fdv;
+    render();
+  });
+});
+
+render();
+</script>
+</body>
+</html>

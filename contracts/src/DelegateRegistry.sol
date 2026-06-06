@@ -4,7 +4,7 @@ pragma solidity 0.8.24;
 import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 
 /// @title DelegateRegistry
-/// @notice Allows holders of $LIT to delegate certain rights without transferring tokens.
+/// @notice Allows holders of $LITNUP to delegate certain rights without transferring tokens.
 ///         Currently supports two delegation classes:
 ///         (1) `vote` — governance voting weight (used alongside ERC20Votes built-in delegation)
 ///         (2) `claim` — airdrop claim authority for a wallet (e.g., delegate to a hot wallet)

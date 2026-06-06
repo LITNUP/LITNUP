@@ -100,7 +100,7 @@ if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("--agent-id", type=int, required=True)
-    parser.add_argument("--pnl", type=float, required=True, help="PnL delta in $LIT tokens (will be scaled to 1e18)")
+    parser.add_argument("--pnl", type=float, required=True, help="PnL delta in $LITNUP tokens (will be scaled to 1e18)")
     parser.add_argument("--fee", type=float, default=0.0, help="Fee on gross PnL (token units)")
     parser.add_argument("--epoch", type=int, required=True)
     parser.add_argument("--deadline-minutes", type=int, default=60)

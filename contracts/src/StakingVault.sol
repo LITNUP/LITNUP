@@ -10,7 +10,7 @@ import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 import {AgentRegistry} from "./AgentRegistry.sol";
 
 /// @title StakingVault
-/// @notice One vault, many agents. Stakers deposit $LIT against a specific agentId.
+/// @notice One vault, many agents. Stakers deposit $LITNUP against a specific agentId.
 ///         Vault uses share accounting (ERC4626-style) per-agent: shares track each staker's
 ///         pro-rata claim on that agent's vault. PnL credited or debited by the PerformanceOracle
 ///         scales the totalAssets per agent, changing share price.
@@ -27,7 +27,7 @@ contract StakingVault is AccessControl, ReentrancyGuard {
 
     /// @notice Per-agent vault state.
     struct Vault {
-        uint128 totalAssets;     // total $LIT backing this agent's stakers
+        uint128 totalAssets;     // total $LITNUP backing this agent's stakers
         uint128 totalShares;     // outstanding shares for this agent's vault
         uint64 lastAttestation;  // timestamp of last PnL attestation
         uint64 cooldown;         // seconds; default 7 days
@@ -44,7 +44,7 @@ contract StakingVault is AccessControl, ReentrancyGuard {
     mapping(uint256 agentId => mapping(address staker => StakerInfo)) public stakers;
 
     /// @notice Cap on total assets a single vault can hold (initial safety, can be raised by governance)
-    uint128 public perVaultCap = 1_000_000 ether; // 1M $LIT default
+    uint128 public perVaultCap = 1_000_000 ether; // 1M $LITNUP default
 
     // -------- events --------
 
@@ -81,7 +81,7 @@ contract StakingVault is AccessControl, ReentrancyGuard {
 
     // -------- staker entrypoints --------
 
-    /// @notice Stake $LIT against an active agent. Mints shares pro-rata.
+    /// @notice Stake $LITNUP against an active agent. Mints shares pro-rata.
     function stake(uint256 agentId, uint128 amount) external nonReentrant returns (uint128 shares) {
         if (!registry.isActive(agentId)) revert AgentNotActive();
         Vault storage v = vaults[agentId];
@@ -153,7 +153,7 @@ contract StakingVault is AccessControl, ReentrancyGuard {
 
     /// @notice Take protocol fees on positive PnL. Splits between buyback sink and stakers.
     /// @param agentId Agent
-    /// @param feeOnGross Total fee in $LIT to remove from vault
+    /// @param feeOnGross Total fee in $LITNUP to remove from vault
     /// @param toBuybackBps Fraction of fee directed to buyback (rest stays in vault for stakers)
     function takeFees(uint256 agentId, uint128 feeOnGross, uint16 toBuybackBps)
         external

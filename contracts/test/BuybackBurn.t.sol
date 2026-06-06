@@ -29,7 +29,7 @@ contract BuybackBurnTest is Test {
 
         router = new MockRouter(token);
 
-        // Seed router with $LIT liquidity for swap-and-burn tests
+        // Seed router with $LITNUP liquidity for swap-and-burn tests
         vm.prank(admin);
         token.transfer(address(router), 100_000 ether);
 

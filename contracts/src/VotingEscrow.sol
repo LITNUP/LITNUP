@@ -7,7 +7,7 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol
 import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 
 /// @title VotingEscrow (veAGENTIC)
-/// @notice Lock $LIT for up to MAX_LOCK to receive boosted governance weight + fee rebates.
+/// @notice Lock $LITNUP for up to MAX_LOCK to receive boosted governance weight + fee rebates.
 ///         Linear decay model: weight = locked * (timeLeft / MAX_LOCK).
 ///         Inspired by Curve's veCRV. Simplified: no transfer NFTs in v1, integer math, no checkpoints.
 contract VotingEscrow is AccessControl, ReentrancyGuard {
@@ -30,7 +30,7 @@ contract VotingEscrow is AccessControl, ReentrancyGuard {
     /// @notice Per-user lock. One active lock per user; subsequent calls extend or top up.
     mapping(address => LockInfo) public locks;
 
-    /// @notice Total locked $LIT across all users.
+    /// @notice Total locked $LITNUP across all users.
     uint128 public totalLocked;
 
     // -------- events --------

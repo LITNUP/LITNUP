@@ -11,7 +11,7 @@
 
 We propose to spend [AMOUNT] from the foundation treasury to [RECIPIENT] for [PURPOSE].
 
-Total cost: $[X] USD-equivalent (currently [Y] USDC + [Z] LIT at VWAP).
+Total cost: $[X] USD-equivalent (currently [Y] USDC + [Z] LITNUP at VWAP).
 
 ---
 
@@ -49,7 +49,7 @@ Total cost: $[X] USD-equivalent (currently [Y] USDC + [Z] LIT at VWAP).
 |---|---:|---|---|
 | 1 | $[X] | On execution | USDC |
 | 2 | $[X] | Deliverable 1 acceptance | USDC |
-| 3 | $[X] | Deliverable 2 acceptance | USDC + 6mo-vested LIT |
+| 3 | $[X] | Deliverable 2 acceptance | USDC + 6mo-vested LITNUP |
 
 Total: $[total]
 
