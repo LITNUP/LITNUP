@@ -1,0 +1,158 @@
+AlphAgentic — Multi-licensed source
+
+Different parts of this repository ship under different licenses. The path-prefix
+table below is authoritative.
+
+================================================================================
+Path / Component                              License
+--------------------------------------------------------------------------------
+contracts/src/**                              BUSL-1.1 (transitions to Apache-2
+                                              on 2028-05-05; see Change Date)
+contracts/test/**                             MIT
+contracts/script/**                           MIT
+deploy/**                                     MIT
+agent-runtime/**                              Apache-2.0
+sdk-typescript/**                             Apache-2.0
+subgraph/**                                   Apache-2.0
+web/**                                        Apache-2.0
+docs/**                                       CC-BY-4.0 (text), Apache-2.0 (code)
+content/**                                    CC-BY-4.0
+brand/**                                      CC-BY-NC-4.0 (mark + wordmark)
+plan/**                                       proprietary; viewing only
+outreach/**                                   proprietary; viewing only
+legal/**                                      proprietary; viewing only
+================================================================================
+
+Anything not explicitly listed above is, by default, Apache-2.0.
+
+Below are the full texts of the relevant licenses.
+
+================================================================================
+BUSINESS SOURCE LICENSE 1.1 (for contracts/src/**)
+================================================================================
+
+Licensor:                AlphAgentic Foundation Ltd. (Cayman Islands)
+Licensed Work:           AlphAgentic protocol smart contracts
+                         The Licensed Work is © 2026 AlphAgentic Foundation Ltd.
+Additional Use Grant:    You may make production use of the Licensed Work, provided
+                         such use does not include offering the Licensed Work to
+                         third parties on a hosted or embedded basis in order to
+                         compete with AlphAgentic's protocol offering.
+Change Date:             Three years from the file's date of first publication
+                         (no later than 2028-05-05 for files published before that
+                         date)
+Change License:          Apache-2.0
+
+For information about alternative licensing arrangements for the Licensed Work,
+please contact licensing@alphagentic.xyz.
+
+Notice
+
+The Business Source License (this document, or the "License") is not an Open
+Source license. However, the Licensed Work will eventually be made available
+under an Open Source License, as stated in this License.
+
+License text copyright (c) 2017 MariaDB Corporation Ab, All Rights Reserved.
+"Business Source License" is a trademark of MariaDB Corporation Ab.
+
+================================================================================
+APACHE LICENSE, VERSION 2.0 (for everything else listed as Apache-2.0)
+================================================================================
+
+Copyright 2026 AlphAgentic Foundation Ltd.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+================================================================================
+MIT LICENSE (for contracts/test/**, contracts/script/**, deploy/**)
+================================================================================
+
+Copyright (c) 2026 AlphAgentic Foundation Ltd.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+================================================================================
+CREATIVE COMMONS ATTRIBUTION 4.0 INTERNATIONAL (for docs/**, content/**)
+================================================================================
+
+You are free to:
+  Share — copy and redistribute the material in any medium or format
+  Adapt — remix, transform, and build upon the material for any purpose, even
+          commercially.
+
+Under the following terms:
+  Attribution — You must give appropriate credit, provide a link to the license,
+                and indicate if changes were made.
+
+Full license text: https://creativecommons.org/licenses/by/4.0/legalcode
+
+================================================================================
+CREATIVE COMMONS ATTRIBUTION-NONCOMMERCIAL 4.0 (for brand/**)
+================================================================================
+
+The AlphAgentic mark + wordmark may be used for editorial, news, and analytical
+purposes (e.g., a journalist writing about us, a chart referencing the project)
+without prior permission. Any commercial use — including in another product's
+UI, in marketing materials promoting a competing service, in merchandise, or in
+domain names — requires written permission from the Foundation.
+
+Full license text: https://creativecommons.org/licenses/by-nc/4.0/legalcode
+
+================================================================================
+PROPRIETARY (for plan/**, outreach/**, legal/**)
+================================================================================
+
+These directories contain confidential business plans, fundraising outreach
+templates, and legal documents. They are proprietary to the Foundation. Viewing
+is permitted for users with explicit access to this repository; redistribution,
+quotation, or use of the contents in any external context is prohibited
+without prior written permission.
+
+Contact: legal@alphagentic.xyz
+
+================================================================================
+TRADEMARK
+================================================================================
+
+"AlphAgentic" and the AlphAgentic logo are trademarks of AlphAgentic
+Foundation Ltd. Use of these marks in commerce requires written permission.
+Editorial / journalistic use is permitted under fair-use principles.
+
+================================================================================
+QUESTIONS
+================================================================================
+
+For licensing inquiries, dual-licensing requests, or trademark questions:
+  licensing@alphagentic.xyz
+
+For contributions back to the project:
+  See CONTRIBUTING.md
+
+For security disclosures:
+  security@alphagentic.xyz (or via Immunefi when live)
