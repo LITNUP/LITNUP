@@ -2,15 +2,16 @@
 pragma solidity 0.8.24;
 
 import "forge-std/Test.sol";
-import {LitToken} from "../src/LitToken.sol";
+import {LitnupToken} from "../src/LitnupToken.sol";
 import {AgentRegistry} from "../src/AgentRegistry.sol";
 import {StakingVault} from "../src/StakingVault.sol";
+import {MockERC20} from "./mocks/MockERC20.sol";
 
-/// @notice Edge-case + adversarial test cases for StakingVault that go beyond
-///         the happy-path StakingVault.t.sol coverage. These exist so we can
-///         enumerate every "what if" we thought about during design.
+/// @notice Edge-case + adversarial tests for the solvent StakingVault. In v2, attested PnL never
+///         changes redeemable share price; only slashing reduces principal. Yield is real USDC.
 contract StakingVaultEdgeCases is Test {
-    LitToken token;
+    LitnupToken token;
+    MockERC20 usdc;
     AgentRegistry registry;
     StakingVault vault;
     address sink = makeAddr("sink");
@@ -24,39 +25,52 @@ contract StakingVaultEdgeCases is Test {
     uint256 constant AGENT_ID = 1;
 
     function setUp() public {
-        token = new LitToken(admin);
+        token = new LitnupToken(admin);
         vm.prank(admin);
         token.mintInitialSupply();
+        usdc = new MockERC20("USD Coin", "USDC", 6);
 
         registry = new AgentRegistry(token, admin);
-        vault = new StakingVault(token, registry, admin, sink);
+        vault = new StakingVault(token, usdc, registry, admin, sink);
 
-        vm.prank(admin);
-        registry.grantRole(registry.SLASHER_ROLE(), address(vault));
-        vm.prank(admin);
-        vault.grantRole(vault.ORACLE_ROLE(), oracle);
+        bytes32 slasherRole = registry.SLASHER_ROLE();
+        bytes32 oracleRole = vault.ORACLE_ROLE();
+        vm.startPrank(admin);
+        registry.grantRole(slasherRole, address(vault));
+        vault.grantRole(oracleRole, oracle);
+        vm.stopPrank();
 
-        // Fund actors
         vm.startPrank(admin);
         token.transfer(operator, 1_000_000 ether);
         token.transfer(alice, 100_000 ether);
         token.transfer(bob, 100_000 ether);
         vm.stopPrank();
 
-        // Operator approves + enrolls
         vm.startPrank(operator);
         token.approve(address(registry), type(uint256).max);
         registry.enroll(operator, 50_000 ether, bytes32("metadata"), 200);
         vm.stopPrank();
 
-        // Stakers approve
         vm.prank(alice);
         token.approve(address(vault), type(uint256).max);
         vm.prank(bob);
         token.approve(address(vault), type(uint256).max);
+
+        // Operator funds USDC fees.
+        usdc.mint(operator, 1_000_000e6);
+        vm.prank(operator);
+        usdc.approve(address(vault), type(uint256).max);
     }
 
-    // --------- share-price math edge cases ---------
+    function _principal() internal view returns (uint128 p) {
+        (p,,,,,) = vault.vaults(AGENT_ID);
+    }
+
+    function _assertSolvent() internal view {
+        assertGe(token.balanceOf(address(vault)), _principal(), "insolvent");
+    }
+
+    // --------- share-price math: PnL never moves price ---------
 
     function test_firstStaker_getsAmountAsShares() public {
         vm.prank(alice);
@@ -64,52 +78,28 @@ contract StakingVaultEdgeCases is Test {
         assertEq(sh, 1_000 ether);
     }
 
-    function test_secondStaker_afterPositivePnL_getsFewerShares() public {
-        // Alice stakes
+    function test_recordPnl_doesNotChangeSharePriceOrShares() public {
         vm.prank(alice);
         vault.stake(AGENT_ID, 1_000 ether);
 
-        // Apply +500 ether PnL — share price now 1.5x
         vm.prank(oracle);
-        vault.applyPnl(AGENT_ID, int128(500 ether));
+        vault.recordPnl(AGENT_ID, int256(500 ether));
+        assertEq(vault.sharePrice(AGENT_ID), 1 ether);
 
-        // Bob stakes 1500 ether — should receive 1000 shares (1500 / 1.5)
+        // Bob staking 1000 still gets 1000 shares (no phantom appreciation).
         vm.prank(bob);
-        uint128 bobShares = vault.stake(AGENT_ID, 1_500 ether);
-        assertApproxEqAbs(bobShares, 1_000 ether, 1);
+        uint128 bobShares = vault.stake(AGENT_ID, 1_000 ether);
+        assertEq(bobShares, 1_000 ether);
+        _assertSolvent();
     }
 
-    function test_secondStaker_afterNegativePnL_getsMoreShares() public {
+    function test_negativePnl_alsoDoesNotChangePrice() public {
         vm.prank(alice);
         vault.stake(AGENT_ID, 1_000 ether);
-
-        // Apply -300 ether PnL — share price now 0.7x
         vm.prank(oracle);
-        vault.applyPnl(AGENT_ID, -int128(300 ether));
-
-        // Bob stakes 700 ether — should receive 1000 shares
-        vm.prank(bob);
-        uint128 bobShares = vault.stake(AGENT_ID, 700 ether);
-        assertApproxEqAbs(bobShares, 1_000 ether, 2);
-    }
-
-    function test_share_price_after_complete_loss_floors_to_one() public {
-        vm.prank(alice);
-        vault.stake(AGENT_ID, 1_000 ether);
-
-        // Try to apply -1500 ether (more than vault) — capped at 50% so reverts
-        vm.prank(oracle);
-        vm.expectRevert();
-        vault.applyPnl(AGENT_ID, -int128(1_500 ether));
-
-        // Apply two -50% losses to drain — first one
-        vm.prank(oracle);
-        vault.applyPnl(AGENT_ID, -int128(500 ether));
-        vm.prank(oracle);
-        vault.applyPnl(AGENT_ID, -int128(250 ether));
-
-        uint256 sp = vault.sharePrice(AGENT_ID);
-        assertGt(sp, 0);
+        vault.recordPnl(AGENT_ID, -int256(300 ether));
+        assertEq(vault.sharePrice(AGENT_ID), 1 ether);
+        _assertSolvent();
     }
 
     // --------- cooldown edge cases ---------
@@ -131,21 +121,19 @@ contract StakingVaultEdgeCases is Test {
         uint128 amt = vault.unstakeComplete(AGENT_ID);
         vm.stopPrank();
         assertApproxEqAbs(amt, 500 ether, 1);
+        _assertSolvent();
     }
 
     function test_doubleUnstakeInit_resetsUnlockTimer() public {
         vm.startPrank(alice);
         vault.stake(AGENT_ID, 1_000 ether);
         vault.unstakeInit(AGENT_ID, 300 ether);
-        uint64 firstUnlockAt;
-        (, firstUnlockAt,) = vault.stakers(AGENT_ID, alice);
+        (,, uint64 firstUnlockAt,,) = vault.stakers(AGENT_ID, alice);
 
         vm.warp(block.timestamp + 3 days);
         vault.unstakeInit(AGENT_ID, 300 ether);
-        uint64 secondUnlockAt;
-        (, secondUnlockAt,) = vault.stakers(AGENT_ID, alice);
+        (,, uint64 secondUnlockAt,,) = vault.stakers(AGENT_ID, alice);
 
-        // unlock pushed back
         assertGt(secondUnlockAt, firstUnlockAt);
         vm.stopPrank();
     }
@@ -174,69 +162,46 @@ contract StakingVaultEdgeCases is Test {
 
     // --------- oracle role enforcement ---------
 
-    function test_nonOracleCallsApplyPnl_reverts() public {
-        vm.prank(alice);
-        vault.stake(AGENT_ID, 1_000 ether);
+    function test_nonOracleCallsRecordPnl_reverts() public {
         vm.prank(operator);
         vm.expectRevert();
-        vault.applyPnl(AGENT_ID, int128(100 ether));
+        vault.recordPnl(AGENT_ID, int256(100 ether));
     }
 
     function test_nonOracleCallsTakeFees_reverts() public {
-        vm.prank(alice);
-        vault.stake(AGENT_ID, 1_000 ether);
         vm.prank(operator);
         vm.expectRevert();
-        vault.takeFees(AGENT_ID, 100 ether, 5_000);
+        vault.takeFees(AGENT_ID, 100e6, 5_000, operator);
     }
 
     function test_nonOracleCallsSlash_reverts() public {
-        vm.prank(alice);
-        vault.stake(AGENT_ID, 1_000 ether);
         vm.prank(operator);
         vm.expectRevert();
         vault.slashVault(AGENT_ID, 100 ether);
     }
 
-    // --------- pnl cap ---------
+    // --------- USDC fees ---------
 
-    function test_pnl_above_50pct_reverts() public {
+    function test_takeFees_splitsRealUsdc() public {
         vm.prank(alice);
         vault.stake(AGENT_ID, 1_000 ether);
 
+        uint256 sinkBefore = usdc.balanceOf(sink);
         vm.prank(oracle);
-        vm.expectRevert(StakingVault.InvalidPnlSize.selector);
-        vault.applyPnl(AGENT_ID, int128(501 ether));
+        vault.takeFees(AGENT_ID, 100e6, 5_000, operator); // 50% to buyback
+        assertEq(usdc.balanceOf(sink) - sinkBefore, 50e6);
+        assertEq(vault.pendingRewards(AGENT_ID, alice), 50e6);
+
+        // Principal untouched.
+        assertEq(_principal(), 1_000 ether);
+        _assertSolvent();
     }
 
-    // --------- fees ---------
-
-    function test_takeFees_splits_correctly() public {
-        vm.prank(alice);
-        vault.stake(AGENT_ID, 1_000 ether);
+    function test_takeFees_noStakers_allToBuyback() public {
+        uint256 sinkBefore = usdc.balanceOf(sink);
         vm.prank(oracle);
-        vault.applyPnl(AGENT_ID, int128(200 ether));
-
-        uint256 sinkBefore = token.balanceOf(sink);
-        vm.prank(oracle);
-        vault.takeFees(AGENT_ID, 100 ether, 5_000); // 50% to buyback
-        uint256 sinkAfter = token.balanceOf(sink);
-
-        assertEq(sinkAfter - sinkBefore, 50 ether);
-    }
-
-    function test_takeFees_overflow_caps_to_balance() public {
-        vm.prank(alice);
-        vault.stake(AGENT_ID, 1_000 ether);
-
-        vm.prank(oracle);
-        // Try to take more than vault has (should silently cap)
-        vault.takeFees(AGENT_ID, 5_000 ether, 5_000);
-
-        // Vault should have approximately 50% of original (the toStakers half)
-        (uint128 totalAssets,,,) = vault.vaults(AGENT_ID);
-        // After cap, fee = 1000, half to buyback (500), half stays as toStakers (500)
-        assertEq(totalAssets, 500 ether);
+        vault.takeFees(AGENT_ID, 100e6, 0, operator);
+        assertEq(usdc.balanceOf(sink) - sinkBefore, 100e6);
     }
 
     // --------- slashing ---------
@@ -247,10 +212,9 @@ contract StakingVaultEdgeCases is Test {
         uint256 sinkBefore = token.balanceOf(sink);
         vm.prank(oracle);
         vault.slashVault(AGENT_ID, 100 ether);
-        uint256 sinkAfter = token.balanceOf(sink);
-        assertEq(sinkAfter - sinkBefore, 100 ether);
-        (uint128 ta,,,) = vault.vaults(AGENT_ID);
-        assertEq(ta, 900 ether);
+        assertEq(token.balanceOf(sink) - sinkBefore, 100 ether);
+        assertEq(_principal(), 900 ether);
+        _assertSolvent();
     }
 
     function test_slashVault_above_balance_caps() public {
@@ -259,7 +223,22 @@ contract StakingVaultEdgeCases is Test {
         uint256 sinkBefore = token.balanceOf(sink);
         vm.prank(oracle);
         vault.slashVault(AGENT_ID, 5_000 ether);
-        uint256 sinkAfter = token.balanceOf(sink);
-        assertEq(sinkAfter - sinkBefore, 1_000 ether); // capped to vault total
+        assertEq(token.balanceOf(sink) - sinkBefore, 1_000 ether); // capped to principal
+        assertEq(_principal(), 0);
+        _assertSolvent();
+    }
+
+    function test_slash_thenNewStaker_getsMoreSharesForSameTokens() public {
+        vm.prank(alice);
+        vault.stake(AGENT_ID, 1_000 ether); // price 1.0
+
+        vm.prank(oracle);
+        vault.slashVault(AGENT_ID, 500 ether); // price now 0.5
+
+        // Bob stakes 500 tokens; at price 0.5 he should receive ~1000 shares.
+        vm.prank(bob);
+        uint128 bobShares = vault.stake(AGENT_ID, 500 ether);
+        assertApproxEqAbs(bobShares, 1_000 ether, 2);
+        _assertSolvent();
     }
 }

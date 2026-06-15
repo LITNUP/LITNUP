@@ -2,11 +2,11 @@
 pragma solidity 0.8.24;
 
 import "forge-std/Test.sol";
-import {LitToken} from "../src/LitToken.sol";
+import {LitnupToken} from "../src/LitnupToken.sol";
 import {RewardsDistributor} from "../src/RewardsDistributor.sol";
 
 contract RewardsDistributorTest is Test {
-    LitToken token;
+    LitnupToken token;
     RewardsDistributor dist;
 
     address admin = makeAddr("admin");
@@ -16,7 +16,7 @@ contract RewardsDistributorTest is Test {
     bytes32 constant CHANNEL_VE = keccak256("ve-week-1");
 
     function setUp() public {
-        token = new LitToken(admin);
+        token = new LitnupToken(admin);
         vm.prank(admin);
         token.mintInitialSupply();
 
@@ -28,17 +28,17 @@ contract RewardsDistributorTest is Test {
         vm.stopPrank();
     }
 
-    /// Helper: leaf encoding must match contract: keccak256(bytes.concat(keccak256(abi.encode(user, amount))))
-    function _leaf(address user, uint256 amount) internal pure returns (bytes32) {
-        return keccak256(bytes.concat(keccak256(abi.encode(user, amount))));
+    /// Helper: leaf encoding must match contract: keccak256(bytes.concat(keccak256(abi.encode(channelId, user, amount))))
+    function _leaf(bytes32 channelId, address user, uint256 amount) internal pure returns (bytes32) {
+        return keccak256(bytes.concat(keccak256(abi.encode(channelId, user, amount))));
     }
 
-    /// Build a 2-leaf merkle tree (alice, bob)
+    /// Build a 2-leaf merkle tree (alice, bob) bound to CHANNEL_VE
     function _build2(address u1, uint256 a1, address u2, uint256 a2)
         internal pure returns (bytes32 root, bytes32[] memory proofA, bytes32[] memory proofB)
     {
-        bytes32 leafA = _leaf(u1, a1);
-        bytes32 leafB = _leaf(u2, a2);
+        bytes32 leafA = _leaf(CHANNEL_VE, u1, a1);
+        bytes32 leafB = _leaf(CHANNEL_VE, u2, a2);
         // sorted-pair hash convention used by OZ MerkleProof
         if (leafA < leafB) {
             root = keccak256(abi.encodePacked(leafA, leafB));
@@ -149,5 +149,48 @@ contract RewardsDistributorTest is Test {
         assertEq(dist.unclaimedFunds(CHANNEL_VE), 1_000 ether);
         dist.claim(CHANNEL_VE, alice, 100 ether, proofA);
         assertEq(dist.unclaimedFunds(CHANNEL_VE), 900 ether);
+    }
+
+    function test_recoverChannelFunds_afterDeactivation() public {
+        (bytes32 root, bytes32[] memory proofA,) = _build2(alice, 100 ether, bob, 50 ether);
+        vm.startPrank(admin);
+        dist.fundChannel(CHANNEL_VE, 1_000 ether);
+        dist.publishRoot(CHANNEL_VE, root, 150 ether);
+        vm.stopPrank();
+
+        dist.claim(CHANNEL_VE, alice, 100 ether, proofA); // 100 claimed, 900 remains
+
+        // Cannot recover while active.
+        vm.prank(admin);
+        vm.expectRevert(RewardsDistributor.ChannelStillActive.selector);
+        dist.recoverChannelFunds(CHANNEL_VE, admin);
+
+        vm.startPrank(admin);
+        dist.deactivateChannel(CHANNEL_VE);
+        uint256 before = token.balanceOf(admin);
+        dist.recoverChannelFunds(CHANNEL_VE, admin);
+        vm.stopPrank();
+        assertEq(token.balanceOf(admin) - before, 900 ether);
+    }
+
+    function test_channelBoundLeaf_notReplayableAcrossChannels() public {
+        bytes32 otherChannel = keccak256("ve-week-2");
+        vm.prank(admin);
+        dist.registerChannel(otherChannel, "another");
+
+        // Build a tree valid for CHANNEL_VE, publish the SAME root on both channels.
+        (bytes32 root, bytes32[] memory proofA,) = _build2(alice, 100 ether, bob, 50 ether);
+        vm.startPrank(admin);
+        dist.fundChannel(CHANNEL_VE, 1_000 ether);
+        dist.fundChannel(otherChannel, 1_000 ether);
+        dist.publishRoot(CHANNEL_VE, root, 150 ether);
+        dist.publishRoot(otherChannel, root, 150 ether);
+        vm.stopPrank();
+
+        // Proof works on the bound channel...
+        assertEq(dist.claim(CHANNEL_VE, alice, 100 ether, proofA), 100 ether);
+        // ...but NOT on the other channel (leaf binds channelId).
+        vm.expectRevert(RewardsDistributor.InvalidProof.selector);
+        dist.claim(otherChannel, alice, 100 ether, proofA);
     }
 }

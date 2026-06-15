@@ -2,11 +2,11 @@
 pragma solidity 0.8.24;
 
 import "forge-std/Test.sol";
-import {LitToken} from "../src/LitToken.sol";
+import {LitnupToken} from "../src/LitnupToken.sol";
 import {EmissionScheduler} from "../src/EmissionScheduler.sol";
 
 contract EmissionSchedulerTest is Test {
-    LitToken token;
+    LitnupToken token;
     EmissionScheduler sched;
 
     address admin = makeAddr("admin");
@@ -18,7 +18,7 @@ contract EmissionSchedulerTest is Test {
     uint64  constant DURATION = 730 days;       // M0–M24
 
     function setUp() public {
-        token = new LitToken(admin);
+        token = new LitnupToken(admin);
         vm.prank(admin);
         token.mintInitialSupply();
 

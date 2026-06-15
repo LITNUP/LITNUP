@@ -2,16 +2,16 @@
 pragma solidity 0.8.24;
 
 import "forge-std/Test.sol";
-import {LitToken} from "../src/LitToken.sol";
+import {LitnupToken} from "../src/LitnupToken.sol";
 
-/// @notice Initial test stub. Expand before audit.
-contract LitTokenTest is Test {
-    LitToken token;
+/// @notice LitnupToken unit tests.
+contract LitnupTokenTest is Test {
+    LitnupToken token;
     address treasury = makeAddr("treasury");
     address alice = makeAddr("alice");
 
     function setUp() public {
-        token = new LitToken(treasury);
+        token = new LitnupToken(treasury);
         vm.prank(treasury);
         token.mintInitialSupply();
     }
@@ -23,7 +23,7 @@ contract LitTokenTest is Test {
 
     function test_cannotMintTwice() public {
         vm.prank(treasury);
-        vm.expectRevert(LitToken.InitialMintAlreadyDone.selector);
+        vm.expectRevert(LitnupToken.InitialMintAlreadyDone.selector);
         token.mintInitialSupply();
     }
 

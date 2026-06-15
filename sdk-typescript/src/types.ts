@@ -50,8 +50,10 @@ export interface StakerPosition {
 
 export interface Attestation {
   agentId: bigint;
-  pnlDelta: bigint;        // signed; positive = profit
-  feeOnGross: bigint;      // unsigned
+  pnlDelta: bigint;        // signed; positive = profit (reputation/fee basis, not vault assets)
+  feeAmount: bigint;       // performance fee in the reward token (e.g. USDC), pulled from feePayer
+  toBuybackBps: number;    // 0..10_000 — fraction of the fee routed to buyback (rest to stakers)
+  feePayer: Address;       // operator that approved the vault to pull the fee
   epoch: bigint;
   deadline: bigint;        // unix seconds
 }

@@ -97,9 +97,14 @@ contract Vesting is AccessControl, ReentrancyGuard {
         if (s.revoked) revert AlreadyRevoked();
 
         uint128 vested = uint128(_vestedAmount(s));
-        // Beneficiary keeps `vested - released`; everything else returns to admin
+        // Beneficiary keeps everything vested so far; only the UNVESTED remainder returns to admin.
         reclaimed = s.totalAmount - vested;
         s.totalAmount = vested;
+        // Freeze the schedule as fully-vested at `vested`, so release() pays exactly the
+        // already-vested amount (no curve-shrink under-payment) and can never underflow.
+        s.cliffSeconds = 0;
+        uint64 elapsed = block.timestamp > s.startTime ? uint64(block.timestamp - s.startTime) : 0;
+        s.durationSeconds = elapsed == 0 ? 1 : elapsed;
         s.revoked = true;
         totalReserved -= reclaimed;
 

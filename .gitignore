@@ -1,0 +1,123 @@
+# ===== CRITICAL — Secrets — NEVER commit =====
+# PHP backend config (DB creds, Anthropic API key, admin password hash)
+web/config/config.php
+config/config.php
+**/config.local.php
+# Generic env files
+.env
+.env.*
+.env.local
+.env.production
+# but DO keep template files — they're committable
+!.env.example
+!**/.env.example
+# Keys, mnemonics
+*.key
+*.pem
+*.p12
+*.pfx
+!**/*.pub.key
+secrets/
+private/
+*.mnemonic
+.openzeppelin/
+# Anthropic / API keys / tokens
+**/.anthropic_key
+**/api_key.txt
+**/api_key
+*.credentials.json
+# Wallet files
+keystore/
+*.keystore
+wallet.json
+
+# Foundry
+contracts/cache/
+contracts/out/
+contracts/broadcast/
+contracts/lib/
+contracts/.gas-snapshot
+
+# Node
+node_modules/
+.pnpm-store/
+dist/
+.next/
+.turbo/
+.vercel/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+
+# Local IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+logs/
+
+# Build artifacts
+build/
+*.tsbuildinfo
+
+# Testing
+coverage/
+.nyc_output/
+
+# Misc
+*.pdf.tmp
+.scratch/
+
+# ============================================================
+# THIS IS THE PUBLIC PROTOCOL REPO (github.com/LITNUP/litnup)
+# Everything below is EXCLUDED from the public protocol repo.
+# ============================================================
+
+# Website lives in its own private repo (github.com/LITNUP/litnup.io)
+web/
+
+# Internal — never push to public
+legal/
+outreach/
+deck/
+ops/
+plan/
+brand/
+content/
+LITNUP_BUILD_PLAN.md
+PROJECT_LOG.md
+
+# Anything starting with "PRIVATE" or "INTERNAL"
+PRIVATE_*
+INTERNAL_*
+
+# ===== Claude Code working artifacts =====
+.claude/
+.claude-code/
+*.claude.tmp
+ai-debug.log
+
+# ===== Hostinger / production artifacts =====
+public_html/
+backup/
+*.sql.gz
+*.tar.gz
+*.zip
+
+# ===== Allowed overrides =====
+!web/config/config.example.php
+
+# local-chain deploy manifest (anvil)
+contracts/deployments/31337.json

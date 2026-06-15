@@ -46,6 +46,11 @@ contract PauseGuardian is AccessControl, ReentrancyGuard {
     /// @notice Per-action approval count.
     mapping(bytes32 actionHash => uint8 count) public approvalCount;
 
+    /// @notice Per-action list of approvers, so an approval bundle can be FULLY cleared on reset
+    /// (without this, hasApproved entries persisted and permanently locked guardians out of
+    /// re-approving the same action — bricking any repeat pause/unpause).
+    mapping(bytes32 actionHash => address[]) private _approvers;
+
     /// @notice Auto-clear timestamp: if action isn't executed within 24h, approvals reset.
     uint64 public approvalWindow = 24 hours;
 
@@ -148,6 +153,7 @@ contract PauseGuardian is AccessControl, ReentrancyGuard {
 
         if (hasApproved[actionHash][msg.sender]) revert AlreadyApproved();
         hasApproved[actionHash][msg.sender] = true;
+        _approvers[actionHash].push(msg.sender);
 
         if (firstApprovalAt[actionHash] == 0) {
             firstApprovalAt[actionHash] = uint64(block.timestamp);
@@ -160,7 +166,11 @@ contract PauseGuardian is AccessControl, ReentrancyGuard {
         if (c >= threshold) {
             // Cooldown check
             uint64 cd = actionCooldown[actionId];
-            if (cd > 0 && lastExecAt[actionId] + cd > block.timestamp) revert CooldownActive();
+            // Only enforce the cooldown after a prior execution (lastExecAt != 0); otherwise the
+            // very first execution would falsely trip when block.timestamp < cd.
+            if (cd > 0 && lastExecAt[actionId] != 0 && lastExecAt[actionId] + cd > block.timestamp) {
+                revert CooldownActive();
+            }
 
             (bool ok, bytes memory r) = target.call(data);
             if (!ok) revert CallFailed();
@@ -181,13 +191,16 @@ contract PauseGuardian is AccessControl, ReentrancyGuard {
     }
 
     function _resetApprovals(bytes32 actionHash) internal {
+        // Clear each approver's flag so the same guardians can approve the action again next time.
+        address[] storage appr = _approvers[actionHash];
+        uint256 n = appr.length;
+        for (uint256 i = 0; i < n; i++) {
+            hasApproved[actionHash][appr[i]] = false;
+        }
+        delete _approvers[actionHash];
         approvalCount[actionHash] = 0;
         firstApprovalAt[actionHash] = 0;
         emit ApprovalsReset(actionHash);
-        // Note: we don't iterate over `hasApproved` mapping (gas + storage). Since the
-        // approval count is reset, fresh approvals from the same guardians will recount.
-        // To properly clear hasApproved entries we'd need to track approvers per-hash;
-        // we accept this small UX wart in exchange for simpler storage.
     }
 
     function _actionId(address target, bytes4 selector) internal pure returns (bytes32) {

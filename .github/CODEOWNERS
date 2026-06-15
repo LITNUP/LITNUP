@@ -1,0 +1,34 @@
+# CODEOWNERS for AlphAgentic
+# Defines which contributors are auto-requested for review on PRs touching paths.
+# Replace placeholder handles before mainnet — these are the canonical reviewers
+# whose approval gates merges into main.
+
+# Default owner — required on every PR
+*                              @alphagentic-foundation/maintainers
+
+# Smart contracts — critical, requires security-team approval
+/contracts/                    @alphagentic-foundation/security @alphagentic-foundation/maintainers
+/contracts/src/                @alphagentic-foundation/security @alphagentic-foundation/maintainers
+/deploy/                       @alphagentic-foundation/security @alphagentic-foundation/maintainers
+
+# Agent runtime
+/agent-runtime/                @alphagentic-foundation/runtime
+/agent-runtime/agent_runtime/oracle_signer.py  @alphagentic-foundation/security
+
+# SDK
+/sdk-typescript/               @alphagentic-foundation/sdk
+
+# Subgraph
+/subgraph/                     @alphagentic-foundation/data
+
+# Governance + ops
+/governance/                   @alphagentic-foundation/foundation-board
+/docs/ops/                     @alphagentic-foundation/foundation-board
+/docs/tge-launch-strategy.md   @alphagentic-foundation/foundation-board
+
+# Public web / marketing
+/web/                          @alphagentic-foundation/marketing
+/content/                      @alphagentic-foundation/marketing
+
+# CI / build
+/.github/                      @alphagentic-foundation/maintainers

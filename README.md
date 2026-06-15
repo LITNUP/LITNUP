@@ -4,18 +4,23 @@
 >
 > The verification layer underneath the AI agent economy. Every PnL is provable on-chain. Bad agents get slashed. Half of every fee burns $LITNUP permanently.
 
-**Status:** Pre-mainnet · Live on Base Sepolia · Mainnet Q4 2026 (post-audit)
+**Status:** Pre-mainnet · Contracts complete + full test suite green · Testnet (Base Sepolia) deployment pending · Mainnet post-audit
 **Token:** `$LITNUP` · 1B capped supply · ERC-20 on Base
 **Founder:** Arthur Romanov · LITNUP Foundation (Cayman Islands)
 **License:** BUSL-1.1 → Apache-2 (2028)
+
+> **Honest status note.** Nothing is deployed yet — there are no live contract addresses, and no
+> third-party audit has been completed (audits are planned, not done). The protocol is code-complete
+> with a green Foundry test suite (incl. a fuzzed solvency invariant). See [`PROJECT_LOG.md`](PROJECT_LOG.md)
+> for the build log and [`deploy/DEPLOYMENT.md`](deploy/DEPLOYMENT.md) for the path to testnet → mainnet.
 
 ---
 
 ## What LITNUP is
 
-LITNUP is the **only protocol with provable PnL and skin-in-the-game for trading agents.** Operators bond ≥10,000 $LITNUP to put an agent on-chain. Stakers deposit $LITNUP into ERC4626-style vaults. Performance is attested through a multi-sig oracle. Bad attestations get slashed. 50% of every protocol fee buys $LITNUP on-market and burns it permanently.
+LITNUP is a protocol for **attested PnL and skin-in-the-game for trading agents.** Operators bond ≥10,000 $LITNUP to put an agent on-chain. Stakers deposit $LITNUP against an agent as a bonded conviction stake. Performance is **attested** by a multi-sig oracle (a threshold of signers cryptographically agree on a PnL number — this is attestation, not a trustless proof; rooting attestations in venue/TEE/ZK settlement data is the v2 goal). Stakers earn real, exogenous yield in **USDC** from operator performance fees; 50% of each fee buys $LITNUP on-market and burns it. Bad agents are slashed.
 
-Real revenue. Real burn. Real team. Real code.
+Staked $LITNUP is **always redeemable at its principal** (reduced only by slashing) — attested PnL drives reputation and the fee basis, it does not inflate withdrawable balances. The vault is solvent by construction: on-chain token balance always covers staker principal.
 
 If all crypto and financial markets and traders fail or disappear — then so does this protocol. Until then · we keep working.
 
@@ -63,11 +68,12 @@ If all crypto and financial markets and traders fail or disappear — then so do
 ├── contracts/                         ← Solidity (Foundry)
 │   ├── foundry.toml
 │   ├── src/
-│   │   ├── LitToken.sol               ← ERC-20Votes + Permit, capped 1B
+│   │   ├── LitnupToken.sol            ← ERC-20Votes + Permit, capped 1B
 │   │   ├── AgentRegistry.sol          ← permissionless enrollment + bonds
-│   │   ├── StakingVault.sol           ← per-agent ERC-4626 vaults
-│   │   ├── PerformanceOracle.sol      ← EIP-712 multi-sig attestations
-│   │   └── BuybackBurn.sol            ← fee → swap → burn pipeline
+│   │   ├── StakingVault.sol           ← per-agent principal-redeemable vaults + USDC yield
+│   │   ├── PerformanceOracle.sol      ← EIP-712 threshold-signed attestations
+│   │   ├── BuybackBurn.sol            ← USDC fee → swap → burn pipeline
+│   │   └── … (VotingEscrow, Vesting, EmissionScheduler, InsuranceFund, PauseGuardian, Timelock, …)
 │   └── test/                          ← Foundry test suite
 │
 ├── agent-runtime/                     ← Python reference runtime
@@ -112,12 +118,14 @@ The deployment target is a static host (Vercel, Netlify, Cloudflare Pages) with 
 
 ```bash
 cd contracts
-forge install
+# Dependencies are pinned and vendored (lib/ is gitignored — clone exact tags):
+git clone --depth 1 --branch v5.1.0 https://github.com/OpenZeppelin/openzeppelin-contracts lib/openzeppelin-contracts
+git clone --depth 1 --branch v1.9.4 https://github.com/foundry-rs/forge-std lib/forge-std
 forge build
-forge test
+forge test          # 157 tests, incl. a fuzzed solvency invariant
 ```
 
-See [`contracts/README.md`](contracts/README.md) for deployment instructions.
+See [`deploy/DEPLOYMENT.md`](deploy/DEPLOYMENT.md) for deployment + the testnet → mainnet runbook.
 
 ---
 
@@ -136,12 +144,12 @@ python -m litnup.cli --help
 ## How the protocol works
 
 1. **Operator** bonds ≥10,000 $LITNUP and registers an agent on `AgentRegistry`.
-2. **Stakers** deposit $LITNUP into the agent's `StakingVault` and receive vault shares (ERC-4626).
-3. **Agent** trades. PnL is attested on-chain by a multi-sig oracle (EIP-712 signatures).
-4. **Fees** are split: 50% to stakers as yield, 50% to `BuybackBurn` which buys $LITNUP on-market and burns it.
-5. **Bad attestations** (false PnL claims) trigger slashing of the operator's bond. Slashed $LITNUP also flows to the burn.
+2. **Stakers** deposit $LITNUP against the agent in `StakingVault` and receive shares. Shares redeem at principal (slash-adjusted) — PnL never inflates them.
+3. **Agent** trades off-chain. PnL is attested on-chain by a threshold-signed multi-sig oracle (EIP-712). This records reputation and sets the fee basis.
+4. **Fees** are paid by the operator in **USDC** (real, exogenous value) and split: half streams to that agent's stakers as claimable USDC yield, half to `BuybackBurn` which swaps USDC → $LITNUP and burns it.
+5. **Confirmed misbehavior** triggers threshold-signed slashing of the operator's bond and/or staker principal; slashed $LITNUP flows to the burn.
 
-Real revenue funds real burn. No emissions, no founder wallet, no Notion-page promises.
+Yield and burn are funded by real USDC fees, not by token emissions to stakers. (The protocol does pre-allocate a vesting/ecosystem schedule per the tokenomics — see `docs/tokenomics.md`; "no emissions" refers to no inflationary minting beyond the 1B cap.)
 
 ---
 
@@ -150,7 +158,7 @@ Real revenue funds real burn. No emissions, no founder wallet, no Notion-page pr
 - **Foundation:** LITNUP Foundation, registered in the Cayman Islands as a non-profit company limited by guarantee.
 - **Founder & Chair:** Arthur Romanov ([`arthur@litnup.io`](mailto:arthur@litnup.io))
 - **Treasury:** 5-of-9 multi-signature, signers geographically distributed across three jurisdictions.
-- **Governance transition:** Q3 2027 → on-chain DAO via veAGENTIC (4-year vote-escrow).
+- **Governance transition:** Q3 2027 → on-chain DAO via veLITNUP (4-year vote-escrow).
 
 For institutional inquiries, materials, and direct introductions: [`ir@litnup.io`](mailto:ir@litnup.io) and the [Investor Relations portal](web/investors.html).
 
@@ -160,12 +168,11 @@ For institutional inquiries, materials, and direct introductions: [`ir@litnup.io
 
 If you've found a vulnerability, **do not open a public issue**. Follow the disclosure process in [`SECURITY.md`](SECURITY.md) or report through the Immunefi bounty (link in [`SECURITY.md`](SECURITY.md)).
 
-The Solidity contracts are audited by:
-- Spearbit
-- Trail of Bits
-- Cantina (competitive contest)
-
-Audit reports become public on completion.
+Audits are **planned, not yet completed**. No third-party audit report exists today and the contracts
+have **not** been deployed to any public network. The intended pre-mainnet audit track is an
+independent firm review plus a competitive contest; reports will be published here when complete.
+Do not treat the current code as audited. See `deploy/DEPLOYMENT.md` §5 for the full list of
+mainnet gates (audit, legal opinion, multisig ceremony, monitoring).
 
 ---
 

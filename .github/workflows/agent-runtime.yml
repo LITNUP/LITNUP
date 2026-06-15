@@ -1,0 +1,48 @@
+name: Agent Runtime CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'agent-runtime/**'
+      - '.github/workflows/agent-runtime.yml'
+  pull_request:
+    paths:
+      - 'agent-runtime/**'
+
+jobs:
+  test:
+    name: Python tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: agent-runtime
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: agent-runtime/requirements.txt
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest
+
+      - name: Run tests
+        run: |
+          python tests/test_pnl_tracker.py
+          python tests/test_oracle_signer.py
+
+      - name: Lint with ruff
+        run: |
+          pip install ruff
+          ruff check agent_runtime || true
+        continue-on-error: true
