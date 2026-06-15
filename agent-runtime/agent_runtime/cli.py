@@ -357,33 +357,42 @@ def oracle():
 @click.option("--agent-id", required=True, type=int)
 @click.option("--epoch", required=True, type=int)
 @click.option("--pnl-delta", required=True, type=int,
-              help="PnL delta in token units (signed; can be negative)")
-@click.option("--fee-on-gross", default=0, type=int)
+              help="PnL delta in 1e18 token units (signed; reputation/fee basis)")
+@click.option("--fee-amount", default=0, type=int,
+              help="Performance fee in reward-token base units (e.g. USDC 1e6)")
 @click.option("--to-buyback-bps", default=5000, type=int)
-@click.option("--deadline-secs", default=3600, type=int,
-              help="Seconds-from-now until signature deadline")
-def oracle_sign(agent_id, epoch, pnl_delta, fee_on_gross, to_buyback_bps, deadline_secs):
-    """Produce an EIP-712 signature for an attestation."""
+@click.option("--fee-payer", default=lambda: os.getenv("FEE_PAYER_ADDRESS", "0x" + "0" * 40),
+              help="Operator address that approved the vault to pull the fee")
+@click.option("--chain-id", default=lambda: int(os.getenv("CHAIN_ID", "84532")), type=int)
+@click.option("--oracle-address", default=lambda: os.getenv("PERFORMANCE_ORACLE_ADDRESS", "0x" + "0" * 40))
+@click.option("--deadline-secs", default=21600, type=int,
+              help="Seconds-from-now until signature deadline (default 6h to outlast quorum gathering)")
+def oracle_sign(agent_id, epoch, pnl_delta, fee_amount, to_buyback_bps, fee_payer,
+                chain_id, oracle_address, deadline_secs):
+    """Produce an EIP-712 signature for an attestation (matches PerformanceOracle.ATTESTATION_TYPEHASH)."""
     _require_env("ORACLE_SIGNER_KEY")
     try:
-        from .oracle_signer import sign_attestation
-        sig = sign_attestation(
+        from .oracle_signer import Attestation, sign_attestation
+        att = Attestation(
             agent_id=agent_id,
-            pnl_delta=pnl_delta,
-            fee_on_gross=fee_on_gross,
+            pnl_delta_wei=pnl_delta,
+            fee_amount=fee_amount,
             to_buyback_bps=to_buyback_bps,
+            fee_payer=fee_payer,
             epoch=epoch,
             deadline=int(time.time()) + deadline_secs,
         )
+        sig = sign_attestation(att, os.getenv("ORACLE_SIGNER_KEY"), chain_id, oracle_address)
         CONSOLE.print(Panel(
-            f"[green]signed[/green]\n\n"
+            f"[green]signed[/green] by {sig['signer']}\n\n"
             f"agent_id:        {agent_id}\n"
             f"epoch:           {epoch}\n"
             f"pnl_delta:       {pnl_delta}\n"
-            f"fee_on_gross:    {fee_on_gross}\n"
+            f"fee_amount:      {fee_amount}\n"
             f"to_buyback_bps:  {to_buyback_bps}\n"
-            f"deadline:        {int(time.time()) + deadline_secs}\n"
-            f"signature:       {sig}\n",
+            f"fee_payer:       {fee_payer}\n"
+            f"deadline:        {att.deadline}\n"
+            f"signature:       {sig['signature']}\n",
             title="EIP-712 attestation",
             border_style="green",
         ))

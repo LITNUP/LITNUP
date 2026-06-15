@@ -15,7 +15,7 @@ import {
 } from './addresses.js';
 
 import {
-  alphaTokenAbi,
+  litnupTokenAbi,
   agentRegistryAbi,
   stakingVaultAbi,
   performanceOracleAbi,
@@ -107,14 +107,14 @@ export class LITNUP {
       }
     }
     const nextId = (await this.publicClient.readContract({
-      address: this.addresses.AgentRegistry,
+      address: this.addresses.agentRegistry,
       abi: agentRegistryAbi,
       functionName: 'nextAgentId',
     })) as bigint;
     let total = 0n;
     for (let i = 1n; i < nextId; i++) {
       const v = (await this.publicClient.readContract({
-        address: this.addresses.StakingVault,
+        address: this.addresses.stakingVault,
         abi: stakingVaultAbi,
         functionName: 'vaults',
         args: [i],
@@ -127,13 +127,13 @@ export class LITNUP {
   /** Total $LITNUP burned (computed: MAX_SUPPLY - currentSupply). */
   async getTotalBurned(): Promise<bigint> {
     const max = (await this.publicClient.readContract({
-      address: this.addresses.LitToken,
-      abi: alphaTokenAbi,
+      address: this.addresses.litnupToken,
+      abi: litnupTokenAbi,
       functionName: 'MAX_SUPPLY',
     })) as bigint;
     const current = (await this.publicClient.readContract({
-      address: this.addresses.LitToken,
-      abi: alphaTokenAbi,
+      address: this.addresses.litnupToken,
+      abi: litnupTokenAbi,
       functionName: 'totalSupply',
     })) as bigint;
     return max - current;
@@ -159,7 +159,7 @@ export class LITNUP {
         }
       }
       const nextId = (await this.publicClient.readContract({
-        address: this.addresses.AgentRegistry,
+        address: this.addresses.agentRegistry,
         abi: agentRegistryAbi,
         functionName: 'nextAgentId',
       })) as bigint;
@@ -174,7 +174,7 @@ export class LITNUP {
 
     get: async (agentId: AgentId): Promise<AgentInfo | null> => {
       const a = (await this.publicClient.readContract({
-        address: this.addresses.AgentRegistry,
+        address: this.addresses.agentRegistry,
         abi: agentRegistryAbi,
         functionName: 'getAgent',
         args: [agentId],
@@ -190,14 +190,14 @@ export class LITNUP {
       if (a.controller === '0x0000000000000000000000000000000000000000') return null;
 
       const v = (await this.publicClient.readContract({
-        address: this.addresses.StakingVault,
+        address: this.addresses.stakingVault,
         abi: stakingVaultAbi,
         functionName: 'vaults',
         args: [agentId],
       })) as readonly [bigint, bigint, bigint, bigint];
 
       const sharePrice = (await this.publicClient.readContract({
-        address: this.addresses.StakingVault,
+        address: this.addresses.stakingVault,
         abi: stakingVaultAbi,
         functionName: 'sharePrice',
         args: [agentId],
@@ -233,7 +233,7 @@ export class LITNUP {
       return wc.writeContract({
         chain: wc.chain ?? null,
         account: wc.account!,
-        address: this.addresses.AgentRegistry,
+        address: this.addresses.agentRegistry,
         abi: agentRegistryAbi,
         functionName: 'enroll',
         args: [params.controller, params.bond, params.metadataHash, params.protocolFeeBps],
@@ -242,7 +242,7 @@ export class LITNUP {
 
     isActive: async (agentId: AgentId): Promise<boolean> => {
       return (await this.publicClient.readContract({
-        address: this.addresses.AgentRegistry,
+        address: this.addresses.agentRegistry,
         abi: agentRegistryAbi,
         functionName: 'isActive',
         args: [agentId],
@@ -258,7 +258,7 @@ export class LITNUP {
     return wc.writeContract({
       chain: wc.chain ?? null,
       account: wc.account!,
-      address: this.addresses.StakingVault,
+      address: this.addresses.stakingVault,
       abi: stakingVaultAbi,
       functionName: 'stake',
       args: [params.agentId, params.amount],
@@ -270,7 +270,7 @@ export class LITNUP {
     return wc.writeContract({
       chain: wc.chain ?? null,
       account: wc.account!,
-      address: this.addresses.StakingVault,
+      address: this.addresses.stakingVault,
       abi: stakingVaultAbi,
       functionName: 'unstakeInit',
       args: [params.agentId, params.shares],
@@ -282,7 +282,7 @@ export class LITNUP {
     return wc.writeContract({
       chain: wc.chain ?? null,
       account: wc.account!,
-      address: this.addresses.StakingVault,
+      address: this.addresses.stakingVault,
       abi: stakingVaultAbi,
       functionName: 'unstakeComplete',
       args: [agentId],
@@ -291,7 +291,7 @@ export class LITNUP {
 
   async getPosition(agentId: AgentId, staker: Address): Promise<StakerPosition | null> {
     const s = (await this.publicClient.readContract({
-      address: this.addresses.StakingVault,
+      address: this.addresses.stakingVault,
       abi: stakingVaultAbi,
       functionName: 'stakers',
       args: [agentId, staker],
@@ -301,7 +301,7 @@ export class LITNUP {
     if (shares === 0n && pendingShares === 0n) return null;
 
     const sharePrice = (await this.publicClient.readContract({
-      address: this.addresses.StakingVault,
+      address: this.addresses.stakingVault,
       abi: stakingVaultAbi,
       functionName: 'sharePrice',
       args: [agentId],
@@ -319,7 +319,7 @@ export class LITNUP {
 
   async previewStake(agentId: AgentId, amount: bigint): Promise<bigint> {
     return (await this.publicClient.readContract({
-      address: this.addresses.StakingVault,
+      address: this.addresses.stakingVault,
       abi: stakingVaultAbi,
       functionName: 'previewStake',
       args: [agentId, amount],
@@ -328,7 +328,7 @@ export class LITNUP {
 
   async previewUnstake(agentId: AgentId, shares: bigint): Promise<bigint> {
     return (await this.publicClient.readContract({
-      address: this.addresses.StakingVault,
+      address: this.addresses.stakingVault,
       abi: stakingVaultAbi,
       functionName: 'previewUnstake',
       args: [agentId, shares],
@@ -344,7 +344,7 @@ export class LITNUP {
       return wc.writeContract({
         chain: wc.chain ?? null,
         account: wc.account!,
-        address: this.addresses.VotingEscrow,
+        address: this.addresses.votingEscrow,
         abi: votingEscrowAbi,
         functionName: 'createLock',
         args: [params.amount, BigInt(params.unlockTime)],
@@ -356,7 +356,7 @@ export class LITNUP {
       return wc.writeContract({
         chain: wc.chain ?? null,
         account: wc.account!,
-        address: this.addresses.VotingEscrow,
+        address: this.addresses.votingEscrow,
         abi: votingEscrowAbi,
         functionName: 'increaseAmount',
         args: [amount],
@@ -368,7 +368,7 @@ export class LITNUP {
       return wc.writeContract({
         chain: wc.chain ?? null,
         account: wc.account!,
-        address: this.addresses.VotingEscrow,
+        address: this.addresses.votingEscrow,
         abi: votingEscrowAbi,
         functionName: 'extendLock',
         args: [BigInt(newUnlockTime)],
@@ -380,7 +380,7 @@ export class LITNUP {
       return wc.writeContract({
         chain: wc.chain ?? null,
         account: wc.account!,
-        address: this.addresses.VotingEscrow,
+        address: this.addresses.votingEscrow,
         abi: votingEscrowAbi,
         functionName: 'withdraw',
         args: [],
@@ -389,7 +389,7 @@ export class LITNUP {
 
     getLock: async (user: Address): Promise<GovernanceLock | null> => {
       const lock = (await this.publicClient.readContract({
-        address: this.addresses.VotingEscrow,
+        address: this.addresses.votingEscrow,
         abi: votingEscrowAbi,
         functionName: 'lockInfo',
         args: [user],
@@ -410,8 +410,8 @@ export class LITNUP {
   token = {
     balanceOf: async (account: Address): Promise<bigint> => {
       return (await this.publicClient.readContract({
-        address: this.addresses.LitToken,
-        abi: alphaTokenAbi,
+        address: this.addresses.litnupToken,
+        abi: litnupTokenAbi,
         functionName: 'balanceOf',
         args: [account],
       })) as bigint;
@@ -419,8 +419,8 @@ export class LITNUP {
 
     allowance: async (owner: Address, spender: Address): Promise<bigint> => {
       return (await this.publicClient.readContract({
-        address: this.addresses.LitToken,
-        abi: alphaTokenAbi,
+        address: this.addresses.litnupToken,
+        abi: litnupTokenAbi,
         functionName: 'allowance',
         args: [owner, spender],
       })) as bigint;
@@ -431,8 +431,8 @@ export class LITNUP {
       return wc.writeContract({
         chain: wc.chain ?? null,
         account: wc.account!,
-        address: this.addresses.LitToken,
-        abi: alphaTokenAbi,
+        address: this.addresses.litnupToken,
+        abi: litnupTokenAbi,
         functionName: 'approve',
         args: [spender, amount],
       } as never);
@@ -440,16 +440,16 @@ export class LITNUP {
 
     totalSupply: async (): Promise<bigint> => {
       return (await this.publicClient.readContract({
-        address: this.addresses.LitToken,
-        abi: alphaTokenAbi,
+        address: this.addresses.litnupToken,
+        abi: litnupTokenAbi,
         functionName: 'totalSupply',
       })) as bigint;
     },
 
     delegates: async (user: Address): Promise<Address> => {
       return (await this.publicClient.readContract({
-        address: this.addresses.LitToken,
-        abi: alphaTokenAbi,
+        address: this.addresses.litnupToken,
+        abi: litnupTokenAbi,
         functionName: 'delegates',
         args: [user],
       })) as Address;
@@ -460,8 +460,8 @@ export class LITNUP {
       return wc.writeContract({
         chain: wc.chain ?? null,
         account: wc.account!,
-        address: this.addresses.LitToken,
-        abi: alphaTokenAbi,
+        address: this.addresses.litnupToken,
+        abi: litnupTokenAbi,
         functionName: 'delegate',
         args: [delegatee],
       } as never);
@@ -469,8 +469,8 @@ export class LITNUP {
 
     getVotes: async (account: Address): Promise<bigint> => {
       return (await this.publicClient.readContract({
-        address: this.addresses.LitToken,
-        abi: alphaTokenAbi,
+        address: this.addresses.litnupToken,
+        abi: litnupTokenAbi,
         functionName: 'getVotes',
         args: [account],
       })) as bigint;
@@ -483,7 +483,7 @@ export class LITNUP {
   oracle = {
     getSigners: async (): Promise<Address[]> => {
       const sigs = (await this.publicClient.readContract({
-        address: this.addresses.PerformanceOracle,
+        address: this.addresses.performanceOracle,
         abi: performanceOracleAbi,
         functionName: 'getSigners',
       })) as readonly Address[];
@@ -492,7 +492,7 @@ export class LITNUP {
 
     getThreshold: async (): Promise<number> => {
       const t = (await this.publicClient.readContract({
-        address: this.addresses.PerformanceOracle,
+        address: this.addresses.performanceOracle,
         abi: performanceOracleAbi,
         functionName: 'threshold',
       })) as number;
@@ -501,7 +501,7 @@ export class LITNUP {
 
     isSigner: async (address: Address): Promise<boolean> => {
       return (await this.publicClient.readContract({
-        address: this.addresses.PerformanceOracle,
+        address: this.addresses.performanceOracle,
         abi: performanceOracleAbi,
         functionName: 'isSigner',
         args: [address],
@@ -510,7 +510,7 @@ export class LITNUP {
 
     isExecuted: async (agentId: AgentId, epoch: bigint): Promise<boolean> => {
       return (await this.publicClient.readContract({
-        address: this.addresses.PerformanceOracle,
+        address: this.addresses.performanceOracle,
         abi: performanceOracleAbi,
         functionName: 'executedEpoch',
         args: [agentId, epoch],

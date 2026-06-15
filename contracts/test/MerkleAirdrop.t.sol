@@ -2,11 +2,11 @@
 pragma solidity 0.8.24;
 
 import "forge-std/Test.sol";
-import {LitToken} from "../src/LitToken.sol";
+import {LitnupToken} from "../src/LitnupToken.sol";
 import {MerkleAirdrop} from "../src/MerkleAirdrop.sol";
 
 contract MerkleAirdropTest is Test {
-    LitToken token;
+    LitnupToken token;
     MerkleAirdrop airdrop;
 
     address admin = makeAddr("admin");
@@ -19,13 +19,13 @@ contract MerkleAirdropTest is Test {
     uint256 constant BOB_AMT = 2_000 ether;
 
     function setUp() public {
-        token = new LitToken(admin);
+        token = new LitnupToken(admin);
         vm.prank(admin);
         token.mintInitialSupply();
 
-        // Build merkle tree with 2 leaves: (0, alice, 1000), (1, bob, 2000)
-        bytes32 leafA = keccak256(abi.encodePacked(uint256(0), alice, ALICE_AMT));
-        bytes32 leafB = keccak256(abi.encodePacked(uint256(1), bob, BOB_AMT));
+        // Build merkle tree with 2 double-hashed leaves: (0, alice, 1000), (1, bob, 2000)
+        bytes32 leafA = _leaf(0, alice, ALICE_AMT);
+        bytes32 leafB = _leaf(1, bob, BOB_AMT);
         root = leafA < leafB ? keccak256(abi.encodePacked(leafA, leafB)) : keccak256(abi.encodePacked(leafB, leafA));
 
         airdrop = new MerkleAirdrop(token, root, 30 days, sweep, admin);
@@ -35,17 +35,19 @@ contract MerkleAirdropTest is Test {
         token.transfer(address(airdrop), ALICE_AMT + BOB_AMT);
     }
 
+    function _leaf(uint256 index, address account, uint256 amount) internal pure returns (bytes32) {
+        return keccak256(bytes.concat(keccak256(abi.encode(index, account, amount))));
+    }
+
     function _proofForAlice() internal view returns (bytes32[] memory) {
-        bytes32 leafB = keccak256(abi.encodePacked(uint256(1), bob, BOB_AMT));
         bytes32[] memory proof = new bytes32[](1);
-        proof[0] = leafB;
+        proof[0] = _leaf(1, bob, BOB_AMT);
         return proof;
     }
 
     function _proofForBob() internal view returns (bytes32[] memory) {
-        bytes32 leafA = keccak256(abi.encodePacked(uint256(0), alice, ALICE_AMT));
         bytes32[] memory proof = new bytes32[](1);
-        proof[0] = leafA;
+        proof[0] = _leaf(0, alice, ALICE_AMT);
         return proof;
     }
 

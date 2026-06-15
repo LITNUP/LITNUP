@@ -19,7 +19,9 @@ const ORACLE_ADDR = '0xababababababababababababababababababab' as const;
 const sampleAttestation: Attestation = {
   agentId: 42n,
   pnlDelta: 250n * 10n ** 18n,
-  feeOnGross: 25n * 10n ** 18n,
+  feeAmount: 25n * 10n ** 6n, // reward-token (USDC) units
+  toBuybackBps: 5000,
+  feePayer: '0xcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd',
   epoch: 7n,
   deadline: 2_000_000_000n,
 };

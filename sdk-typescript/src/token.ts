@@ -1,5 +1,5 @@
 /**
- * LitToken module — balance queries + approvals.
+ * litnupToken module — balance queries + approvals.
  *
  * Skeleton ships type-correct stubs. Concrete viem reads/writes wire when ABI is imported.
  */

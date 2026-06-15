@@ -78,8 +78,8 @@ dataSources:
           handler: handleUnstakeInit
         - event: Unstaked(indexed uint256,indexed address,uint128,uint128)
           handler: handleUnstaked
-        - event: PnlApplied(indexed uint256,int128,uint128)
-          handler: handlePnlApplied
+        - event: PnlRecorded(indexed uint256,int256,int256)
+          handler: handlePnlRecorded
         - event: FeesTaken(indexed uint256,uint128,uint128)
           handler: handleFeesTaken
         - event: StakerSlashed(indexed uint256,uint128)

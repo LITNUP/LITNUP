@@ -2,13 +2,13 @@
 pragma solidity 0.8.24;
 
 import "forge-std/Test.sol";
-import {LitToken} from "../src/LitToken.sol";
+import {LitnupToken} from "../src/LitnupToken.sol";
 import {VotingEscrow} from "../src/VotingEscrow.sol";
 
 /// @notice Edge-case tests for VotingEscrow targeting the linear-decay math,
 ///         lock extension semantics, and multi-user vote-weight aggregation.
 contract VotingEscrowEdgeCases is Test {
-    LitToken token;
+    LitnupToken token;
     VotingEscrow ve;
 
     address admin = makeAddr("admin");
@@ -17,7 +17,7 @@ contract VotingEscrowEdgeCases is Test {
     address carol = makeAddr("carol");
 
     function setUp() public {
-        token = new LitToken(admin);
+        token = new LitnupToken(admin);
         vm.prank(admin);
         token.mintInitialSupply();
         ve = new VotingEscrow(token, admin);

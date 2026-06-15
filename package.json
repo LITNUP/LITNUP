@@ -1,0 +1,57 @@
+{
+  "name": "alphagentic",
+  "version": "0.1.0",
+  "private": true,
+  "description": "LITNUP — the verification layer underneath the AI agent economy. Monorepo for contracts, agent runtime, SDK, subgraph, and web.",
+  "homepage": "https://alphagentic.xyz",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alphagentic/alphagentic.git"
+  },
+  "license": "SEE LICENSE IN LICENSE",
+  "engines": {
+    "node": ">=20",
+    "bun": ">=1.0",
+    "python": ">=3.11"
+  },
+  "workspaces": [
+    "sdk-typescript"
+  ],
+  "scripts": {
+    "build:contracts": "cd contracts && forge build",
+    "test:contracts": "cd contracts && forge test -vvv",
+    "test:contracts:invariant": "cd contracts && forge test --match-contract Invariants -vvv",
+    "test:contracts:e2e": "cd contracts && forge test --match-contract E2E -vvv",
+    "snapshot": "cd contracts && forge snapshot",
+    "lint:contracts": "cd contracts && slither . --config-file slither.config.json || true",
+
+    "build:sdk": "cd sdk-typescript && bun run build",
+    "test:sdk": "cd sdk-typescript && bun run test",
+    "typecheck:sdk": "cd sdk-typescript && bun run typecheck",
+
+    "agent:setup": "cd agent-runtime && python -m venv .venv && .venv/bin/pip install -r requirements.txt",
+    "agent:run": "cd agent-runtime && python -m agent_runtime.paper_trade --strategy momentum --asset BTC --duration 1h",
+    "agent:backtest": "cd agent-runtime && python scripts/backtest.py",
+    "agent:test": "cd agent-runtime && python tests/test_pnl_tracker.py && python tests/test_oracle_signer.py && python tests/test_metrics.py && python tests/test_eip712_roundtrip.py",
+    "agent:monitor": "cd agent-runtime && python -m agent_runtime.monitor --agent-id 1",
+
+    "subgraph:codegen": "cd subgraph && graph codegen",
+    "subgraph:build": "cd subgraph && graph build",
+    "subgraph:deploy": "cd subgraph && graph deploy --product hosted-service alphagentic/protocol",
+
+    "web:serve": "cd web && python -m http.server 8000",
+
+    "all:test": "npm run test:contracts && npm run test:sdk && npm run agent:test"
+  },
+  "keywords": [
+    "alphagentic",
+    "ai-agents",
+    "verification",
+    "ethereum",
+    "base",
+    "defi",
+    "staking",
+    "ai-trading",
+    "open-source"
+  ]
+}

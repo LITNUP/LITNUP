@@ -11,7 +11,9 @@ import {MerkleProof} from "@openzeppelin/contracts/utils/cryptography/MerkleProo
 /// @notice Merkle-tree-based airdrop distributor with optional vest-into-stake on claim.
 ///         Used for Season 1 airdrop (10% of supply) at TGE.
 ///
-///         The merkle leaf is keccak256(abi.encode(account, amount)) — standard OpenZeppelin format.
+///         The merkle leaf is the OZ-standard double hash keccak256(bytes.concat(keccak256(
+///         abi.encode(index, account, amount)))) — double hashing prevents second-preimage attacks
+///         where a 64-byte internal node could be presented as a leaf.
 ///         Claimers prove inclusion against the contract's stored root.
 ///
 ///         "Vest-into-stake" mode: instead of receiving tokens directly, X% of the claim is
@@ -30,6 +32,9 @@ contract MerkleAirdrop is AccessControl, ReentrancyGuard {
 
     /// @notice Address that receives unclaimed tokens after deadline (typically: treasury).
     address public sweepRecipient;
+
+    /// @notice True once any claim has been made; the root is then immutable.
+    bool public claimsStarted;
 
     /// @notice Bitmap of claimed leaves (compact storage).
     mapping(uint256 => uint256) private _claimedBitMap;
@@ -80,13 +85,22 @@ contract MerkleAirdrop is AccessControl, ReentrancyGuard {
         if (block.timestamp > claimDeadline) revert ClaimWindowClosed();
         if (isClaimed(index)) revert AlreadyClaimed();
 
-        // Standard OZ Merkle leaf: keccak256(abi.encode(index, account, amount))
-        bytes32 node = keccak256(abi.encodePacked(index, account, amount));
+        // OZ-standard double-hashed leaf: keccak256(bytes.concat(keccak256(abi.encode(...)))).
+        bytes32 node = keccak256(bytes.concat(keccak256(abi.encode(index, account, amount))));
         if (!MerkleProof.verify(proof, merkleRoot, node)) revert InvalidProof();
 
+        if (!claimsStarted) claimsStarted = true;
         _setClaimed(index);
         token.safeTransfer(account, amount);
         emit Claimed(account, index, amount);
+    }
+
+    /// @notice Set/replace the merkle root before any claim is made. Enables the documented
+    ///         "deploy with placeholder, set real root at season launch" flow. Locked once claims begin.
+    function setMerkleRoot(bytes32 newRoot) external onlyRole(CONFIG_ROLE) {
+        if (claimsStarted) revert RootAlreadySet();
+        merkleRoot = newRoot;
+        emit MerkleRootSet(newRoot);
     }
 
     /// @notice After the deadline, sweep unclaimed tokens to the recipient.

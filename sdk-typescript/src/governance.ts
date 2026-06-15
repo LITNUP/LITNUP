@@ -47,7 +47,7 @@ export async function getLock(
 }
 
 export async function listProposals(
-  _spaceId: string = 'alphagentic.eth',
+  _spaceId: string = 'litnup.eth',
 ): Promise<unknown[]> {
   // Snapshot GraphQL query
   return [];

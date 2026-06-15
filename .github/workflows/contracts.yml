@@ -1,0 +1,77 @@
+name: Contracts CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'contracts/**'
+      - '.github/workflows/contracts.yml'
+  pull_request:
+    paths:
+      - 'contracts/**'
+      - '.github/workflows/contracts.yml'
+
+env:
+  FOUNDRY_PROFILE: ci
+
+jobs:
+  test:
+    name: Foundry tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: contracts
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: stable
+
+      - name: Show Forge version
+        run: forge --version
+
+      - name: Install pinned dependencies
+        run: |
+          rm -rf lib && mkdir -p lib
+          git clone --depth 1 --branch v5.1.0 https://github.com/OpenZeppelin/openzeppelin-contracts lib/openzeppelin-contracts
+          git clone --depth 1 --branch v1.9.4 https://github.com/foundry-rs/forge-std lib/forge-std
+
+      - name: Build
+        run: forge build --sizes
+
+      - name: Run tests (ci profile = 10k fuzz / deep invariants)
+        run: forge test -vvv
+
+      - name: Gas snapshot (blocking — fails if gas changed without updating .gas-snapshot)
+        run: forge snapshot --check
+
+      - name: Coverage
+        run: forge coverage --report summary
+        continue-on-error: true
+
+  slither:
+    name: Slither static analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: stable
+
+      - name: Install pinned dependencies
+        working-directory: contracts
+        run: |
+          rm -rf lib && mkdir -p lib
+          git clone --depth 1 --branch v5.1.0 https://github.com/OpenZeppelin/openzeppelin-contracts lib/openzeppelin-contracts
+          git clone --depth 1 --branch v1.9.4 https://github.com/foundry-rs/forge-std lib/forge-std
+
+      - name: Run Slither (blocking on medium+ findings)
+        uses: crytic/slither-action@v0.4.0
+        with:
+          target: contracts/
+          slither-config: contracts/slither.config.json
+          fail-on: medium

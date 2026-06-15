@@ -2,11 +2,11 @@
 pragma solidity 0.8.24;
 
 import "forge-std/Test.sol";
-import {LitToken} from "../src/LitToken.sol";
+import {LitnupToken} from "../src/LitnupToken.sol";
 import {InsuranceFund} from "../src/InsuranceFund.sol";
 
 contract InsuranceFundTest is Test {
-    LitToken token;
+    LitnupToken token;
     InsuranceFund fund;
 
     address admin = makeAddr("admin");
@@ -15,13 +15,14 @@ contract InsuranceFundTest is Test {
     address alice = makeAddr("alice");
 
     function setUp() public {
-        token = new LitToken(admin);
+        token = new LitnupToken(admin);
         vm.prank(admin);
         token.mintInitialSupply();
 
         fund = new InsuranceFund(token, admin);
+        bytes32 disburserRole = fund.DISBURSER_ROLE();
         vm.prank(admin);
-        fund.grantRole(fund.DISBURSER_ROLE(), disburser);
+        fund.grantRole(disburserRole, disburser);
 
         // Seed the fund
         vm.prank(admin);

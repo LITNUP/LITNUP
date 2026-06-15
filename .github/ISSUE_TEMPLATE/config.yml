@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 🔒 Security Vulnerability
+    url: https://immunefi.com/bounty/alphagentic
+    about: Please report security vulnerabilities through Immunefi or by emailing security@alphagentic.xyz. Do not file public issues for security bugs.
+  - name: 💬 Community Discord
+    url: https://discord.gg/alphagentic
+    about: General questions and discussion belong here.
+  - name: 📖 Documentation
+    url: https://alphagentic.xyz/docs
+    about: Most usage questions are answered in the docs.

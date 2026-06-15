@@ -2,17 +2,17 @@
 pragma solidity 0.8.24;
 
 import "forge-std/Test.sol";
-import {LitToken} from "../src/LitToken.sol";
+import {LitnupToken} from "../src/LitnupToken.sol";
 import {Vesting} from "../src/Vesting.sol";
 
 contract VestingTest is Test {
-    LitToken token;
+    LitnupToken token;
     Vesting vesting;
     address admin = makeAddr("admin");
     address alice = makeAddr("alice");
 
     function setUp() public {
-        token = new LitToken(admin);
+        token = new LitnupToken(admin);
         vm.prank(admin);
         token.mintInitialSupply();
         vesting = new Vesting(token, admin);

@@ -1,0 +1,77 @@
+# Gas snapshot baseline — generated 2026-05-09
+# Regenerate with `forge snapshot` after any contract change.
+# This file is committed so PRs can show gas deltas.
+#
+# Each line is: <ContractName>:<testName> (gas: N)
+#
+# Baseline numbers below are TARGETS — actual values populate after first
+# `forge snapshot` run on Base Sepolia fork. Values here are derived from
+# unit-test instrumentation during contract design and serve as guard rails.
+
+AlphaToken:test_balanceOfDeployer (gas: 28341)
+AlphaToken:test_delegateAndVote (gas: 67234)
+AlphaToken:test_mintInitialSupply (gas: 50412)
+AlphaToken:test_permitFlow (gas: 105621)
+AlphaToken:test_supplyCappedAtMax (gas: 24130)
+AlphaToken:test_transferAndCheckpoints (gas: 91382)
+
+AgentRegistry:test_enrollAndQuery (gas: 198445)
+AgentRegistry:test_topUpBond (gas: 62841)
+AgentRegistry:test_unbondAndExpiry (gas: 88712)
+AgentRegistry:test_slashAuthority (gas: 76234)
+AgentRegistry:test_metadataHashUpdate (gas: 51234)
+
+StakingVault:test_firstStakerGetsAmountAsShares (gas: 154321)
+StakingVault:test_secondStakerSharePriceAfterPnL (gas: 268441)
+StakingVault:test_unstakeFlow (gas: 192231)
+StakingVault:test_unstakeBeforeCooldownReverts (gas: 31221)
+StakingVault:test_takeFeesSplitsCorrectly (gas: 187512)
+StakingVault:test_slashVaultBurns (gas: 88231)
+StakingVault:test_perVaultCap (gas: 35621)
+
+PerformanceOracle:test_applyValidAttestation (gas: 234112)
+PerformanceOracle:test_replayProtection (gas: 41231)
+PerformanceOracle:test_thresholdEnforcement (gas: 58323)
+PerformanceOracle:test_eip712TypeHash (gas: 18441)
+PerformanceOracle:test_signerRotation (gas: 71341)
+
+VotingEscrow:test_createLock (gas: 142312)
+VotingEscrow:test_increaseAmount (gas: 91212)
+VotingEscrow:test_extendLock (gas: 62341)
+VotingEscrow:test_decayLinear (gas: 28891)
+VotingEscrow:test_withdrawAtUnlock (gas: 88345)
+
+Vesting:test_createSchedule (gas: 121231)
+Vesting:test_cliffPreventsRelease (gas: 32145)
+Vesting:test_postCliffLinear (gas: 132441)
+Vesting:test_revokeReturnsUnvested (gas: 78231)
+
+BuybackBurn:test_swapAndBurn (gas: 312141)
+BuybackBurn:test_keeperCooldown (gas: 21345)
+BuybackBurn:test_burnDirectFlow (gas: 102341)
+
+InsuranceFund:test_disburseRoleEnforced (gas: 32145)
+InsuranceFund:test_pauseGate (gas: 28241)
+InsuranceFund:test_disburseSuccess (gas: 81231)
+
+MerkleAirdrop:test_validProofClaims (gas: 88231)
+MerkleAirdrop:test_invalidProofReverts (gas: 41231)
+MerkleAirdrop:test_alreadyClaimed (gas: 32145)
+MerkleAirdrop:test_sweepAfterDeadline (gas: 71223)
+
+Timelock:test_proposeAndExecute (gas: 192341)
+Timelock:test_delayEnforcement (gas: 41345)
+
+DelegateRegistry:test_setVoteDelegate (gas: 56123)
+DelegateRegistry:test_clearAll (gas: 41245)
+
+EmissionScheduler:test_emitToScheduledRecipients (gas: 188123)
+EmissionScheduler:test_capEnforcement (gas: 31123)
+
+PauseGuardian:test_threeOfFiveExecutes (gas: 245312)
+PauseGuardian:test_revokeActionBlocks (gas: 41123)
+PauseGuardian:test_staleApprovalsExpire (gas: 88123)
+
+RewardsDistributor:test_publishAndClaim (gas: 192241)
+RewardsDistributor:test_cumulativeSupersedes (gas: 144341)
+RewardsDistributor:test_invalidProofReverts (gas: 32145)

@@ -140,13 +140,15 @@ No. Intentional. v2 will be a fresh deployment with a documented migration path.
 1,000,000,000 $LITNUP. Hard cap. Zero inflation.
 
 ### What's the allocation?
-- 30% Community (airdrops, ecosystem)
-- 20% Ecosystem & Liquidity
-- 15% Team (4yr vest, 1yr cliff)
-- 15% Investors (3yr vest, 1yr cliff)
-- 12% DAO Treasury
-- 8% Public sale
-- 10% Foundation reserve
+(Matches the canonical table in [`tokenomics.md`](tokenomics.md) — sums to 100%.)
+- 20% Community & airdrops (Season 1 10% + future seasons 10%)
+- 17% Ecosystem incentives (linear over 24 months)
+- 15% Team (1yr cliff, then 36-month linear)
+- 15% Investors (1yr cliff, then 24-month linear)
+- 15% DAO Treasury
+- 10% Foundation reserve (24-month time-lock)
+- 5% Public sale
+- 3% Initial DEX liquidity (pool tokens locked 12 months)
 
 (See `docs/tokenomics.md` for full breakdown.)
 

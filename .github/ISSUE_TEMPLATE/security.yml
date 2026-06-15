@@ -1,0 +1,75 @@
+name: ⚠️  Suspected security issue (low-severity / public-disclosure path)
+description: |
+  Use this ONLY for low-severity issues you are comfortable disclosing publicly.
+  For anything that could lose user funds, freeze user funds, or compromise oracle attestations,
+  use Immunefi instead: https://immunefi.com/bounty/alphagentic
+labels: ["security:public-disclosure", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## STOP. Read this first.
+
+        If your finding is **critical, high, or medium** severity per the [Immunefi severity classification](https://immunefi.com/severity-classification/),
+        DO NOT file this issue publicly. File via Immunefi:
+        - https://immunefi.com/bounty/alphagentic — paid up to $250K
+
+        Critical = direct fund loss, frozen funds, oracle integrity, governance bypass.
+        High     = significant fund loss conditional on attacker actions, slashing griefing, fee leakage.
+        Medium   = unintended state transitions, minor griefing, denial-of-service of non-critical paths.
+
+        Only file here if your finding is **low severity** and you're comfortable with public disclosure
+        before remediation (e.g. minor information leak, gas inefficiency, doc-vs-code mismatch).
+
+  - type: input
+    id: severity
+    attributes:
+      label: Self-assessed severity
+      description: Confirm this is LOW. If you think it's higher, stop and use Immunefi.
+      placeholder: low
+    validations:
+      required: true
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: One paragraph — what is the issue?
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction steps
+      description: Code, transactions, commands — whatever shows the problem.
+    validations:
+      required: true
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impact
+      description: Who is affected, and how?
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggested-fix
+    attributes:
+      label: Suggested fix
+      description: Optional. If you have one.
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Acknowledgments
+      options:
+        - label: I have confirmed this is LOW severity (not critical/high/medium)
+          required: true
+        - label: I understand this issue will be public immediately
+          required: true
+        - label: I have NOT shared this issue with third parties (e.g. researchers/Twitter) before filing
+          required: true
+        - label: For HIGH/CRITICAL findings I would use Immunefi instead
+          required: true

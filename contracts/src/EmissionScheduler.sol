@@ -7,17 +7,15 @@ import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /// @title EmissionScheduler
-/// @notice Streams ecosystem-incentive $LITNUP to authorized recipient contracts (e.g.
-///         a stake-rewards distributor, a gauge controller, an LP-incentive contract)
-///         on a fixed linear schedule.
+/// @notice Streams the pre-funded ecosystem-incentive $LITNUP bucket (~17% of supply per tokenomics)
+///         linearly to weighted recipients. This is NOT inflation: the scheduler is funded once with
+///         pre-minted tokens; it only meters their release.
 ///
-///         The scheduler holds the ecosystem-incentive bucket (~17% of supply per tokenomics).
-///         It releases tokens linearly over `durationSeconds` to one or more registered
-///         recipients, weighted by per-recipient `weight`. Weights sum to 10,000 (= 100%).
-///
-///         Governance can add/remove recipients and reweight (subject to timelock).
-///         Recipients pull their share via `pull()`; recipients can be regular wallets
-///         or smart contracts.
+///         REWEIGHT SAFETY (v2): emissions accrued up to a weight change are CHECKPOINTED into each
+///         recipient's `credited` balance at the weights then in effect, before the new weights take
+///         hold. v1 multiplied the *current* weight by *all* emissions-to-date, so reweighting
+///         retroactively re-priced the entire past stream — letting a reweight steal already-earned
+///         emissions from co-recipients (or strand them). Only the forward stream uses new weights.
 contract EmissionScheduler is AccessControl, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
@@ -25,12 +23,10 @@ contract EmissionScheduler is AccessControl, ReentrancyGuard {
 
     IERC20 public immutable token;
 
-    /// @notice Schedule parameters
     uint64  public immutable startTime;
     uint64  public immutable durationSeconds;
-    uint128 public immutable totalEmission;     // total tokens scheduled
+    uint128 public immutable totalEmission;
 
-    /// @notice Per-recipient state
     struct Recipient {
         uint16 weightBps;       // out of 10_000
         uint128 totalPulled;
@@ -38,15 +34,25 @@ contract EmissionScheduler is AccessControl, ReentrancyGuard {
     }
     mapping(address => Recipient) public recipients;
     address[] public recipientList;
-    uint16 public totalWeightBps;               // sum across active recipients (must equal 10_000 to release)
+    mapping(address => bool) public everListed;     // guards against duplicate recipientList entries
+    uint16 public totalWeightBps;                   // sum across active recipients (must equal 10_000 to pull)
 
-    /// @notice Cumulative tokens already pulled by all recipients
+    /// @notice Cumulative tokens already pulled by all recipients.
     uint128 public totalPulled;
+
+    /// @notice Per-recipient entitlement locked in at past weight checkpoints.
+    mapping(address => uint128) public credited;
+    /// @notice Cumulative emitted amount that has already been distributed into `credited`.
+    uint256 public settledEmitted;
+
+    /// @notice If non-zero, emissions are frozen at this timestamp (governance stop).
+    uint64 public stoppedAt;
 
     // -------- events --------
 
     event RecipientSet(address indexed recipient, uint16 weightBps, bool active);
     event Pulled(address indexed recipient, uint128 amount);
+    event EmissionsStopped(uint64 at);
 
     // -------- errors --------
 
@@ -54,7 +60,7 @@ contract EmissionScheduler is AccessControl, ReentrancyGuard {
     error WeightsMustSumTo10000();
     error NotRecipient();
     error NothingClaimable();
-    error TooEarly();
+    error AlreadyStopped();
 
     constructor(
         IERC20 _token,
@@ -74,17 +80,18 @@ contract EmissionScheduler is AccessControl, ReentrancyGuard {
 
     // -------- governance / config --------
 
-    /// @notice Set or update a recipient's weight. Pass weightBps = 0 to deactivate.
-    /// @dev Requires totalWeightBps to equal 10_000 across all active recipients before any pull is allowed.
+    /// @notice Set or update a recipient's weight (weightBps = 0 deactivates). Past emissions are
+    ///         checkpointed at the OLD weights first, so reweighting never re-prices the past.
     function setRecipient(address recipient, uint16 weightBps) external onlyRole(CONFIG_ROLE) {
         if (weightBps > 10_000) revert WeightOutOfRange();
-        Recipient storage r = recipients[recipient];
+        _settleAll();
 
-        // Update totalWeightBps based on previous and new weights
+        Recipient storage r = recipients[recipient];
         if (r.active) {
             totalWeightBps -= r.weightBps;
-        } else if (weightBps > 0) {
+        } else if (weightBps > 0 && !everListed[recipient]) {
             recipientList.push(recipient);
+            everListed[recipient] = true;
         }
 
         r.weightBps = weightBps;
@@ -92,6 +99,14 @@ contract EmissionScheduler is AccessControl, ReentrancyGuard {
         if (r.active) totalWeightBps += weightBps;
 
         emit RecipientSet(recipient, weightBps, r.active);
+    }
+
+    /// @notice Freeze emissions at the current timestamp (tokenomics promised "governance can pause").
+    function stopEmissions() external onlyRole(CONFIG_ROLE) {
+        if (stoppedAt != 0) revert AlreadyStopped();
+        _settleAll();
+        stoppedAt = uint64(block.timestamp);
+        emit EmissionsStopped(stoppedAt);
     }
 
     // -------- recipients --------
@@ -102,8 +117,10 @@ contract EmissionScheduler is AccessControl, ReentrancyGuard {
         if (!r.active) revert NotRecipient();
         if (totalWeightBps != 10_000) revert WeightsMustSumTo10000();
 
-        amount = uint128(claimable(msg.sender));
-        if (amount == 0) revert NothingClaimable();
+        _settleAll();
+        uint256 owed = credited[msg.sender];
+        if (owed <= r.totalPulled) revert NothingClaimable();
+        amount = uint128(owed - r.totalPulled);
 
         r.totalPulled += amount;
         totalPulled += amount;
@@ -113,26 +130,45 @@ contract EmissionScheduler is AccessControl, ReentrancyGuard {
 
     // -------- views --------
 
-    /// @notice Returns the cumulative emitted amount up to `block.timestamp`.
+    /// @notice Cumulative emitted amount up to now (or to the stop time, if stopped).
     function emittedToDate() public view returns (uint256) {
-        if (block.timestamp <= startTime) return 0;
-        uint256 elapsed = block.timestamp - startTime;
+        uint256 t = (stoppedAt != 0 && stoppedAt < block.timestamp) ? stoppedAt : block.timestamp;
+        if (t <= startTime) return 0;
+        uint256 elapsed = t - startTime;
         if (elapsed >= durationSeconds) return totalEmission;
         return (uint256(totalEmission) * elapsed) / durationSeconds;
     }
 
-    /// @notice Returns the amount the recipient can pull right now.
+    /// @notice Amount the recipient can pull right now (checkpointed past + live tail).
     function claimable(address recipient) public view returns (uint256) {
         Recipient memory r = recipients[recipient];
-        if (!r.active || totalWeightBps != 10_000) return 0;
-        uint256 totalEmitted = emittedToDate();
-        uint256 recipientShare = (totalEmitted * r.weightBps) / 10_000;
-        if (recipientShare <= r.totalPulled) return 0;
-        return recipientShare - r.totalPulled;
+        uint256 owed = credited[recipient];
+        if (r.active && totalWeightBps == 10_000) {
+            owed += ((emittedToDate() - settledEmitted) * r.weightBps) / 10_000;
+        }
+        return owed > r.totalPulled ? owed - r.totalPulled : 0;
     }
 
-    /// @notice Returns full list of registered recipients.
     function getRecipients() external view returns (address[] memory) {
         return recipientList;
+    }
+
+    // -------- internal --------
+
+    /// @dev Lock the emissions accrued since the last checkpoint into each active recipient's
+    ///      `credited` balance at the CURRENT weights, then advance the settled marker.
+    function _settleAll() internal {
+        uint256 emitted = emittedToDate();
+        uint256 delta = emitted - settledEmitted;
+        if (delta == 0) return;
+        uint256 n = recipientList.length;
+        for (uint256 i = 0; i < n; i++) {
+            address addr = recipientList[i];
+            Recipient storage rec = recipients[addr];
+            if (rec.active && rec.weightBps > 0) {
+                credited[addr] += uint128((delta * rec.weightBps) / 10_000);
+            }
+        }
+        settledEmitted = emitted;
     }
 }

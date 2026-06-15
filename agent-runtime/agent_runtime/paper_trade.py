@@ -117,7 +117,7 @@ def main():
             signed = agent.attest()
             if signed:
                 console.print(f"[bold green]✓ Attestation #{agent.epoch} signed[/] by {signed['signer']}")
-                console.print(f"  PnL delta: {int(signed['attestation']['pnlDelta']) / 1e18:+.2f} | Fee: {int(signed['attestation']['feeOnGross']) / 1e18:.2f}")
+                console.print(f"  PnL delta: {int(signed['attestation']['pnlDelta']) / 1e18:+.2f} | Fee (USDC units): {int(signed['attestation']['feeAmount'])}")
             last_attest_at = time.time()
 
         time.sleep(interval_s)

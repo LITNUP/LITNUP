@@ -5,6 +5,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import {Pausable} from "@openzeppelin/contracts/utils/Pausable.sol";
 
 /// @notice Minimal Uniswap V3-like swap router interface (works for Aerodrome/Velodrome v3 too).
 interface ISwapRouter {
@@ -29,12 +30,17 @@ interface IBurnable {
 /// @notice Receives fee revenue (in $LITNUP, USDC, or other accepted tokens), swaps non-native
 ///         to $LITNUP via the router, and burns it. Burns are batched and execute on `swapAndBurn()`
 ///         which can be called by anyone (gas-paid by caller, optional bounty).
-contract BuybackBurn is AccessControl, ReentrancyGuard {
+contract BuybackBurn is AccessControl, ReentrancyGuard, Pausable {
     using SafeERC20 for IERC20;
 
     bytes32 public constant CONFIG_ROLE = keccak256("CONFIG_ROLE");
+    /// @notice Allowed to trigger the swap leg. The swap is keeper-gated (not open) because the
+    /// only robust on-chain MEV protection here is a trusted quote; a v2 should add a Uni-V3 TWAP
+    /// oracle and re-open the swap to anyone. burnDirect() (no swap, no MEV) stays permissionless.
+    bytes32 public constant KEEPER_ROLE = keccak256("KEEPER_ROLE");
+    bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
 
-    IERC20 public immutable alphaToken;
+    IERC20 public immutable litnupToken;
     ISwapRouter public router;
 
     /// @notice Whitelisted input tokens (e.g. USDC) and their fee tier for the router pool.
@@ -60,30 +66,42 @@ contract BuybackBurn is AccessControl, ReentrancyGuard {
     error TokenNotAllowed();
     error CooldownActive();
     error NoBalance();
+    error InvalidQuote();
 
-    constructor(IERC20 _alpha, ISwapRouter _router, address _admin) {
-        alphaToken = _alpha;
+    constructor(IERC20 _litnup, ISwapRouter _router, address _admin) {
+        litnupToken = _litnup;
         router = _router;
         _grantRole(DEFAULT_ADMIN_ROLE, _admin);
         _grantRole(CONFIG_ROLE, _admin);
+        _grantRole(KEEPER_ROLE, _admin);
+        _grantRole(PAUSER_ROLE, _admin);
     }
 
     // -------- main --------
 
-    /// @notice Burn $LITNUP currently in the contract. No swap needed if already in token.
-    function burnDirect() public nonReentrant {
-        uint256 bal = alphaToken.balanceOf(address(this));
+    /// @notice Burn $LITNUP currently in the contract. No swap = no MEV, so left permissionless.
+    function burnDirect() public nonReentrant whenNotPaused {
+        uint256 bal = litnupToken.balanceOf(address(this));
         if (bal == 0) revert NoBalance();
-        IBurnable(address(alphaToken)).burn(bal);
-        emit SwapAndBurn(address(alphaToken), bal, bal, 0);
+        IBurnable(address(litnupToken)).burn(bal);
+        emit SwapAndBurn(address(litnupToken), bal, bal, 0);
     }
 
     /// @notice Swap a whitelisted input token into $LITNUP and burn the proceeds.
+    /// @dev Keeper-gated and `expectedAmountOut` must be non-zero: this prevents the v1 vector where
+    ///      an arbitrary caller passed expectedAmountOut = 0 (so minOut = 0) and sandwiched the swap.
+    ///      minOut is derived from the keeper's quote and the configured maxSlippageBps.
     /// @param tokenIn Whitelisted ERC20 (e.g. USDC)
     /// @param amountIn How much to swap; 0 = full balance
-    /// @param expectedAmountOut Off-chain quoted output (callers protect against MEV)
-    function swapAndBurn(address tokenIn, uint256 amountIn, uint256 expectedAmountOut) external nonReentrant {
-        if (block.timestamp < lastSwapAt + minSwapInterval) revert CooldownActive();
+    /// @param expectedAmountOut Keeper's fresh off-chain quote for the output (must be > 0)
+    function swapAndBurn(address tokenIn, uint256 amountIn, uint256 expectedAmountOut)
+        external
+        nonReentrant
+        whenNotPaused
+        onlyRole(KEEPER_ROLE)
+    {
+        if (lastSwapAt != 0 && block.timestamp < lastSwapAt + minSwapInterval) revert CooldownActive();
+        if (expectedAmountOut == 0) revert InvalidQuote();
         uint24 fee = inputTokenFeeTier[tokenIn];
         if (fee == 0) revert TokenNotAllowed();
 
@@ -93,12 +111,11 @@ contract BuybackBurn is AccessControl, ReentrancyGuard {
 
         uint256 minOut = (expectedAmountOut * (10_000 - maxSlippageBps)) / 10_000;
 
-        IERC20(tokenIn).approve(address(router), 0);
-        IERC20(tokenIn).approve(address(router), amountIn);
+        IERC20(tokenIn).forceApprove(address(router), amountIn);
 
         uint256 amountOut = router.exactInputSingle(ISwapRouter.ExactInputSingleParams({
             tokenIn: tokenIn,
-            tokenOut: address(alphaToken),
+            tokenOut: address(litnupToken),
             fee: fee,
             recipient: address(this),
             deadline: block.timestamp + 600,
@@ -110,8 +127,8 @@ contract BuybackBurn is AccessControl, ReentrancyGuard {
         // Caller bounty
         uint256 bounty = (amountOut * callerBountyBps) / 10_000;
         uint256 toBurn = amountOut - bounty;
-        if (bounty > 0) alphaToken.safeTransfer(msg.sender, bounty);
-        IBurnable(address(alphaToken)).burn(toBurn);
+        if (bounty > 0) litnupToken.safeTransfer(msg.sender, bounty);
+        IBurnable(address(litnupToken)).burn(toBurn);
 
         lastSwapAt = uint64(block.timestamp);
         emit SwapAndBurn(tokenIn, amountIn, toBurn, bounty);
@@ -135,5 +152,13 @@ contract BuybackBurn is AccessControl, ReentrancyGuard {
         maxSlippageBps = _slippageBps;
         minSwapInterval = _minInterval;
         emit ConfigUpdated();
+    }
+
+    function pause() external onlyRole(PAUSER_ROLE) {
+        _pause();
+    }
+
+    function unpause() external onlyRole(PAUSER_ROLE) {
+        _unpause();
     }
 }

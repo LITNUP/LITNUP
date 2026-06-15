@@ -21,14 +21,15 @@ contract InsuranceFund is AccessControl, ReentrancyGuard {
     bytes32 public constant DISBURSER_ROLE = keccak256("DISBURSER_ROLE"); // governance timelock OR emergency multisig
     bytes32 public constant CONFIG_ROLE = keccak256("CONFIG_ROLE");
 
-    IERC20 public immutable alphaToken;
-    address public emergencyPause;
+    IERC20 public immutable litnupToken;
 
-    /// @notice Per-token disbursement limit per epoch. Hard cap on blast radius.
-    uint256 public maxDisbursementPerEpoch = 1_000_000 ether; // 1M $LITNUP default
+    /// @notice Per-token disbursement cap per epoch (decimal-aware — set in each token's own units).
+    /// @dev v1 used a single 18-decimal cap shared across ALL tokens, which was meaningless for a
+    ///      6-decimal token like USDC. Unconfigured tokens default to 0 (disbursement blocked).
+    mapping(address => uint256) public maxDisbursementPerEpoch;
+    mapping(address => uint256) public disbursedThisEpoch;
+    mapping(address => uint256) public lastEpochStart;
     uint256 public epochLength = 7 days;
-    uint256 public lastEpochStart;
-    uint256 public disbursedThisEpoch;
 
     bool public paused;
 
@@ -36,7 +37,7 @@ contract InsuranceFund is AccessControl, ReentrancyGuard {
 
     event Deposited(address indexed token, address indexed from, uint256 amount);
     event Disbursed(address indexed token, address indexed to, uint256 amount, string reason);
-    event MaxDisbursementUpdated(uint256 newCap);
+    event MaxDisbursementUpdated(address indexed token, uint256 newCap);
     event Paused(bool paused);
 
     // -------- errors --------
@@ -45,11 +46,14 @@ contract InsuranceFund is AccessControl, ReentrancyGuard {
     error PausedNow();
     error InvalidParams();
 
-    constructor(IERC20 _alpha, address _admin) {
-        alphaToken = _alpha;
+    constructor(IERC20 _litnup, address _admin) {
+        litnupToken = _litnup;
         _grantRole(DEFAULT_ADMIN_ROLE, _admin);
         _grantRole(CONFIG_ROLE, _admin);
-        lastEpochStart = block.timestamp;
+        // Seed a sane default cap for the protocol's own 18-decimal token. Other tokens (e.g. USDC)
+        // must be configured explicitly via setMaxDisbursementPerEpoch in their own decimals.
+        maxDisbursementPerEpoch[address(_litnup)] = 1_000_000 ether;
+        lastEpochStart[address(_litnup)] = block.timestamp;
     }
 
     // -------- deposits (anyone can fund) --------
@@ -70,25 +74,26 @@ contract InsuranceFund is AccessControl, ReentrancyGuard {
     {
         if (paused) revert PausedNow();
         if (amount == 0 || to == address(0)) revert InvalidParams();
+        address t = address(token);
 
-        // Reset epoch if elapsed
-        if (block.timestamp >= lastEpochStart + epochLength) {
-            lastEpochStart = block.timestamp;
-            disbursedThisEpoch = 0;
+        // Reset this token's epoch if elapsed
+        if (block.timestamp >= lastEpochStart[t] + epochLength) {
+            lastEpochStart[t] = block.timestamp;
+            disbursedThisEpoch[t] = 0;
         }
 
-        if (disbursedThisEpoch + amount > maxDisbursementPerEpoch) revert EpochCapExceeded();
-        disbursedThisEpoch += amount;
+        if (disbursedThisEpoch[t] + amount > maxDisbursementPerEpoch[t]) revert EpochCapExceeded();
+        disbursedThisEpoch[t] += amount;
 
         token.safeTransfer(to, amount);
-        emit Disbursed(address(token), to, amount, reason);
+        emit Disbursed(t, to, amount, reason);
     }
 
     // -------- config --------
 
-    function setMaxDisbursementPerEpoch(uint256 v) external onlyRole(CONFIG_ROLE) {
-        maxDisbursementPerEpoch = v;
-        emit MaxDisbursementUpdated(v);
+    function setMaxDisbursementPerEpoch(IERC20 token, uint256 v) external onlyRole(CONFIG_ROLE) {
+        maxDisbursementPerEpoch[address(token)] = v;
+        emit MaxDisbursementUpdated(address(token), v);
     }
 
     function setEpochLength(uint256 v) external onlyRole(CONFIG_ROLE) {
@@ -107,8 +112,10 @@ contract InsuranceFund is AccessControl, ReentrancyGuard {
         return token.balanceOf(address(this));
     }
 
-    function remainingThisEpoch() external view returns (uint256) {
-        if (block.timestamp >= lastEpochStart + epochLength) return maxDisbursementPerEpoch;
-        return maxDisbursementPerEpoch > disbursedThisEpoch ? maxDisbursementPerEpoch - disbursedThisEpoch : 0;
+    function remainingThisEpoch(IERC20 token) external view returns (uint256) {
+        address t = address(token);
+        uint256 cap = maxDisbursementPerEpoch[t];
+        if (block.timestamp >= lastEpochStart[t] + epochLength) return cap;
+        return cap > disbursedThisEpoch[t] ? cap - disbursedThisEpoch[t] : 0;
     }
 }

@@ -2,11 +2,11 @@
 pragma solidity 0.8.24;
 
 import "forge-std/Test.sol";
-import {LitToken} from "../src/LitToken.sol";
+import {LitnupToken} from "../src/LitnupToken.sol";
 import {VotingEscrow} from "../src/VotingEscrow.sol";
 
 contract VotingEscrowTest is Test {
-    LitToken token;
+    LitnupToken token;
     VotingEscrow ve;
     address admin = makeAddr("admin");
     address alice = makeAddr("alice");
@@ -14,7 +14,7 @@ contract VotingEscrowTest is Test {
     uint64 constant WEEK = 7 days;
 
     function setUp() public {
-        token = new LitToken(admin);
+        token = new LitnupToken(admin);
         vm.prank(admin);
         token.mintInitialSupply();
 

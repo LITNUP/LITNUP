@@ -9,50 +9,50 @@ import type { Address } from 'viem';
 export type Network = 'base' | 'base-sepolia';
 
 export interface ContractAddresses {
-  LitToken: Address;
-  AgentRegistry: Address;
-  StakingVault: Address;
-  PerformanceOracle: Address;
-  BuybackBurn: Address;
-  VotingEscrow: Address;
-  MerkleAirdrop: Address;
-  Vesting: Address;
-  InsuranceFund: Address;
-  Timelock: Address;
-  DelegateRegistry: Address;
-  EmissionScheduler: Address;
+  litnupToken: Address;
+  agentRegistry: Address;
+  stakingVault: Address;
+  performanceOracle: Address;
+  buybackBurn: Address;
+  votingEscrow: Address;
+  merkleAirdrop: Address;
+  vesting: Address;
+  insuranceFund: Address;
+  timelock: Address;
+  delegateRegistry: Address;
+  emissionScheduler: Address;
 }
 
 const ZERO = '0x0000000000000000000000000000000000000000' as const;
 
 const BASE_SEPOLIA: ContractAddresses = {
-  LitToken: ZERO, // TODO: fill in after first deploy
-  AgentRegistry: ZERO,
-  StakingVault: ZERO,
-  PerformanceOracle: ZERO,
-  BuybackBurn: ZERO,
-  VotingEscrow: ZERO,
-  MerkleAirdrop: ZERO,
-  Vesting: ZERO,
-  InsuranceFund: ZERO,
-  Timelock: ZERO,
-  DelegateRegistry: ZERO,
-  EmissionScheduler: ZERO,
+  litnupToken: ZERO, // TODO: fill in after first deploy
+  agentRegistry: ZERO,
+  stakingVault: ZERO,
+  performanceOracle: ZERO,
+  buybackBurn: ZERO,
+  votingEscrow: ZERO,
+  merkleAirdrop: ZERO,
+  vesting: ZERO,
+  insuranceFund: ZERO,
+  timelock: ZERO,
+  delegateRegistry: ZERO,
+  emissionScheduler: ZERO,
 };
 
 const BASE_MAINNET: ContractAddresses = {
-  LitToken: ZERO, // mainnet pending
-  AgentRegistry: ZERO,
-  StakingVault: ZERO,
-  PerformanceOracle: ZERO,
-  BuybackBurn: ZERO,
-  VotingEscrow: ZERO,
-  MerkleAirdrop: ZERO,
-  Vesting: ZERO,
-  InsuranceFund: ZERO,
-  Timelock: ZERO,
-  DelegateRegistry: ZERO,
-  EmissionScheduler: ZERO,
+  litnupToken: ZERO, // mainnet pending
+  agentRegistry: ZERO,
+  stakingVault: ZERO,
+  performanceOracle: ZERO,
+  buybackBurn: ZERO,
+  votingEscrow: ZERO,
+  merkleAirdrop: ZERO,
+  vesting: ZERO,
+  insuranceFund: ZERO,
+  timelock: ZERO,
+  delegateRegistry: ZERO,
+  emissionScheduler: ZERO,
 };
 
 export const addresses: Record<Network, ContractAddresses> = {

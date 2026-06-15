@@ -9,7 +9,7 @@ import {TimelockController} from "@openzeppelin/contracts/governance/TimelockCon
 ///         after a delay, giving stakers time to exit if a malicious proposal lands.
 ///
 ///         At v1 launch:
-///         - Proposers: governance contract (after veAGENTIC is live)
+///         - Proposers: governance contract (after veLITNUP is live)
 ///         - Executors: open (anyone can execute after delay) — saves gas, no security cost since timelock has already passed
 ///         - Min delay: 48 hours initially; raisable by governance to 14 days for Critical params
 ///
