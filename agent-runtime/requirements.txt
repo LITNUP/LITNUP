@@ -9,4 +9,4 @@ python-dotenv>=1.0.0
 pydantic>=2.5.0
 rich>=13.7.0
 click>=8.1.0
-tomli>=2.0.1; python_version < "3.11"
+tomli>=2.4.1; python_version < "3.11"
