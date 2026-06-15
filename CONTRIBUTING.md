@@ -8,7 +8,7 @@ Thanks for considering a contribution. This guide tells you how to work with the
 
 ```bash
 # Clone
-git clone https://github.com/litnup/litnup.git
+git clone https://github.com/LITNUP/LITNUP.git
 cd litnup
 
 # Smart contracts

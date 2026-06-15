@@ -194,7 +194,7 @@ Brand assets in [`logo/`](logo/) and [`web/brand/`](web/brand/) are **CC-BY-NC-4
 
 - **Web:** [litnup.io](https://litnup.io)
 - **X / Twitter:** [@LITNUP](https://x.com/LITNUP)
-- **GitHub:** [github.com/litnup](https://github.com/litnup)
+- **GitHub:** [github.com/LITNUP/LITNUP](https://github.com/LITNUP/LITNUP)
 - **Email:** [hello@litnup.io](mailto:hello@litnup.io) · [ir@litnup.io](mailto:ir@litnup.io) · [arthur@litnup.io](mailto:arthur@litnup.io)
 - **Foundation:** LITNUP Foundation · Cayman Islands · 2026
 
