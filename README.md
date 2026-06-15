@@ -155,9 +155,9 @@ Yield and burn are funded by real USDC fees, not by token emissions to stakers. 
 
 ## Foundation & governance
 
-- **Foundation:** LITNUP Foundation, registered in the Cayman Islands as a non-profit company limited by guarantee.
+- **Foundation:** LITNUP Foundation, a Cayman Islands non-profit foundation (company limited by guarantee), currently in formation.
 - **Founder & Chair:** Arthur Romanov ([`arthur@litnup.io`](mailto:arthur@litnup.io))
-- **Treasury:** 5-of-9 multi-signature, signers geographically distributed across three jurisdictions.
+- **Treasury:** a planned 5-of-9 multi-signature treasury with geographically-distributed signers.
 - **Governance transition:** Q3 2027 → on-chain DAO via veLITNUP (4-year vote-escrow).
 
 For institutional inquiries, materials, and direct introductions: [`ir@litnup.io`](mailto:ir@litnup.io) and the [Investor Relations portal](web/investors.html).
@@ -196,7 +196,7 @@ Brand assets in [`logo/`](logo/) and [`web/brand/`](web/brand/) are **CC-BY-NC-4
 - **X / Twitter:** [@LITNUP](https://x.com/LITNUP)
 - **GitHub:** [github.com/LITNUP/LITNUP](https://github.com/LITNUP/LITNUP)
 - **Email:** [hello@litnup.io](mailto:hello@litnup.io) · [ir@litnup.io](mailto:ir@litnup.io) · [arthur@litnup.io](mailto:arthur@litnup.io)
-- **Foundation:** LITNUP Foundation · Cayman Islands · 2026
+- **Foundation:** LITNUP Foundation · Cayman Islands (in formation) · 2026
 
 ---
 
