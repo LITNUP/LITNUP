@@ -1,5 +1,5 @@
 /**
- * Governance module — veAGENTIC locks + proposals.
+ * Governance module — veLITNUP locks + proposals.
  *
  * Reads VotingEscrow contract; writes via WalletClient. Proposals integration
  * uses Snapshot off-chain by default; on-chain Governor reads as fallback.

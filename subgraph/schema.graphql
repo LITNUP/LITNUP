@@ -182,7 +182,7 @@ type Attestation @entity(immutable: true) {
   agent: Agent!
   epoch: BigInt!
   pnlDelta: BigInt!
-  feeOnGross: BigInt!
+  feeAmount: BigInt!
   blockNumber: BigInt!
   timestamp: BigInt!
   txHash: Bytes!
@@ -263,7 +263,7 @@ type ProtocolStats @entity(immutable: false) {
   cumulativeFeesUsd: BigDecimal!  # estimated USD value at time of fee taken
   cumulativeBurnedTokens: BigInt!
   cumulativeBurnedUsd: BigDecimal!
-  totalLocked: BigInt!         # veAGENTIC totalLocked
+  totalLocked: BigInt!         # veLITNUP totalLocked
   lastUpdatedAt: BigInt!
 }
 

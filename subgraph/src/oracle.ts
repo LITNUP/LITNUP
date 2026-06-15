@@ -21,7 +21,7 @@ export function handleAttestationApplied(event: AttestationApplied): void {
   att.agent = event.params.agentId.toString();
   att.epoch = event.params.epoch;
   att.pnlDelta = event.params.pnlDelta;
-  att.feeOnGross = event.params.feeOnGross;
+  att.feeAmount = event.params.feeAmount;
   att.blockNumber = event.block.number;
   att.timestamp = event.block.timestamp;
   att.txHash = event.transaction.hash;

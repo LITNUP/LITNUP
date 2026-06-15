@@ -103,7 +103,7 @@ console.log('Signature valid:', isValid);
 - `protocol.stake({ agentId, amount })` — stake into an agent vault
 - `protocol.unstakeInit({ agentId, shares })` — start unstake cooldown
 - `protocol.unstakeComplete({ agentId })` — claim after 7-day cooldown
-- `protocol.governance.lock({ amount, unlockTime })` — veAGENTIC lock
+- `protocol.governance.lock({ amount, unlockTime })` — veLITNUP lock
 - `protocol.governance.proposals()` — list active proposals
 - `protocol.token.balanceOf(address)` — $LITNUP balance
 - `protocol.token.approve(spender, amount)` — token approval
@@ -130,9 +130,9 @@ sdk-typescript/
 │   ├── abis/               ← contract ABIs (auto-generated from forge build)
 │   ├── agents.ts           ← agent registry / vault module
 │   ├── staking.ts          ← stake / unstake actions
-│   ├── governance.ts       ← veAGENTIC + proposal queries
+│   ├── governance.ts       ← veLITNUP + proposal queries
 │   ├── attestation.ts      ← EIP-712 attestation verification
-│   ├── token.ts            ← LitToken module
+│   ├── token.ts            ← LitnupToken module
 │   └── types.ts            ← shared types
 ├── package.json
 └── tsconfig.json

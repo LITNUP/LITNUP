@@ -233,6 +233,17 @@ export class LITNUP {
 
     enroll: async (params: EnrollParams): Promise<Hex> => {
       const wc = this.requireWallet();
+      // Fail fast locally before paying gas/signing UX. The registry also
+      // enforces its own configurable cap (maxProtocolFeeBps) on-chain.
+      if (
+        !Number.isInteger(params.protocolFeeBps) ||
+        params.protocolFeeBps < 0 ||
+        params.protocolFeeBps > 10_000
+      ) {
+        throw new Error(
+          `enroll: protocolFeeBps must be an integer in [0, 10000] (got ${params.protocolFeeBps})`,
+        );
+      }
       return wc.writeContract({
         chain: wc.chain ?? null,
         account: wc.account!,
@@ -299,8 +310,9 @@ export class LITNUP {
       functionName: 'stakers',
       args: [agentId, staker],
     })) as readonly [bigint, bigint, bigint, bigint, bigint];
+    // StakerInfo struct order: [shares, pendingShares, unlockAt, rewardDebt, claimable]
     const shares = s[0];
-    const pendingShares = s[2];
+    const pendingShares = s[1];
     if (shares === 0n && pendingShares === 0n) return null;
 
     const sharePrice = (await this.publicClient.readContract({
@@ -315,7 +327,7 @@ export class LITNUP {
       staker,
       shares,
       pendingShares,
-      unlockAt: Number(s[1]),
+      unlockAt: Number(s[2]),
       estimatedAssets: (shares * sharePrice) / 10n ** 18n,
     };
   }
@@ -339,7 +351,7 @@ export class LITNUP {
   }
 
   // ============================================================
-  // GOVERNANCE (veAGENTIC)
+  // GOVERNANCE (veLITNUP)
   // ============================================================
   governance = {
     lock: async (params: LockParams): Promise<Hex> => {

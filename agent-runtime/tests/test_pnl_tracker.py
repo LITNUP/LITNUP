@@ -47,8 +47,9 @@ def test_drawdown_tracking():
     assert p.high_water_mark == p.equity == 10_100
     p.mark_to_market(95.0)
     assert p.drawdown > 0
-    # Drawdown is 50/10100 ≈ 0.495%
-    assert abs(p.drawdown - 50 / 10_100) < 1e-6
+    # Peak equity was 10,100 (at price 110); at price 95 equity is 9,950
+    # (10 units * -5). Drawdown is peak-to-trough: 150/10100 ≈ 1.485%.
+    assert abs(p.drawdown - 150 / 10_100) < 1e-6
 
 
 def test_cannot_open_two_positions():

@@ -98,13 +98,24 @@ def sign_attestation(att: Attestation, signer_private_key: str, chain_id: int, o
             "deadline": att.deadline,
         },
         "signer": account.address,
-        "signature": signed.signature.hex(),
+        # eth-account 0.13.x: signature.hex() has NO 0x prefix; normalize it so
+        # the on-chain relayer / SDK get a canonical 0x-prefixed 65-byte sig.
+        "signature": _hex0x(signed.signature),
         "v": signed.v,
         "r": hex(signed.r),
         "s": hex(signed.s),
         "domain": typed["domain"],
-        "messageHash": signed.messageHash.hex() if hasattr(signed, "messageHash") else None,
+        # eth-account 0.13.x renamed messageHash -> message_hash; support both.
+        "messageHash": _hex0x(getattr(signed, "message_hash", getattr(signed, "messageHash", None))),
     }
+
+
+def _hex0x(value) -> "str | None":
+    """Return a 0x-prefixed hex string for bytes/HexBytes/SignableMessage hashes."""
+    if value is None:
+        return None
+    h = value.hex() if hasattr(value, "hex") else str(value)
+    return h if h.startswith("0x") else "0x" + h
 
 
 # CLI entry point: `python -m agent_runtime.oracle_signer --agent-id 1 --pnl 250 --epoch 1`

@@ -44,8 +44,17 @@ class PnLTracker:
 
     @property
     def equity(self) -> float:
-        """cash + unrealized PnL."""
-        return self.cash + self.unrealized_pnl
+        """cash + open-position cost basis + unrealized PnL.
+
+        open_long() moves `size_usd` out of cash into the position, so the
+        position's cost basis must be added back here — otherwise opening a long
+        would show an instant phantom loss equal to the whole position size.
+        open_short() does not touch cash, so shorts only add unrealized PnL.
+        """
+        e = self.cash + self.unrealized_pnl
+        if self.position is not None and self.position.side == "LONG":
+            e += self.position.size_usd
+        return e
 
     @property
     def total_pnl(self) -> float:

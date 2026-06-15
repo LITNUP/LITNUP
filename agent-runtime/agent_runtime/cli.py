@@ -438,30 +438,36 @@ def vault_status(ctx, agent_id):
         if not w3.is_connected():
             CONSOLE.print("[red]error[/red]: cannot connect to RPC")
             sys.exit(1)
-        # Minimal ABI to read vaults() tuple
+        # Minimal ABI for the Model-B vaults() struct (6 fields).
+        # Must match StakingVault.sol: Vault { totalPrincipal, totalShares,
+        # rewardShares, cooldown, cumulativePnl, accRewardPerShare }.
         abi = [{
             "type": "function",
             "name": "vaults",
             "stateMutability": "view",
             "inputs": [{"name": "agentId", "type": "uint256"}],
             "outputs": [
-                {"name": "totalAssets", "type": "uint128"},
+                {"name": "totalPrincipal", "type": "uint128"},
                 {"name": "totalShares", "type": "uint128"},
-                {"name": "lastAttestation", "type": "uint64"},
+                {"name": "rewardShares", "type": "uint128"},
                 {"name": "cooldown", "type": "uint64"},
+                {"name": "cumulativePnl", "type": "int256"},
+                {"name": "accRewardPerShare", "type": "uint256"},
             ],
         }]
         addr = Web3.to_checksum_address(os.getenv("STAKING_VAULT"))
         contract = w3.eth.contract(address=addr, abi=abi)
-        total_assets, total_shares, last_atts, cooldown = contract.functions.vaults(agent_id).call()
+        total_principal, total_shares, _reward_shares, cooldown, cumulative_pnl, _acc = \
+            contract.functions.vaults(agent_id).call()
         table = Table(title=f"Vault · agent #{agent_id}", box=box.ROUNDED)
         table.add_column("Field")
         table.add_column("Value")
-        table.add_row("Total Assets", f"{total_assets / 1e18:,.4f} AGENTIC")
+        # Model B: stake redeems at PRINCIPAL only; PnL is reputation-only.
+        table.add_row("Total Principal", f"{total_principal / 1e18:,.4f} LITNUP")
         table.add_row("Total Shares", f"{total_shares / 1e18:,.4f}")
-        sp = total_assets / total_shares if total_shares > 0 else 1.0
+        sp = total_principal / total_shares if total_shares > 0 else 1.0
         table.add_row("Share Price", f"{sp:.6f}")
-        table.add_row("Last Attestation", str(datetime.utcfromtimestamp(last_atts)) if last_atts else "never")
+        table.add_row("Cumulative PnL (reputation)", f"{cumulative_pnl / 1e18:+,.4f}")
         table.add_row("Cooldown", f"{cooldown}s ({cooldown / 86400:.1f}d)")
         CONSOLE.print(table)
     except Exception as e:
