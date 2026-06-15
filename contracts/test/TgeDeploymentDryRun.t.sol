@@ -3,7 +3,7 @@ pragma solidity 0.8.24;
 
 import "forge-std/Test.sol";
 
-import {LitToken}         from "../src/LitToken.sol";
+import {LitnupToken}         from "../src/LitnupToken.sol";
 import {AgentRegistry}      from "../src/AgentRegistry.sol";
 import {StakingVault}       from "../src/StakingVault.sol";
 import {PerformanceOracle}  from "../src/PerformanceOracle.sol";
@@ -16,6 +16,7 @@ import {DelegateRegistry}   from "../src/DelegateRegistry.sol";
 import {EmissionScheduler}  from "../src/EmissionScheduler.sol";
 import {PauseGuardian}      from "../src/PauseGuardian.sol";
 import {RewardsDistributor} from "../src/RewardsDistributor.sol";
+import {MockERC20}          from "./mocks/MockERC20.sol";
 
 /// @notice TGE Day-0 dry-run simulation. Asserts that the full deployment
 ///         pipeline + role wiring + initial operator enrollment + first
@@ -36,7 +37,7 @@ import {RewardsDistributor} from "../src/RewardsDistributor.sol";
 ///  10. The PauseGuardian whitelist works
 contract TgeDeploymentDryRun is Test {
     // Deployment outputs
-    LitToken token;
+    LitnupToken token;
     AgentRegistry registry;
     StakingVault vault;
     PerformanceOracle oracle;
@@ -49,6 +50,7 @@ contract TgeDeploymentDryRun is Test {
     EmissionScheduler emissions;
     PauseGuardian guardian;
     RewardsDistributor rewards;
+    MockERC20 usdc;
 
     address admin = makeAddr("foundation_treasury");
     address operator1 = makeAddr("operator_genesis_1");
@@ -102,14 +104,15 @@ contract TgeDeploymentDryRun is Test {
         // ============================================================
         emit log_string("--- PHASE 1: Deploying contracts ---");
 
-        token = new LitToken(admin);
+        token = new LitnupToken(admin);
         vm.prank(admin);
         token.mintInitialSupply();
         assertEq(token.totalSupply(), 1_000_000_000 ether, "supply must equal 1B");
 
         registry = new AgentRegistry(token, admin);
         buyback = new BuybackBurn(token, ISwapRouter(address(0)), admin);
-        vault = new StakingVault(token, registry, admin, address(buyback));
+        usdc = new MockERC20("USD Coin", "USDC", 6);
+        vault = new StakingVault(token, usdc, registry, admin, address(buyback));
         address[] memory signersDyn = new address[](5);
         for (uint i = 0; i < 5; i++) signersDyn[i] = oracleSigners[i];
         oracle = new PerformanceOracle(vault, registry, signersDyn, 3, admin);
@@ -132,7 +135,7 @@ contract TgeDeploymentDryRun is Test {
         guardian = new PauseGuardian(admin, address(timelock), guardianSignersDyn(), 3);
         rewards = new RewardsDistributor(token, admin);
 
-        emit log_named_address("LitToken           ", address(token));
+        emit log_named_address("LitnupToken           ", address(token));
         emit log_named_address("AgentRegistry        ", address(registry));
         emit log_named_address("StakingVault         ", address(vault));
         emit log_named_address("PerformanceOracle    ", address(oracle));
@@ -191,7 +194,7 @@ contract TgeDeploymentDryRun is Test {
         vm.stopPrank();
         assertEq(shares, 10_000 ether);
 
-        (uint128 totalAssets, uint128 totalShares,,) = vault.vaults(agentId);
+        (uint128 totalAssets, uint128 totalShares,,,,) = vault.vaults(agentId);
         assertEq(totalAssets, 10_000 ether);
         assertEq(totalShares, 10_000 ether);
 
@@ -215,25 +218,32 @@ contract TgeDeploymentDryRun is Test {
         // We construct + sign an attestation with 3 of the 5 oracle signers, then apply.
         // (We re-use the existing PerformanceOracleE2E test pattern.)
 
-        int256 pnlDelta = int256(500 ether);   // +5% of vault
-        uint256 feeOnGross = 50 ether;          // 1% protocol fee
-        uint16 toBuybackBps = 5000;             // 50/50 split
+        // Operator funds the USDC performance fee and approves the vault to pull it.
+        usdc.mint(operator1, 1_000_000e6);
+        vm.prank(operator1);
+        usdc.approve(address(vault), type(uint256).max);
+
+        int256 pnlDelta = int256(500 ether);    // attested off-chain PnL (reputation only)
+        uint256 feeAmount = 50e6;                // 50 USDC performance fee
+        uint16 toBuybackBps = 5000;              // 50/50 split
         uint64 epoch = 1;
         uint64 deadline = uint64(block.timestamp + 1 hours);
 
-        bytes32 digest = _digest(agentId, pnlDelta, feeOnGross, toBuybackBps, epoch, deadline);
+        bytes32 digest = _digest(agentId, pnlDelta, feeAmount, toBuybackBps, operator1, epoch, deadline);
         bytes[] memory sigs = new bytes[](3);
         for (uint i = 0; i < 3; i++) {
             (uint8 v, bytes32 r, bytes32 s) = vm.sign(oracleSignerKeys[i], digest);
             sigs[i] = abi.encodePacked(r, s, v);
         }
 
-        oracle.applyAttestation(agentId, pnlDelta, feeOnGross, toBuybackBps, epoch, deadline, sigs);
+        oracle.applyAttestation(agentId, pnlDelta, feeAmount, toBuybackBps, operator1, epoch, deadline, sigs);
 
-        // Verify vault assets grew by pnlDelta - feeOnGross + (toStakers portion)
-        (uint128 newTotalAssets,,,) = vault.vaults(agentId);
-        // 10000 + 500 (PnL) - 50 (fee) + 25 (toStakers half) = 10475
-        assertEq(newTotalAssets, 10_475 ether);
+        // Solvent model: principal is untouched by PnL; PnL recorded; USDC fee split for real.
+        (uint128 newPrincipal,,,, int256 cumPnl,) = vault.vaults(agentId);
+        assertEq(newPrincipal, 10_000 ether, "principal unchanged by PnL");
+        assertEq(cumPnl, 500 ether, "PnL recorded");
+        assertEq(usdc.balanceOf(address(buyback)), 25e6, "buyback received USDC");
+        assertEq(vault.pendingRewards(agentId, staker1), 25e6, "staker accrued USDC yield");
 
         // ============================================================
         // PHASE 7 — Timelock enforcement check
@@ -255,7 +265,7 @@ contract TgeDeploymentDryRun is Test {
         // After delay, execution should work, but vault.setPerVaultCap requires CONFIG_ROLE
         // which admin already has — so we don't bother actually executing here; we just
         // confirmed the timelock blocked the early call. Set-up succeeded.
-        emit log_string("Timelock delay enforced ✓");
+        emit log_string("Timelock delay enforced");
 
         // ============================================================
         // PHASE 8 — PauseGuardian whitelist setup
@@ -278,11 +288,12 @@ contract TgeDeploymentDryRun is Test {
     /// @notice Verify a downstream slashing event flows through end-to-end.
     function test_drawdownSlashFlow() public {
         // Bootstrap the protocol
-        token = new LitToken(admin);
+        token = new LitnupToken(admin);
         vm.prank(admin); token.mintInitialSupply();
+        usdc = new MockERC20("USD Coin", "USDC", 6);
         registry = new AgentRegistry(token, admin);
         buyback = new BuybackBurn(token, ISwapRouter(address(0)), admin);
-        vault = new StakingVault(token, registry, admin, address(buyback));
+        vault = new StakingVault(token, usdc, registry, admin, address(buyback));
         address[] memory signers = new address[](5);
         for (uint i = 0; i < 5; i++) signers[i] = oracleSigners[i];
         oracle = new PerformanceOracle(vault, registry, signers, 3, admin);
@@ -304,19 +315,19 @@ contract TgeDeploymentDryRun is Test {
         vault.stake(agentId, 10_000 ether);
         vm.stopPrank();
 
-        // Apply a -30% PnL (caps to -50% per the safety rail, but -30 is fine)
+        // Record a -30% PnL (reputation only; principal is unaffected in the solvent model).
         vm.prank(address(oracle));
-        vault.applyPnl(agentId, -int128(3_000 ether));
+        vault.recordPnl(agentId, -int256(3_000 ether));
 
-        (uint128 ta,,,) = vault.vaults(agentId);
-        assertEq(ta, 7_000 ether);  // 30% drawdown
+        (uint128 ta,,,,,) = vault.vaults(agentId);
+        assertEq(ta, 10_000 ether, "principal unchanged by PnL");
 
-        // Slash 10% per the design (1000 ether = 10% of original 10000)
+        // Slash 10% of principal (1000 ether) -> real $LITNUP to burn sink.
         vm.prank(address(oracle));
         vault.slashVault(agentId, 1_000 ether);
 
-        (uint128 taAfter,,,) = vault.vaults(agentId);
-        assertEq(taAfter, 6_000 ether);
+        (uint128 taAfter,,,,,) = vault.vaults(agentId);
+        assertEq(taAfter, 9_000 ether);
         assertEq(token.balanceOf(address(buyback)), 1_000 ether, "burn sink received slash");
     }
 
@@ -333,14 +344,15 @@ contract TgeDeploymentDryRun is Test {
     function _digest(
         uint256 agentId,
         int256 pnlDelta,
-        uint256 feeOnGross,
+        uint256 feeAmount,
         uint16 toBuybackBps,
+        address feePayer,
         uint64 epoch,
         uint64 deadline
     ) internal view returns (bytes32) {
         bytes32 typeHash = oracle.ATTESTATION_TYPEHASH();
         bytes32 structHash = keccak256(
-            abi.encode(typeHash, agentId, pnlDelta, feeOnGross, toBuybackBps, epoch, deadline)
+            abi.encode(typeHash, agentId, pnlDelta, feeAmount, toBuybackBps, feePayer, epoch, deadline)
         );
         bytes32 domainSep = _domainSeparator();
         return keccak256(abi.encodePacked("\x19\x01", domainSep, structHash));

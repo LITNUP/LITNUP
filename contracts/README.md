@@ -8,13 +8,13 @@ Solidity 0.8.24, Foundry-based. Deployed to Base (mainnet) and Base Sepolia (tes
 contracts/
 ├── foundry.toml
 ├── src/
-│   ├── LitToken.sol         ← $LITNUP token (ERC20Votes + Permit, capped 1B)
+│   ├── LitnupToken.sol         ← $LITNUP token (ERC20Votes + Permit, capped 1B)
 │   ├── AgentRegistry.sol      ← agent enrollment, bonds, slashing hooks
 │   ├── StakingVault.sol       ← per-agent share-based staking
 │   ├── PerformanceOracle.sol  ← multisig PnL attestation
 │   └── BuybackBurn.sol        ← fee → buyback → burn pipeline
 └── test/
-    ├── LitToken.t.sol
+    ├── LitnupToken.t.sol
     ├── AgentRegistry.t.sol
     ├── StakingVault.t.sol
     ├── PerformanceOracle.t.sol
@@ -82,7 +82,7 @@ forge script script/Deploy.s.sol --rpc-url base_sepolia --broadcast --verify
 
 | Contract | LOC | Tests | Audit |
 |---|---|---|---|
-| LitToken.sol | ~80 | stub | not started |
+| LitnupToken.sol | ~80 | stub | not started |
 | AgentRegistry.sol | ~140 | stub | not started |
 | StakingVault.sol | ~200 | stub | not started |
 | PerformanceOracle.sol | ~150 | stub | not started |

@@ -1,5 +1,5 @@
 /**
- * @alphagentic/sdk/react — React + wagmi hooks.
+ * @litnup/sdk/react — React + wagmi hooks.
  *
  * Thin convenience layer over wagmi's useReadContract / useWriteContract that
  * pre-binds the LITNUP ABIs and per-network addresses. Callers get
@@ -13,7 +13,7 @@
  *   - @tanstack/react-query ^5.0.0
  *
  * Usage:
- *   import { useAgentInfo, useStakerPosition } from '@alphagentic/sdk/react';
+ *   import { useAgentInfo, useStakerPosition } from '@litnup/sdk/react';
  *
  *   function AgentCard({ agentId }: { agentId: bigint }) {
  *     const { data: info, isLoading } = useAgentInfo(agentId);
@@ -33,7 +33,7 @@ import { type Address } from 'viem';
 import { useReadContract, useWriteContract, useAccount, useChainId } from 'wagmi';
 
 import {
-  alphaTokenAbi,
+  litnupTokenAbi,
   agentRegistryAbi,
   stakingVaultAbi,
   performanceOracleAbi,
@@ -67,13 +67,13 @@ function useAddresses() {
 
 /** Read $LITNUP balance for the connected account (or a specific account). */
 export function useAlphaBalance(account?: Address) {
-  const { alphaToken } = useAddresses();
+  const { litnupToken } = useAddresses();
   // @ts-ignore wagmi
   const { address } = useAccount();
   const target = account ?? address;
   return useReadContract({
-    abi: alphaTokenAbi,
-    address: alphaToken,
+    abi: litnupTokenAbi,
+    address: litnupToken,
     functionName: 'balanceOf',
     args: target ? [target] : undefined,
     query: { enabled: !!target },
@@ -81,22 +81,22 @@ export function useAlphaBalance(account?: Address) {
 }
 
 export function useAlphaTotalSupply() {
-  const { alphaToken } = useAddresses();
+  const { litnupToken } = useAddresses();
   return useReadContract({
-    abi: alphaTokenAbi,
-    address: alphaToken,
+    abi: litnupTokenAbi,
+    address: litnupToken,
     functionName: 'totalSupply',
   });
 }
 
 export function useAlphaAllowance(owner?: Address, spender?: Address) {
-  const { alphaToken } = useAddresses();
+  const { litnupToken } = useAddresses();
   // @ts-ignore wagmi
   const { address } = useAccount();
   const o = owner ?? address;
   return useReadContract({
-    abi: alphaTokenAbi,
-    address: alphaToken,
+    abi: litnupTokenAbi,
+    address: litnupToken,
     functionName: 'allowance',
     args: o && spender ? [o, spender] : undefined,
     query: { enabled: !!(o && spender) },
@@ -104,13 +104,13 @@ export function useAlphaAllowance(owner?: Address, spender?: Address) {
 }
 
 export function useApprove() {
-  const { alphaToken } = useAddresses();
+  const { litnupToken } = useAddresses();
   // @ts-ignore wagmi
   const { writeContract, ...rest } = useWriteContract();
   const approve = (spender: Address, value: bigint) =>
     writeContract({
-      abi: alphaTokenAbi,
-      address: alphaToken,
+      abi: litnupTokenAbi,
+      address: litnupToken,
       functionName: 'approve',
       args: [spender, value],
     });
@@ -118,13 +118,13 @@ export function useApprove() {
 }
 
 export function useDelegates(account?: Address) {
-  const { alphaToken } = useAddresses();
+  const { litnupToken } = useAddresses();
   // @ts-ignore wagmi
   const { address } = useAccount();
   const target = account ?? address;
   return useReadContract({
-    abi: alphaTokenAbi,
-    address: alphaToken,
+    abi: litnupTokenAbi,
+    address: litnupToken,
     functionName: 'delegates',
     args: target ? [target] : undefined,
     query: { enabled: !!target },
@@ -132,13 +132,13 @@ export function useDelegates(account?: Address) {
 }
 
 export function useDelegate() {
-  const { alphaToken } = useAddresses();
+  const { litnupToken } = useAddresses();
   // @ts-ignore wagmi
   const { writeContract, ...rest } = useWriteContract();
   const delegate = (delegatee: Address) =>
     writeContract({
-      abi: alphaTokenAbi,
-      address: alphaToken,
+      abi: litnupTokenAbi,
+      address: litnupToken,
       functionName: 'delegate',
       args: [delegatee],
     });

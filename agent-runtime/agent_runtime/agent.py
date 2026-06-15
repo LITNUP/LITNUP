@@ -103,15 +103,21 @@ class Agent:
         equity_prev = self.cfg.initial_capital_usd + self._last_attest_pnl_usd
         delta_usd = equity_now - equity_prev
 
-        # Fee only on positive PnL
+        # Fee only on positive PnL. The fee is paid in the reward/settlement token (e.g. USDC),
+        # so it is scaled by the reward token's decimals (default 6 for USDC), NOT 1e18.
         fee_usd = max(0.0, delta_usd) * (self.cfg.fee_bps_on_profit / 10_000.0)
+        reward_decimals = getattr(self.cfg, "reward_token_decimals", 6)
+        to_buyback_bps = getattr(self.cfg, "to_buyback_bps", 5000)
+        fee_payer = getattr(self.cfg, "fee_payer", "0x" + "0" * 40)
 
         att = Attestation(
             agent_id=self.cfg.agent_id,
             pnl_delta_wei=int(delta_usd * 1e18),
-            fee_on_gross_wei=int(fee_usd * 1e18),
+            fee_amount=int(fee_usd * (10 ** reward_decimals)),
+            to_buyback_bps=to_buyback_bps,
+            fee_payer=fee_payer,
             epoch=self.epoch + 1,
-            deadline=now + 3600,
+            deadline=now + 21_600,  # 6h, to outlast multi-sig quorum gathering
         )
         signed = sign_attestation(att, self.signer_private_key, self.cfg.chain_id, self.cfg.oracle_address)
 

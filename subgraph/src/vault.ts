@@ -6,7 +6,7 @@ import {
   Staked,
   UnstakeInit,
   Unstaked,
-  PnlApplied,
+  PnlRecorded,
   FeesTaken,
   StakerSlashed,
 } from "../generated/StakingVault/StakingVault";
@@ -86,7 +86,7 @@ export function handleUnstakeInit(event: UnstakeInit): void {
   const agentIdStr = event.params.agentId.toString();
   const position = getOrCreatePosition(agentIdStr, event.params.staker);
   position.pendingShares = position.pendingShares.plus(event.params.shares);
-  position.unlockAt = BigInt.fromI64(event.params.unlockAt);
+  position.unlockAt = event.params.unlockAt;
   position.save();
 
   const ev = new UnstakeEvent(eventId(event));
@@ -95,7 +95,7 @@ export function handleUnstakeInit(event: UnstakeInit): void {
   ev.shares = event.params.shares;
   ev.amount = BigInt.zero();
   ev.phase = "Init";
-  ev.unlockAt = BigInt.fromI64(event.params.unlockAt);
+  ev.unlockAt = event.params.unlockAt;
   ev.blockNumber = event.block.number;
   ev.timestamp = event.block.timestamp;
   ev.txHash = event.transaction.hash;
@@ -139,20 +139,20 @@ export function handleUnstaked(event: Unstaked): void {
   stats.save();
 }
 
-export function handlePnlApplied(event: PnlApplied): void {
+export function handlePnlRecorded(event: PnlRecorded): void {
   const agentIdStr = event.params.agentId.toString();
   const agent = Agent.load(agentIdStr);
   if (agent == null) return;
 
-  agent.totalAssets = event.params.newTotalAssets;
-  agent.cumulativePnL = agent.cumulativePnL.plus(event.params.delta);
-  recomputeSharePrice(agent);
+  // Solvent model: attested PnL is reputation/fee basis ONLY; it does not change vault assets
+  // or share price (those move only on stake/unstake/slash). cumulativePnl is the running total.
+  agent.cumulativePnL = event.params.cumulativePnl;
   agent.save();
 
   const ev = new PnlEvent(eventId(event));
   ev.agent = agentIdStr;
   ev.delta = event.params.delta;
-  ev.newTotalAssets = event.params.newTotalAssets;
+  ev.newTotalAssets = agent.totalAssets; // unchanged by PnL; recorded for continuity
   ev.blockNumber = event.block.number;
   ev.timestamp = event.block.timestamp;
   ev.txHash = event.transaction.hash;

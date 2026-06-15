@@ -19,11 +19,13 @@ const DOMAIN_VERSION = '1';
 
 const TYPES = {
   Attestation: [
-    { name: 'agentId',    type: 'uint256' },
-    { name: 'pnlDelta',   type: 'int256' },
-    { name: 'feeOnGross', type: 'uint256' },
-    { name: 'epoch',      type: 'uint64' },
-    { name: 'deadline',   type: 'uint64' },
+    { name: 'agentId',      type: 'uint256' },
+    { name: 'pnlDelta',     type: 'int256' },
+    { name: 'feeAmount',    type: 'uint256' },
+    { name: 'toBuybackBps', type: 'uint16' },
+    { name: 'feePayer',     type: 'address' },
+    { name: 'epoch',        type: 'uint64' },
+    { name: 'deadline',     type: 'uint64' },
   ],
 } as const;
 
@@ -47,7 +49,9 @@ export function buildTypedData(params: BuildTypedDataParams) {
     message: {
       agentId: params.attestation.agentId,
       pnlDelta: params.attestation.pnlDelta,
-      feeOnGross: params.attestation.feeOnGross,
+      feeAmount: params.attestation.feeAmount,
+      toBuybackBps: params.attestation.toBuybackBps,
+      feePayer: params.attestation.feePayer,
       epoch: params.attestation.epoch,
       deadline: params.attestation.deadline,
     },

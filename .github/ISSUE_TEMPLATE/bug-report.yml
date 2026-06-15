@@ -1,0 +1,60 @@
+name: 🐛 Bug Report
+description: Report something that's broken
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug report. The clearer the repro, the faster we fix.
+
+        **Security issues:** if you found a smart contract vulnerability, do NOT open a public issue. Email security@alphagentic.xyz or report via [Immunefi](https://immunefi.com).
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      options:
+        - Smart contracts
+        - Agent runtime (Python)
+        - Frontend (landing / dashboard)
+        - Documentation
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Clear description of the bug. Screenshots/logs welcome.
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction steps
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+
+  - type: input
+    id: env
+    attributes:
+      label: Environment
+      placeholder: "OS, browser/python version, chain (Base Sepolia / mainnet), commit hash"
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else?

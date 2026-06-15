@@ -1,5 +1,5 @@
 /**
- * @alphagentic/sdk — top-level entry.
+ * @litnup/sdk — top-level entry.
  *
  * Status: alpha. API stable enough to build on; expect refinements through mainnet (Q4 2026).
  */

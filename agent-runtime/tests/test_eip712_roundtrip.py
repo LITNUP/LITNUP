@@ -28,7 +28,9 @@ from agent_runtime.oracle_signer import (
 # Reference test vectors — change ONLY if you change the on-chain TYPEHASH
 SAMPLE_AGENT_ID = 42
 SAMPLE_PNL_DELTA = 250 * 10**18
-SAMPLE_FEE = 25 * 10**18
+SAMPLE_FEE = 25 * 10**6           # reward-token (USDC) units
+SAMPLE_BPS = 5000
+SAMPLE_PAYER = "0xcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd"
 SAMPLE_EPOCH = 7
 SAMPLE_DEADLINE = 2_000_000_000
 TEST_CHAIN_ID = 84532  # Base Sepolia
@@ -37,7 +39,7 @@ TEST_ORACLE_ADDR = "0xabababababababababababababababababababab"
 
 def test_typed_data_layout_matches_solidity():
     """Verify the Python typed data exactly matches what _hashTypedDataV4 expects."""
-    att = Attestation(SAMPLE_AGENT_ID, SAMPLE_PNL_DELTA, SAMPLE_FEE, SAMPLE_EPOCH, SAMPLE_DEADLINE)
+    att = Attestation(SAMPLE_AGENT_ID, SAMPLE_PNL_DELTA, SAMPLE_FEE, SAMPLE_BPS, SAMPLE_PAYER, SAMPLE_EPOCH, SAMPLE_DEADLINE)
     typed = build_typed_data(att, TEST_CHAIN_ID, TEST_ORACLE_ADDR)
 
     # Domain assertions
@@ -51,14 +53,14 @@ def test_typed_data_layout_matches_solidity():
 
     # Field order matters for the type hash — verify it
     fields = [f["name"] for f in typed["types"]["Attestation"]]
-    assert fields == ["agentId", "pnlDelta", "feeOnGross", "epoch", "deadline"]
+    assert fields == ["agentId", "pnlDelta", "feeAmount", "toBuybackBps", "feePayer", "epoch", "deadline"]
 
 
 def test_signature_recovers_to_signer():
     """End-to-end: sign with key, recover via eth_account, verify match."""
     acct = Account.from_key("0x" + "1" * 64)
 
-    att = Attestation(SAMPLE_AGENT_ID, SAMPLE_PNL_DELTA, SAMPLE_FEE, SAMPLE_EPOCH, SAMPLE_DEADLINE)
+    att = Attestation(SAMPLE_AGENT_ID, SAMPLE_PNL_DELTA, SAMPLE_FEE, SAMPLE_BPS, SAMPLE_PAYER, SAMPLE_EPOCH, SAMPLE_DEADLINE)
     out = sign_attestation(att, acct.key.hex(), TEST_CHAIN_ID, TEST_ORACLE_ADDR)
     assert out["signer"] == acct.address
 
@@ -72,7 +74,7 @@ def test_signature_recovers_to_signer():
 def test_different_chain_id_changes_signature():
     """A signature for chain A should NOT recover the same hash on chain B."""
     acct = Account.from_key("0x" + "1" * 64)
-    att = Attestation(SAMPLE_AGENT_ID, SAMPLE_PNL_DELTA, SAMPLE_FEE, SAMPLE_EPOCH, SAMPLE_DEADLINE)
+    att = Attestation(SAMPLE_AGENT_ID, SAMPLE_PNL_DELTA, SAMPLE_FEE, SAMPLE_BPS, SAMPLE_PAYER, SAMPLE_EPOCH, SAMPLE_DEADLINE)
     out_a = sign_attestation(att, acct.key.hex(), 1, TEST_ORACLE_ADDR)
     out_b = sign_attestation(att, acct.key.hex(), 84532, TEST_ORACLE_ADDR)
     assert out_a["signature"] != out_b["signature"]
@@ -81,7 +83,7 @@ def test_different_chain_id_changes_signature():
 def test_different_contract_address_changes_signature():
     """Same chain, different verifyingContract → different signature."""
     acct = Account.from_key("0x" + "1" * 64)
-    att = Attestation(SAMPLE_AGENT_ID, SAMPLE_PNL_DELTA, SAMPLE_FEE, SAMPLE_EPOCH, SAMPLE_DEADLINE)
+    att = Attestation(SAMPLE_AGENT_ID, SAMPLE_PNL_DELTA, SAMPLE_FEE, SAMPLE_BPS, SAMPLE_PAYER, SAMPLE_EPOCH, SAMPLE_DEADLINE)
     a = sign_attestation(att, acct.key.hex(), TEST_CHAIN_ID, "0x" + "ab" * 20)
     b = sign_attestation(att, acct.key.hex(), TEST_CHAIN_ID, "0x" + "cd" * 20)
     assert a["signature"] != b["signature"]
@@ -91,7 +93,7 @@ def test_three_signers_produce_distinct_signatures():
     """Multi-sig flow: each signer produces a unique signature; all recover correctly."""
     keys = ["0x" + str(i) * 64 for i in range(1, 4)]
     accts = [Account.from_key(k) for k in keys]
-    att = Attestation(SAMPLE_AGENT_ID, SAMPLE_PNL_DELTA, SAMPLE_FEE, SAMPLE_EPOCH, SAMPLE_DEADLINE)
+    att = Attestation(SAMPLE_AGENT_ID, SAMPLE_PNL_DELTA, SAMPLE_FEE, SAMPLE_BPS, SAMPLE_PAYER, SAMPLE_EPOCH, SAMPLE_DEADLINE)
     sigs = [sign_attestation(att, k, TEST_CHAIN_ID, TEST_ORACLE_ADDR) for k in keys]
     sig_strings = [s["signature"] for s in sigs]
     assert len(set(sig_strings)) == 3

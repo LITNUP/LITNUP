@@ -19,7 +19,7 @@ export function handleAttestationApplied(event: AttestationApplied): void {
   const id = event.params.agentId.toString() + "-" + event.params.epoch.toString();
   let att = new Attestation(id);
   att.agent = event.params.agentId.toString();
-  att.epoch = BigInt.fromI64(event.params.epoch);
+  att.epoch = event.params.epoch;
   att.pnlDelta = event.params.pnlDelta;
   att.feeOnGross = event.params.feeOnGross;
   att.blockNumber = event.block.number;

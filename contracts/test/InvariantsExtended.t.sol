@@ -4,7 +4,7 @@ pragma solidity 0.8.24;
 import "forge-std/Test.sol";
 import "forge-std/StdInvariant.sol";
 
-import {LitToken}        from "../src/LitToken.sol";
+import {LitnupToken}        from "../src/LitnupToken.sol";
 import {VotingEscrow}      from "../src/VotingEscrow.sol";
 import {Vesting}           from "../src/Vesting.sol";
 import {DelegateRegistry}  from "../src/DelegateRegistry.sol";
@@ -13,14 +13,14 @@ import {EmissionScheduler} from "../src/EmissionScheduler.sol";
 /// @notice Extended invariant suite covering the contracts not in Invariants.t.sol:
 ///   VotingEscrow, Vesting, DelegateRegistry, EmissionScheduler.
 contract VotingEscrowInvariants is StdInvariant, Test {
-    LitToken token;
+    LitnupToken token;
     VotingEscrow ve;
     VotingEscrowHandler handler;
 
     address admin = makeAddr("admin");
 
     function setUp() public {
-        token = new LitToken(admin);
+        token = new LitnupToken(admin);
         vm.prank(admin);
         token.mintInitialSupply();
 
@@ -58,12 +58,12 @@ contract VotingEscrowInvariants is StdInvariant, Test {
 }
 
 contract VotingEscrowHandler is Test {
-    LitToken public token;
+    LitnupToken public token;
     VotingEscrow public ve;
     address public admin;
     address[] public actors;
 
-    constructor(LitToken _token, VotingEscrow _ve, address _admin) {
+    constructor(LitnupToken _token, VotingEscrow _ve, address _admin) {
         token = _token;
         ve = _ve;
         admin = _admin;
@@ -115,14 +115,14 @@ contract VotingEscrowHandler is Test {
 // ============================================================
 
 contract VestingInvariants is StdInvariant, Test {
-    LitToken token;
+    LitnupToken token;
     Vesting vesting;
     VestingHandler handler;
 
     address admin = makeAddr("admin");
 
     function setUp() public {
-        token = new LitToken(admin);
+        token = new LitnupToken(admin);
         vm.prank(admin);
         token.mintInitialSupply();
         vesting = new Vesting(token, admin);
@@ -142,12 +142,12 @@ contract VestingInvariants is StdInvariant, Test {
 }
 
 contract VestingHandler is Test {
-    LitToken public token;
+    LitnupToken public token;
     Vesting public vesting;
     address public admin;
     address[] public bens;
 
-    constructor(LitToken _token, Vesting _vesting, address _admin) {
+    constructor(LitnupToken _token, Vesting _vesting, address _admin) {
         token = _token;
         vesting = _vesting;
         admin = _admin;
@@ -182,7 +182,7 @@ contract VestingHandler is Test {
 // ============================================================
 
 contract EmissionInvariants is StdInvariant, Test {
-    LitToken token;
+    LitnupToken token;
     EmissionScheduler sched;
     EmissionHandler handler;
 
@@ -191,7 +191,7 @@ contract EmissionInvariants is StdInvariant, Test {
     uint64 constant DURATION = 365 days;
 
     function setUp() public {
-        token = new LitToken(admin);
+        token = new LitnupToken(admin);
         vm.prank(admin);
         token.mintInitialSupply();
         sched = new EmissionScheduler(token, uint64(block.timestamp), DURATION, TOTAL, admin);
@@ -214,12 +214,12 @@ contract EmissionInvariants is StdInvariant, Test {
 }
 
 contract EmissionHandler is Test {
-    LitToken public token;
+    LitnupToken public token;
     EmissionScheduler public sched;
     address public admin;
     address[] public recipients;
 
-    constructor(LitToken _token, EmissionScheduler _sched, address _admin) {
+    constructor(LitnupToken _token, EmissionScheduler _sched, address _admin) {
         token = _token;
         sched = _sched;
         admin = _admin;
@@ -420,14 +420,14 @@ contract PauseGuardianHandler is Test {
 import {RewardsDistributor} from "../src/RewardsDistributor.sol";
 
 contract RewardsDistributorInvariants is StdInvariant, Test {
-    LitToken token;
+    LitnupToken token;
     RewardsDistributor dist;
     RewardsDistributorHandler handler;
 
     address admin = makeAddr("rdadmin");
 
     function setUp() public {
-        token = new LitToken(admin);
+        token = new LitnupToken(admin);
         vm.prank(admin);
         token.mintInitialSupply();
         dist = new RewardsDistributor(token, admin);
@@ -459,12 +459,12 @@ contract RewardsDistributorInvariants is StdInvariant, Test {
 }
 
 contract RewardsDistributorHandler is Test {
-    LitToken public token;
+    LitnupToken public token;
     RewardsDistributor public dist;
     address public admin;
     bytes32 constant CID = keccak256("test");
 
-    constructor(LitToken _t, RewardsDistributor _d, address _a) {
+    constructor(LitnupToken _t, RewardsDistributor _d, address _a) {
         token = _t;
         dist = _d;
         admin = _a;

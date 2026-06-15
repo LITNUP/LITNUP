@@ -6,7 +6,7 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 
-/// @title VotingEscrow (veAGENTIC)
+/// @title VotingEscrow (veLITNUP)
 /// @notice Lock $LITNUP for up to MAX_LOCK to receive boosted governance weight + fee rebates.
 ///         Linear decay model: weight = locked * (timeLeft / MAX_LOCK).
 ///         Inspired by Curve's veCRV. Simplified: no transfer NFTs in v1, integer math, no checkpoints.
@@ -93,13 +93,14 @@ contract VotingEscrow is AccessControl, ReentrancyGuard {
         emit LockToppedUp(msg.sender, amount, lock.amount);
     }
 
-    /// @notice Extend lock to a later unlock time (must increase).
-    function extendLock(uint64 newUnlockTime) external {
+    /// @notice Extend lock to a later unlock time (must increase, within [MIN_LOCK, MAX_LOCK]).
+    function extendLock(uint64 newUnlockTime) external nonReentrant {
         LockInfo storage lock = locks[msg.sender];
         if (lock.amount == 0) revert NoLock();
 
         uint64 t = _floorToWeek(newUnlockTime);
         if (t <= lock.unlockTime) revert UnlockTimeMustIncrease();
+        if (t < block.timestamp + MIN_LOCK) revert LockTooShort();
         if (t > block.timestamp + MAX_LOCK) revert LockTooLong();
 
         lock.unlockTime = t;

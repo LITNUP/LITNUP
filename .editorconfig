@@ -1,0 +1,43 @@
+# EditorConfig — https://editorconfig.org
+# Universal across all editors. Keep file-format consistency in the repo.
+
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+
+# Solidity
+[*.sol]
+indent_size = 4
+max_line_length = 120
+
+# Python
+[*.py]
+indent_size = 4
+max_line_length = 100
+
+# Markdown — preserve trailing whitespace (it can mean line break)
+[*.md]
+trim_trailing_whitespace = false
+max_line_length = off
+
+# Makefiles need real tabs
+[Makefile]
+indent_style = tab
+
+# JSON
+[*.json]
+indent_size = 2
+
+# YAML
+[*.{yml,yaml}]
+indent_size = 2
+
+# TOML
+[*.toml]
+indent_size = 2

@@ -8,7 +8,7 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol
 import {MerkleProof} from "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
 /// @title RewardsDistributor
-/// @notice Periodic merkle-root reward distribution for veAGENTIC lockers and
+/// @notice Periodic merkle-root reward distribution for veLITNUP lockers and
 ///         agent operators. Each "epoch" the protocol publishes a single root
 ///         covering all eligible recipients; recipients pull at any time.
 ///
@@ -18,7 +18,7 @@ import {MerkleProof} from "@openzeppelin/contracts/utils/cryptography/MerkleProo
 ///            in time; anyone can verify a recipient's inclusion or exclusion.
 ///
 ///         Each recipient may have multiple "channels" (rewards from different
-///         buckets — e.g. veAGENTIC weekly emission, operator performance fees,
+///         buckets — e.g. veLITNUP weekly emission, operator performance fees,
 ///         insurance-fund payouts). Each channel has independent merkle roots.
 contract RewardsDistributor is AccessControl, ReentrancyGuard {
     using SafeERC20 for IERC20;
@@ -45,7 +45,7 @@ contract RewardsDistributor is AccessControl, ReentrancyGuard {
 
     /// @notice Channel metadata for indexers + UI.
     struct Channel {
-        string  description;     // human label e.g. "veAGENTIC weekly"
+        string  description;     // human label e.g. "veLITNUP weekly"
         uint64  publishedAt;
         bool    active;
     }
@@ -62,9 +62,13 @@ contract RewardsDistributor is AccessControl, ReentrancyGuard {
     // -------- errors --------
 
     error ChannelInactive();
+    error ChannelStillActive();
     error InvalidProof();
     error AlreadyFullyClaimed();
     error InsufficientFunding();
+    error NothingToRecover();
+
+    event FundsRecovered(bytes32 indexed channelId, address indexed to, uint256 amount);
 
     constructor(IERC20 _rewardToken, address _admin) {
         rewardToken = _rewardToken;
@@ -111,6 +115,22 @@ contract RewardsDistributor is AccessControl, ReentrancyGuard {
         emit ChannelDeactivated(channelId);
     }
 
+    /// @notice Recover the unclaimed funded balance of a DEACTIVATED channel (e.g. over-funding or a
+    ///         retired/erroneous channel). Prevents funds being permanently frozen by deactivation.
+    /// @dev Requires the channel to be inactive first, so it cannot rug in-flight legitimate claims.
+    function recoverChannelFunds(bytes32 channelId, address to)
+        external
+        onlyRole(DEFAULT_ADMIN_ROLE)
+        nonReentrant
+    {
+        if (channels[channelId].active) revert ChannelStillActive();
+        uint256 remaining = funded[channelId] - totalClaimed[channelId];
+        if (remaining == 0) revert NothingToRecover();
+        funded[channelId] = totalClaimed[channelId]; // zero out the recoverable remainder
+        rewardToken.safeTransfer(to, remaining);
+        emit FundsRecovered(channelId, to, remaining);
+    }
+
     // ============================================================
     // CLAIMS
     // ============================================================
@@ -126,7 +146,9 @@ contract RewardsDistributor is AccessControl, ReentrancyGuard {
     ) external nonReentrant returns (uint256 paid) {
         if (!channels[channelId].active) revert ChannelInactive();
 
-        bytes32 leaf = keccak256(bytes.concat(keccak256(abi.encode(user, cumulativeAmount))));
+        // channelId is bound into the leaf so a proof for one channel cannot be replayed against
+        // another channel that happens to share the same root.
+        bytes32 leaf = keccak256(bytes.concat(keccak256(abi.encode(channelId, user, cumulativeAmount))));
         if (!MerkleProof.verify(proof, roots[channelId], leaf)) revert InvalidProof();
 
         uint256 already = claimedSoFar[channelId][user];
@@ -156,7 +178,7 @@ contract RewardsDistributor is AccessControl, ReentrancyGuard {
             bytes32 cid = channelIds[i];
             if (!channels[cid].active) continue;
 
-            bytes32 leaf = keccak256(bytes.concat(keccak256(abi.encode(user, cumulativeAmounts[i]))));
+            bytes32 leaf = keccak256(bytes.concat(keccak256(abi.encode(cid, user, cumulativeAmounts[i]))));
             if (!MerkleProof.verify(proofs[i], roots[cid], leaf)) continue;
 
             uint256 already = claimedSoFar[cid][user];
