@@ -121,3 +121,6 @@ backup/
 
 # local-chain deploy manifest (anvil)
 contracts/deployments/31337.json
+
+# testnet deploy secrets (NEVER commit)
+contracts/.deploy*

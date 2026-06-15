@@ -14,7 +14,7 @@ import {
 import type { Attestation } from '../src/types.js';
 
 const TEST_KEY = '0x1111111111111111111111111111111111111111111111111111111111111111';
-const ORACLE_ADDR = '0xababababababababababababababababababab' as const;
+const ORACLE_ADDR = '0x000000000000000000000000000000000000dead' as const;
 
 const sampleAttestation: Attestation = {
   agentId: 42n,
