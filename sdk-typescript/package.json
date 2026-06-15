@@ -58,7 +58,7 @@
     "@tanstack/react-query": { "optional": true }
   },
   "devDependencies": {
-    "@types/node": "^20.0.0",
+    "@types/node": "^25.9.3",
     "tsup": "^8.0.0",
     "typescript": "^5.4.0",
     "viem": "^2.21.0",
