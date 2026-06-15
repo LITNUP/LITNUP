@@ -57,7 +57,7 @@ backs was insolvent by construction. The new model:
 | 15 | Medium | `RewardsDistributor` no recovery; proof portable across channels | **Fixed** — `recoverChannelFunds`; `channelId` bound into leaf |
 | 16 | Medium | `InsuranceFund` decimal-blind shared cap | **Fixed** — per-token decimal-aware caps |
 | 17 | Medium | FAQ tokenomics summed to 110% | **Fixed** — 100%, aligned to `tokenomics.md` |
-| 18 | Low/Info | Broken legacy `deploy/Deploy.s.sol` (imports deleted file); naming drift (LitToken/veAGENTIC/litnup); SDK addresses undefined; subgraph won't compile; `cli.py oracle sign` crash; build didn't compile (empty `lib/`) | **Fixed** — see §4 |
+| 18 | Low/Info | Broken legacy `deploy/Deploy.s.sol` (imports deleted file); naming drift (LitToken/veLITNUP/litnup); SDK addresses undefined; subgraph won't compile; `cli.py oracle sign` crash; build didn't compile (empty `lib/`) | **Fixed** — see §4 |
 
 Verification during the audit *downgraded* several reported "highs" (e.g. arbitrary-sink and the
 downcasts require a trusted role) — this table reflects the de-hyped, verified severities.

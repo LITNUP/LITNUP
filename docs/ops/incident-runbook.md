@@ -61,7 +61,7 @@ This runbook is structured around those three phases.
 
 ### T+15min
 1. **External monitoring** — engage Forta / Tenderly / OpenZeppelin Defender for additional intel
-2. **Auditor notification** — page audit firms with active retainer (Spearbit on-call channel)
+2. **Auditor notification** — page any audit firm currently on retainer (none engaged yet — independent audits are planned before mainnet)
 3. **First public acknowledgment** — Twitter + status page: "We're investigating an incident. More info within the hour."
 
 ### T+1h

@@ -15,10 +15,10 @@
 | Bucket | Tokens | % | At TGE | Vest schedule |
 |---|---:|---:|---:|---|
 | Public sale | 50,000,000 | 5% | 100% | None — fully unlocked |
-| Airdrop S1 | 100,000,000 | 10% | 30% | 30% TGE, 70% over 4 months linear (vest into stake) |
+| Airdrop S1 | 100,000,000 | 10% | 30% | 30% TGE, 70% over 4 months linear (vest-into-stake is planned/roadmap intent, not yet implemented in contracts) |
 | Initial DEX liquidity | 30,000,000 | 3% | 100% (locked in pool) | Pool tokens locked 12 months |
 | Ecosystem incentives | 170,000,000 | 17% | 0% | Linear M0–M24, ~7M/mo, governance can pause |
-| Team | 150,000,000 | 15% | 0% | 1y cliff, then 36-mo linear (default vest into stake) |
+| Team | 150,000,000 | 15% | 0% | 1y cliff, then 36-mo linear (vest-into-stake is planned/default intent, not yet implemented in contracts) |
 | Investors (all rounds) | 150,000,000 | 15% | 0% | 1y cliff, then 24-mo linear |
 | Treasury (DAO) | 150,000,000 | 15% | 0% | Unlocked at TGE but DAO-multisig controlled |
 | Foundation reserve | 100,000,000 | 10% | 0% | 24-mo time-lock, then governance control |
@@ -27,7 +27,7 @@
 
 ## 3. Estimated circulating supply over time
 
-Assumes TGE at month 0. "Circulating" = liquid + airdrop-claimed-but-not-vested-into-stake. Numbers are approximate.
+Assumes TGE at month 0. "Circulating" = liquid + airdrop-claimed-but-not-staked. Numbers are approximate and forward-looking (illustrative targets, not achieved figures). The vest-into-stake assumption is planned/roadmap intent (see §3 mitigations and §4.2), not current on-chain behavior.
 
 | Month | Estimated circulating | % of total |
 |---:|---:|---:|
@@ -43,7 +43,7 @@ Assumes TGE at month 0. "Circulating" = liquid + airdrop-claimed-but-not-vested-
 
 **Cliff risk:** month 12 unlocks an estimated 75M from team + investor + treasury cliff endings. This is the highest-risk single moment. Mitigations:
 
-1. **Vest-into-stake.** Default contract for team/investor unlocks deposits the unlocked tokens directly into a staking position rather than the wallet. Receivers can override but the default is sticky.
+1. **Vest-into-stake (planned/roadmap — not yet implemented in contracts).** The intended default is for team/investor unlocks to deposit the unlocked tokens directly into a staking position rather than the wallet, with receivers able to override but the default sticky. This is design intent for a future release, not current on-chain behavior.
 2. **OTC desks queued.** Have Wintermute / GSR ready to absorb large blocks at slight discount, paid in stables out of treasury.
 3. **Buyback escalation.** Pre-fund a one-month buyback acceleration from treasury bridging the cliff.
 4. **Transparent dashboard.** Publish real-time unlock + dump/no-dump tracker; market prices in the cliff before it lands.
@@ -52,26 +52,26 @@ Assumes TGE at month 0. "Circulating" = liquid + airdrop-claimed-but-not-vested-
 
 ### 4.1 Agent enrollment bonds
 
-Every new agent locks ≥10,000 $LITNUP. Slashed on misbehavior. With 500 agents at year 1, this sinks 5M $LITNUP permanently (until unbonding) — small in absolute terms but signals quality.
+Every new agent locks ≥10,000 $LITNUP (configurable). The bond is **locked while bonded and returned on clean exit** (it is not a permanent burn); on misbehavior it is slashed, and slashed bond is burned. With 500 agents at year 1 this locks ~5M $LITNUP for the duration of bonding — small in absolute terms but signals quality. (Treat this as a temporary lock, not a permanent sink, to avoid double-counting it against the burn in §4.4.)
 
 ### 4.2 Stake on agents
 
 Stakers' $LITNUP is locked in the StakingVault while staked, plus 7-day cooldown. Target: $50M+ TVL by year 1 = ~25–50M $LITNUP locked at typical prices.
 
-### 4.3 veAGENTIC governance lock
+### 4.3 veLITNUP governance lock
 
 4-year vote-escrow for governance weight + fee rebates + bonus airdrop allocations. Modeled on Curve's veCRV. Aim for 30–50% of circulating supply locked in ve at steady state.
 
 ### 4.4 Buyback & burn (deflationary)
 
-50% of all protocol fees → BuybackBurn contract → buys $LITNUP on DEX → burns. The other 50% pays stakers in-kind ($LITNUP re-distribution). Estimated buy pressure scales linearly with TVL × agent gross profit.
+Protocol fees are collected in USDC. Each collected fee is split per-attestation via a `toBuybackBps` value (0–10000) bound in the oracle signature: that portion routes to the BuybackBurn contract → buys $LITNUP on a DEX → burns; the remainder is paid to stakers as USDC yield. There is **no** global protocol-level "buybackBps" governance parameter on-chain — any 50/50 split below is illustrative/default, not hardcoded. Estimated buy pressure scales with TVL × agent profit × the buyback share of fees.
 
-**Steady-state estimate (conservative):**
+**Steady-state estimate (illustrative; 50% buyback share assumed):**
 - TVL: $50M (year 1 target)
 - Average annualized agent return: 25% (selection effect — bad agents get unstaked)
 - Average protocol fee rate: 15% of profit
 - Annual fees: $50M × 25% × 15% = $1.875M
-- Buyback portion: 50% = $937.5k/year buy pressure
+- Buyback portion (illustrative 50% `toBuybackBps`): $937.5k/year buy pressure
 - At a $200M FDV, this is ~0.5% of supply burned annually
 
 Flywheel: more TVL → more fees → more burn → higher token price → more agents and stakers → more TVL.
@@ -80,7 +80,7 @@ Flywheel: more TVL → more fees → more burn → higher token price → more a
 
 Two fees:
 
-1. **Performance fee.** Charged per attestation epoch on positive PnL. Configurable per agent (default 10%, capped at 50%). Paid in $LITNUP.
+1. **Performance fee.** Reported per attestation epoch via a threshold-signed EIP-712 oracle attestation (M-of-N independent signers; **not** trustlessly derived from raw on-chain PnL — this is an explicit trust assumption). Configurable per agent (default 10%, capped at 50%). Collected in USDC, then split per-attestation between buyback/burn and staker yield (see §4.4).
 2. **Withdrawal fee.** 0% for cooldown-respecting withdrawals; 1% emergency-withdrawal fee for users who skip cooldown (planned v1.5 — not in v1).
 
 **No deposit fees.** No protocol-level take on entry. Friction-free staking is critical for early growth.
@@ -107,7 +107,7 @@ S3 (5%, M+12): governance participants, contributors.
 
 ## 7. Governance
 
-- **Voting token:** $LITNUP delegated, OR veAGENTIC (4y lock) for boosted weight (4× max).
+- **Voting token:** $LITNUP delegated, OR veLITNUP (4y lock) for boosted weight (4× max).
 - **Proposal threshold:** 100k $LITNUP delegated.
 - **Quorum:** 4% of supply delegated.
 - **Voting period:** 7 days.
@@ -123,7 +123,7 @@ S3 (5%, M+12): governance participants, contributors.
 | Buyback & burn | Yes (fee-funded) | No | No | No |
 | Stakeable | Yes (per-agent) | Yes (subnet) | No (token-only) | No |
 | Vote-escrow | Yes (4yr) | No | No | No |
-| Fee accrual | Yes (50% to burn, 50% to stakers) | Block rewards | Tax on launches | None |
+| Fee accrual | Yes (USDC fees; per-attestation split between $LITNUP buyback/burn and USDC staker yield) | Block rewards | Tax on launches | None |
 
 The token combines deflationary pressure (capped + burn) with a productive use (stake on real performers) — a combination that none of the existing top-tier comps offer.
 
@@ -142,7 +142,7 @@ Even in the conservative scenario the flywheel is positive. Optimistic-case 2%+ 
 
 ## 10. Open questions
 
-- **Should fees be denominated in stablecoins or $LITNUP?** Currently designed in-kind ($LITNUP). Consider stable-denom for institutional appeal.
+- **Fee denomination.** Resolved: protocol fees are collected in USDC. The buyback share is used on-DEX to buy and burn $LITNUP; the staker share is paid out as USDC yield.
 - **Should ve-locks have transfer NFTs (like Curve)?** Probably yes — secondary market improves capital efficiency.
 - **Foundation buyback fund: how large?** Currently 100M (10% of supply). Could be smaller if confident in fee flywheel.
 - **Stake migration on agent withdrawal:** UX TBD.

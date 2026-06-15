@@ -61,7 +61,7 @@ Covers: market-maker inventory loans, partner integration grants, ecosystem gran
 
 ### Tier 4 — Constitutional (rare)
 **Above $2M, or any change to treasury policy itself**
-**Approval:** veAGENTIC vote (60% quorum, 2/3 majority) + 14-day public notice + 48h timelock
+**Approval:** veLITNUP vote (60% quorum, 2/3 majority) + 14-day public notice + 48h timelock
 
 Covers: changes to vesting schedules, changes to emission schedule, foundation domicile changes, treasury policy revisions, any change to allocation percentages above the ±10pp range.
 
@@ -105,7 +105,7 @@ Published in the quarterly transparency report. Granular monthly figures availab
 
 Treasury holds 25% of total supply (250M $LITNUP) at TGE, vesting per the foundation schedule. These tokens are NOT for sale. They are for:
 
-1. **Governance reserves.** Treasury votes its tokens via veAGENTIC according to council direction; never for self-dealing proposals.
+1. **Governance reserves.** Treasury votes its tokens via veLITNUP according to council direction; never for self-dealing proposals.
 2. **Emission backing.** Source of truth for the EmissionScheduler, which streams to staker/operator rewards over 24mo.
 3. **Strategic OTC.** If we need fiat (e.g., to fund a strategic partner integration that USDC reserves don't cover), we sell tokens via OTC, NOT on AMM. Always with 7-day public notice. Always with a published price floor (e.g., 30-day VWAP).
 4. **Liquidity rebalancing.** Topping up Aerodrome / partner LP positions when ranges drift.
@@ -193,7 +193,7 @@ Foundation board, employees, and core contributors must:
 In case of force majeure (regulatory action, major exchange failure, signing-key compromise, foundation legal emergency):
 
 - The 5-of-9 multisig has authority to move treasury assets without normal approval flow
-- Emergency moves must be ratified by veAGENTIC vote within 30 days (if validators conclude the emergency was genuine, the action stands)
+- Emergency moves must be ratified by veLITNUP vote within 30 days (if validators conclude the emergency was genuine, the action stands)
 - Emergency moves are publicly disclosed within 48h with reasoning
 
 There is no scenario in which treasury assets can be "swept" or moved without leaving a public on-chain trail.
@@ -204,7 +204,7 @@ There is no scenario in which treasury assets can be "swept" or moved without le
 
 This document is versioned. Revisions require:
 
-- Tier 4 approval (veAGENTIC vote, 60% quorum, 2/3 majority)
+- Tier 4 approval (veLITNUP vote, 60% quorum, 2/3 majority)
 - 14-day public comment period before vote
 - Diff published showing changes from previous version
 - Reasoning document explaining each change

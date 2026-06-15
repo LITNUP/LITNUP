@@ -27,7 +27,7 @@ The EmissionScheduler streams emissions over 24 months (730 days) per the launch
 - Staking-Rewards distributor (operator + staker rewards)
 - Insurance fund top-up
 - Ecosystem grants pool
-- veAGENTIC bonus emissions
+- veLITNUP bonus emissions
 
 Each has a basis-point weight summing to 10000 bps (100%).
 

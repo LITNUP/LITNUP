@@ -5,7 +5,7 @@
 ## General
 
 ### What is LITNUP?
-A permissionless protocol for staking on autonomous AI trading agents. Anyone deploys an agent, anyone stakes the protocol token ($LITNUP) behind it, performance is verified on-chain, and underperformers get slashed. Half of all protocol fees buy back and burn $LITNUP.
+A permissionless protocol for staking on autonomous AI trading agents. Anyone deploys an agent, anyone stakes the protocol token ($LITNUP) behind it, performance is reported via a threshold-signed oracle, and underperformers get slashed. Protocol fees (collected in USDC) are split per-attestation between buying back and burning $LITNUP and paying stakers USDC yield.
 
 ### How is this different from Virtuals or ai16z?
 Virtuals is a token launchpad — anyone mints an agent token, performance is unmeasured. ai16z is a single AI-managed DAO/treasury. Bittensor is a tournament-style emission system.
@@ -29,15 +29,17 @@ Two founders bootstrapping with no VC. See `outreach/founder-pitch.md` for bios.
 ## For stakers
 
 ### How do I stake?
-Once mainnet is live: connect a wallet, choose an agent from the leaderboard, deposit $LITNUP. You receive shares in that agent's vault.
+Once mainnet is live: connect a wallet, choose an agent from the leaderboard, deposit $LITNUP. Your deposit is recorded as principal in that agent's vault; it redeems at principal (subject to slashing), and you earn USDC yield from protocol fees on top.
 
 ### What's the minimum stake?
 None at the protocol level. Per-agent minimums may exist set by operators.
 
 ### Can I lose my stake?
-Yes. Two paths:
-1. The agent loses money. Your share price drops by your pro-rata of the loss.
-2. The agent breaches a sustained drawdown threshold (default 25% from high-water-mark for >1 attestation cycle). The vault is slashed by 10% (default), routed to the burn sink.
+Your stake redeems at principal only — agent PnL never changes your redemption value (PnL is reputation-only, tracked on-chain as `cumulativePnl`). The on-chain invariant is that the vault always holds at least the sum of all stakers' principal in $LITNUP. The risk to your principal is slashing:
+
+- The agent breaches a sustained drawdown threshold (default 25% from high-water-mark for >1 attestation cycle). The vault is slashed by 10% (default), routed to the burn sink. That reduces principal pro-rata.
+
+You earn real yield on top of your principal, paid in USDC, funded by protocol fees (see "Where does my fee revenue come from?"). Yield is variable and not guaranteed.
 
 This is by design — no skin in the game means no good agents.
 
@@ -45,10 +47,10 @@ This is by design — no skin in the game means no good agents.
 Active stake: as long as you want. To unstake: 7-day cooldown after `unstakeInit()`. This protects the vault from flash-stake-then-flash-exit around scheduled attestations.
 
 ### Where does my fee revenue come from?
-Half of the protocol fee on each agent's gross profit. (Other half goes to buyback-and-burn.) Fees accrue automatically into your vault share price; no claim transactions required.
+Protocol performance fees, collected in USDC. The fee for each agent is reported via a threshold-signed oracle attestation (an EIP-712 message, not trustlessly derived from raw on-chain PnL — this is a stated trust assumption). Each collected fee is split per-attestation, with the staker/buyback ratio bound into the signature: part goes to BuybackBurn (which buys and burns $LITNUP on a DEX), the rest is paid to stakers as USDC yield. Any "50/50" figure is an illustrative default, not a hardcoded or governance-set protocol parameter. Your principal is never inflated by PnL; yield is paid separately in USDC.
 
 ### Can I stake on multiple agents?
-Yes. Each agent has its own vault; you hold shares in each independently.
+Yes. Each agent has its own vault; you hold a separate principal position in each, independently (redeemable at principal, slash-adjusted).
 
 ### What happens if my agent gets retired?
 If an agent's bond falls below `minBond` due to slashings, status changes to `Slashed` and it stops accepting new stake. Existing stakers can still unstake (after cooldown). The agent does not vanish; it's frozen.
@@ -77,7 +79,7 @@ Full walkthrough in `docs/agent-operator-onboarding.md`.
 Yes. `AgentRegistry.topUpBond(agentId, amount)` from any address (sponsorships welcome).
 
 ### What's the protocol fee rate?
-You set it at enrollment, capped at 50% of gross profit. Default suggested: 10–15%. Higher fee = more buyback pressure on $LITNUP, but harder to attract stakers.
+You set it at enrollment, capped at 50% of gross profit. Default suggested: 10–15%. The collected fee is split per-attestation between buyback-and-burn of $LITNUP and USDC yield to stakers; a higher fee means more of both, but it is harder to attract stakers.
 
 ### Can I withdraw my bond?
 Yes, after a 14-day unbonding period. Call `withdrawInit()`, wait, then `withdrawComplete()`.
@@ -141,14 +143,19 @@ No. Intentional. v2 will be a fresh deployment with a documented migration path.
 
 ### What's the allocation?
 (Matches the canonical table in [`tokenomics.md`](tokenomics.md) — sums to 100%.)
-- 20% Community & airdrops (Season 1 10% + future seasons 10%)
-- 17% Ecosystem incentives (linear over 24 months)
-- 15% Team (1yr cliff, then 36-month linear)
-- 15% Investors (1yr cliff, then 24-month linear)
-- 15% DAO Treasury
-- 10% Foundation reserve (24-month time-lock)
-- 5% Public sale
-- 3% Initial DEX liquidity (pool tokens locked 12 months)
+
+| Allocation | Tokens | % |
+| --- | --- | --- |
+| Public sale | 50,000,000 | 5% |
+| Airdrop S1 | 100,000,000 | 10% |
+| Initial DEX liquidity | 30,000,000 | 3% |
+| Ecosystem incentives | 170,000,000 | 17% |
+| Team | 150,000,000 | 15% |
+| Investors (all rounds) | 150,000,000 | 15% |
+| Treasury (DAO) | 150,000,000 | 15% |
+| Foundation reserve | 100,000,000 | 10% |
+| Future airdrops + community | 100,000,000 | 10% |
+| **Total** | **1,000,000,000** | **100%** |
 
 (See `docs/tokenomics.md` for full breakdown.)
 
@@ -156,8 +163,8 @@ No. Intentional. v2 will be a fresh deployment with a documented migration path.
 Four sinks:
 1. **Agent enrollment bonds** (10,000 minimum)
 2. **Stake on agents** (any amount)
-3. **veAGENTIC governance lock** (4-year max for boosted weight)
-4. **Burn target** (50% of all fees → buy & burn)
+3. **veLITNUP governance lock** (4-year max for boosted weight)
+4. **Burn target** — a portion of protocol fees (USDC) buys back and burns $LITNUP; the buyback share is set per-attestation, not a fixed protocol-wide percentage
 
 ### Will there be an airdrop?
 Yes. Season 1 at TGE (10% of supply) to anti-sybil-filtered testnet users + early ecosystem participants. Season 2 (5%) at month 6, Season 3 (5%) at month 12, governance-gated.
@@ -170,23 +177,22 @@ Targeting Tier-1 listings 9–14 months post-mainnet. Not guaranteed. Listing is
 ## Security & risk
 
 ### Have the contracts been audited?
-Pre-audit at the time of testnet launch. Audit plan:
+No third-party audit has been completed or commissioned. The contracts are pre-audit. Plan:
 1. Internal review (done)
-2. Code4rena contest (~$25k pool)
-3. Sherlock or Spearbit before mainnet
-4. Economic audit (Gauntlet / Chaos Labs) before TGE
+2. One or more independent security audits planned before mainnet
+3. Economic/parameter review planned before TGE
 
 ### What if the oracle gets compromised?
-v1 oracle is 5-of-7 multi-sig with geographic + entity diversity. Threshold rises to 13-of-21 by month 12. v2 migrates to ZK-proof attestations. If a quorum of signers were compromised, the protocol pause multisig (5-of-9, separate from oracle) can halt new attestations.
+The oracle uses EIP-712 threshold signatures (M-of-N) from independent signers, configurable by governance. On testnet it is deployed as 3-of-5; a higher M-of-N is targeted for mainnet. If a quorum of signers were compromised, the protocol pause guardian (separate from the oracle) can halt new attestations. v2 explores ZK-proof attestations.
 
 ### What if the smart contracts have a bug?
-- $500k Immunefi bug bounty (post-mainnet)
+- A bug bounty is planned post-mainnet
 - Initial deposit caps per vault (1M $LITNUP) limit blast radius
-- ±50% PnL cap per attestation limits oracle-bug damage
-- Insurance fund seeded from fees post-mainnet
+- ±50% PnL cap per attestation limits oracle-bug damage (note: PnL is reputation-only and does not affect redemption value)
+- An insurance fund (seeded from fees) is planned/roadmap, not yet active
 
 ### Is $LITNUP a security?
-We don't believe so — it's a utility token (bonding, staking, governance, fee rebate). Final classification depends on jurisdiction and counsel review; we're not US-marketed and follow MiCA in EU. Not legal advice. See `plan/legal-checklist.md`.
+We don't believe so — it's a utility token (bonding, staking, governance). Final classification depends on jurisdiction and counsel review. No legal opinions exist yet; they are planned. Not legal advice. See `plan/legal-checklist.md`.
 
 ### Why should I trust you?
 You shouldn't. You should look at:

@@ -56,24 +56,24 @@ This is the design of LITNUP.
 
 ### 3.1 Components
 
-**$LITNUP token (ERC20Votes + Permit, capped supply 1B).** The unit of account for staking, bonding, and governance. Capped, deflationary via buyback-and-burn, and gas-less approvals via EIP-2612.
+**$LITNUP token (ERC20Votes + Permit, capped supply 1B).** The unit of account for staking, bonding, and governance. Hard-capped with no inflation, supply-reducing via permissionless burn and buyback-and-burn, and gas-less approvals via EIP-2612.
 
 **Agent Registry.** A permissionless registry where any address can enroll an "agent." Enrollment requires posting a $LITNUP bond (configurable, e.g. 10,000 $LITNUP). The bond is at risk if the agent commits a registry-level offense (oracle fraud, exploit attempts).
 
-**Staking Vault.** For each registered agent, anyone can stake $LITNUP. Stakes earn share-based exposure to the agent's trading PnL, denominated in $LITNUP. The vault uses ERC4626-style share accounting. Withdrawals are subject to a cooldown (default 7 days) to prevent front-running of slashing events.
+**Staking Vault.** For each registered agent, anyone can stake $LITNUP. Stake redeems at **principal only** — an agent's PnL is reputation-only (tracked as cumulative PnL that ranks agents) and never changes a staker's redemption value. Stakers earn **real yield paid in USDC**, funded by protocol fees routed through the vault. On-chain, the vault enforces the invariant that its $LITNUP balance is always at least the sum of all staked principal. Withdrawals are subject to a cooldown (default 7 days) to prevent front-running of slashing events.
 
-**Performance Oracle.** A multi-signer oracle (5-of-7 at launch, transitioning to 13-of-21, then ZK-proven) that attests to each agent's PnL on a regular cadence (every 4 hours initially). Attestations are cryptographically signed, recorded on-chain, and feed into the vault's pricing.
+**Performance Oracle.** An EIP-712 threshold-signed oracle (M-of-N, configurable by governance; **3-of-5 on testnet**, with a higher M-of-N targeted for mainnet) attesting to each agent's PnL on a regular cadence (every 4 hours initially). The reported performance fee is **carried in the signed attestation** — it is not trustlessly derived from raw on-chain PnL, which is an explicit trust assumption on the signer set. Attestations are recorded on-chain and drive agent reputation ranking and the fee that is collected.
 
-**Buyback & Burn.** Protocol fees (10–25% of agent gross profits, configurable per agent at enrollment) flow into a buyback contract that periodically buys $LITNUP on the open market and burns it. Creates persistent buy pressure proportional to total agent profit.
+**Buyback & Burn.** Each collected fee (in USDC) is split per-attestation via a `toBuybackBps` value bound in the oracle signature (0–10,000): one part flows to the buyback contract, which buys $LITNUP on a DEX and burns it; the remainder is paid to stakers as USDC yield. There is no global protocol-level "buybackBps" governance parameter on-chain — any "50/50" figure is an illustrative default, not a hardcoded split. Burning creates buy pressure proportional to the fees directed to buyback.
 
 ### 3.2 Agent lifecycle
 
 1. **Deploy.** A developer publishes their agent (any execution venue: Hyperliquid, Aerodrome, Pendle, Drift, etc.) and registers a controller address on `AgentRegistry.enroll()`.
 2. **Bond.** The controller posts a $LITNUP bond. The agent goes live with a unique `agentId`.
-3. **Stake.** Stakers call `StakingVault.stake(agentId, amount)`. They receive shares.
+3. **Stake.** Stakers call `StakingVault.stake(agentId, amount)`. Their principal is recorded and is redeemable 1:1 (PnL does not change it).
 4. **Trade.** The agent's controller executes trades on its chosen venue(s). Each venue has either: (a) an on-chain settlement record (the case for Hyperliquid spot, perp DEXs, AMMs); or (b) a verifiable off-chain record signed by the venue.
-5. **Attest.** Every 4 hours, the Performance Oracle queries the agent's positions/PnL across whitelisted venues and attests on-chain. The vault marks-to-market.
-6. **Earn / Slash.** If PnL is positive, fees accrue: a portion to stakers, a portion to buyback. If PnL goes below a configurable threshold (e.g. -25% drawdown over 7 days), the agent is auto-slashed: a fraction of the bond + a fraction of the stake is burned.
+5. **Attest.** Every 4 hours, the Performance Oracle queries the agent's positions/PnL across whitelisted venues and produces a threshold-signed attestation on-chain. This updates the agent's reputation ranking; it does **not** mark up staker principal.
+6. **Earn / Slash.** When a fee is collected (in USDC), it is split per the attestation's `toBuybackBps`: a portion is paid to stakers as USDC yield, the rest funds buyback-and-burn. Staker principal is never inflated by PnL. If an agent commits a registry-level offense or breaches a configurable threshold, a fraction of the bond can be slashed.
 7. **Withdraw.** Stakers may unstake after the cooldown.
 
 ### 3.3 What's *not* in v1
@@ -88,11 +88,11 @@ This is the design of LITNUP.
 
 **Skin in the game.** Agent operators post bonds. Stakers risk slashing. Both have incentives aligned with sustained good performance, not short-term metric games.
 
-**Provability.** Every PnL number is rooted in either an on-chain settlement or a multi-signer attestation. No agent can claim performance it didn't deliver.
+**Verifiability.** Every PnL number is rooted in either an on-chain settlement record or a threshold-signed (M-of-N) oracle attestation. The attestation path is a trust assumption on the independent signer set rather than a trustless derivation — an honest signer majority is required for reported figures to be reliable.
 
 **Capital concentration to winners.** Top-performing agents accumulate stake organically. This is the same mechanism that lets the top 10% of Hyperliquid vault traders manage 80%+ of vault TVL.
 
-**Token utility from day one.** $LITNUP is needed for: bonding, staking, governance (vote-escrow / veAGENTIC), and fee-rebate tiers. Demand sinks scale with TVL.
+**Token utility from day one.** $LITNUP is needed for: bonding, staking, governance (vote-escrow / veLITNUP), and fee-rebate tiers. Demand sinks scale with TVL.
 
 **Buy pressure proportional to ecosystem profit.** Unlike most "buyback" tokens where buyback depends on fees of an unrelated business, $LITNUP buyback is directly proportional to *total agent profit*. As the protocol succeeds, the token compounds.
 
@@ -100,7 +100,7 @@ This is the design of LITNUP.
 
 | Feature | LITNUP | Virtuals | ai16z / ELIZA | Bittensor | Olas |
 |---|:-:|:-:|:-:|:-:|:-:|
-| Provable on-chain PnL | ✓ | ✗ | ✗ | indirect | ✗ |
+| Attested on-chain PnL | ✓ | ✗ | ✗ | indirect | ✗ |
 | Stake-to-back specific agents | ✓ | ✗ | ✗ | ✓ | ✗ |
 | Slashing for bad performance | ✓ | ✗ | ✗ | indirect | ✗ |
 | Trading-specialized | ✓ | general | general | general ML | services |
@@ -117,10 +117,10 @@ The closest comp is **Bittensor's subnet 8 (Taoshi) for prediction-market agents
 | Allocation | % | Vesting | Notes |
 |---|---:|---|---|
 | Public sale (LBP / Echo) | 5% | unlocked at TGE | Cash raise into treasury |
-| Airdrop S1 | 10% | 4-month linear vest into stake | Anti-sybil filtered testnet users |
+| Airdrop S1 | 10% | 4-month linear vest | Anti-sybil filtered testnet users |
 | Initial DEX liquidity | 3% | locked 12 mo | Paired with treasury stables |
 | Ecosystem incentives | 17% | streamed M0–M24 | Stakers + agents + integrators |
-| Team | 15% | 4y vest, 1y cliff | Vest into stake by default |
+| Team | 15% | 4y vest, 1y cliff | Standard founder/team vesting |
 | Investors (angel + seed + strategic) | 15% | 3y vest, 1y cliff | Pro-rata across rounds |
 | Treasury (DAO-controlled) | 15% | unlock-on-vote | Future grants, audits, BD |
 | Foundation reserve | 10% | locked 24 mo | Buyback fund, emergency |
@@ -130,10 +130,10 @@ The closest comp is **Bittensor's subnet 8 (Taoshi) for prediction-market agents
 
 1. **Agent-launch bonds:** every new agent locks ≥10,000 $LITNUP.
 2. **Staking lockups:** stakers' $LITNUP is locked while staked + 7-day cooldown.
-3. **veAGENTIC governance lock:** up to 4-year lock for governance weight + fee rebates.
-4. **Buyback & burn:** 50% of all protocol fees → buy & burn $LITNUP.
+3. **veLITNUP governance lock:** up to 4-year lock for governance weight + fee rebates.
+4. **Buyback & burn:** a per-attestation share of protocol fees (`toBuybackBps`) buys & burns $LITNUP; the split is set per fee, not by a global parameter.
 
-**Emission schedule:** all unlocks listed are linear except airdrop (which streams into stake to suppress dump).
+**Emission schedule:** unlocks listed are linear or streamed per the table above. (Vesting directly into stake is a planned design intent, not currently implemented in the contracts.)
 
 **Supply trajectory (estimated circulating):**
 - TGE: 11%
@@ -166,7 +166,7 @@ Full plan in [`plan/capital-raise-plan.html`](../plan/capital-raise-plan.html).
 
 **Q4 2026** — Mainnet launch (Base). $5M+ TVL target. Pre-seed close. KOL partnerships. First Tier-3 CEX listings.
 
-**Q1 2027** — Tier-2 CEX listings. Cross-chain v2. veAGENTIC governance live. Insurance fund seeded.
+**Q1 2027** — Tier-2 CEX listings. Cross-chain v2. veLITNUP governance live. Insurance fund seeded.
 
 **Q2–Q3 2027** — Tier-1 CEX target window. ZK-proof attestations. Permissionless venue whitelisting. DAO transition.
 
@@ -189,10 +189,10 @@ Full plan in [`plan/capital-raise-plan.html`](../plan/capital-raise-plan.html).
 
 ## 10. Risk factors
 
-- **Smart-contract risk.** Mitigated by 3 audits + bug bounty + initial deposit caps.
+- **Smart-contract risk.** Mitigated by independent audit(s) planned before mainnet + bug bounty + initial deposit caps. No third-party audit has been completed or commissioned to date.
 - **Oracle risk.** Multi-sig oracle is a centralization vector at launch; ZK migration in v2.
 - **Agent gaming.** Wash-trading, mark-to-market manipulation. Mitigated by mark-to-fair-price formulas, drawdown limits, and slashing.
-- **Regulatory risk.** Staking-like rewards on a token are securities-adjacent in some jurisdictions. Mitigated by structuring as a protocol-fee distribution (not a yield product), no US public sale, and MiCA-compliant whitepaper for EU.
+- **Regulatory risk.** Staking-like rewards on a token are securities-adjacent in some jurisdictions. Mitigated by structuring rewards as a protocol-fee distribution (not a yield product) and excluding US persons from the public sale. No legal opinions exist yet; they are planned. No MiCA compliance has been completed.
 - **Market timing.** Bear-market launches see -70% to -90% FDV draws. Mitigated by deferring TGE until KPI-met, not calendar-met.
 - **Concentration / forks.** Open-source code can be forked. Mitigated by liquidity moat + agent-builder network effect + brand.
 
@@ -200,7 +200,7 @@ Full register: [`plan/risk-register.md`](../plan/risk-register.md).
 
 ## 11. Legal & compliance
 
-The $LITNUP token is intended to function as a **utility token for protocol use** (bonding, staking, governance) and a **fee-rebate / governance instrument**. It is NOT a security, NOT an investment contract, and NOT marketed to retail investors in the United States. The protocol foundation is intended to incorporate in [Cayman Islands / BVI / Marshall Islands — pending counsel guidance]. Public sale and airdrop will exclude US persons via geofencing and on-chain attestation. EU participants will be served via a MiCA-compliant whitepaper.
+The $LITNUP token is intended to function as a **utility token for protocol use** (bonding, staking, governance) and a **fee-rebate / governance instrument**. It is NOT a security, NOT an investment contract, and NOT marketed to retail investors in the United States. The LITNUP Foundation is intended to incorporate in the Cayman Islands (in formation, pending counsel guidance). Public sale and airdrop will exclude US persons via geofencing and on-chain attestation. No legal opinions on token classification exist yet; they are planned.
 
 Full structure: [`plan/legal-checklist.md`](../plan/legal-checklist.md).
 

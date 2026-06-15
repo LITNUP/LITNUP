@@ -13,7 +13,7 @@ We are launching $LITNUP on **Base mainnet**, after a Base Sepolia testnet phase
 **Key design choices:**
 
 - **Bootstrap-first capital ladder** before TGE: bug bounties → grants → angels → seed → TGE. We do NOT raise a $5M seed round to spend on marketing; we raise the minimum to fund audits + 12 months runway.
-- **No private sale tokens vest before public.** Every cohort that gets tokens (team, investors, advisors, contributors) vests on the same schedule the public sees — 6-month cliff, 36-month linear thereafter, with vest-into-stake default on.
+- **No private sale tokens vest before public.** Every cohort that gets tokens (team, investors, advisors, contributors) vests on the same schedule the public sees — 6-month cliff, 36-month linear thereafter. (A "vest-into-stake default" is planned design intent / roadmap, not yet implemented in the contracts.)
 - **Liquidity bootstrap auction (LBA)** for the first 1.5% of supply, run on Balancer's LBP framework on Base. Replaces traditional bonding curve / fair launch / IDO.
 - **Single-CEX listing in week 1**, with explicit no-payment-for-listing policy. We accept market-maker arrangements only on terms we publish.
 - **Market-making partner** committed to two-sided quoting on day 1, with public disclosure of inventory loan terms.
@@ -26,11 +26,11 @@ This document outlines the calendar, the mechanics, the contingencies, and the e
 ## The launch calendar
 
 ### M-12 to M-6 — pre-launch foundation
-- Audits #1 and #2 commissioned (Spearbit + Trail of Bits, parallel)
-- Code4ena + Cantina contests run in parallel with audits
+- Independent audit(s) planned before mainnet (no third-party audit has been completed or commissioned yet)
+- Public audit-contest / competitive-review track planned to run in parallel with the audit(s)
 - Testnet launch on Base Sepolia
 - Operator alpha program: 3-5 hand-picked agent operators run real strategies on testnet PnL with mock token incentives
-- Bug bounty live on Immunefi at $100K cap
+- Bug bounty planned on a public platform (e.g. Immunefi) ahead of mainnet
 - Marketing surface complete; weekly transparency reports published
 
 ### M-6 to M-3 — testnet ramp
@@ -39,11 +39,11 @@ This document outlines the calendar, the mechanics, the contingencies, and the e
 - Subgraph live, indexing testnet contracts
 - 3rd audit if needed
 - Final tokenomics frozen
-- Legal: Cayman foundation incorporated, opinion letters in hand
+- Legal: Cayman foundation formation in progress; legal opinion letters planned (none exist yet)
 
 ### M-3 to M-1 — final readiness
-- Audit reports published
-- Legal opinions published (token classification, tax treatment in primary jurisdictions)
+- Audit report(s) published
+- Legal opinions published if/when obtained (token classification, tax treatment in primary jurisdictions) — planned, not yet in hand
 - Investor commitments closed (seed round, no further changes)
 - TGE ops handbook frozen
 - Market-maker contracts signed
@@ -54,10 +54,10 @@ This document outlines the calendar, the mechanics, the contingencies, and the e
 - 09:00 UTC: All contracts deployed to Base mainnet
 - 09:30 UTC: Initial liquidity seeded on Aerodrome (1.5% of supply + matched USDC)
 - 10:00 UTC: Balancer LBP starts (1.5% of supply over 72h, weighted descent)
-- 12:00 UTC: Operator enrollment opens; first 5 agents enroll within 1 hour (reference operators from testnet)
+- 12:00 UTC: Operator enrollment opens (reference operators from testnet expected to enroll; numbers illustrative / target, not guaranteed)
 - 14:00 UTC: First production attestation cycle runs
 - 16:00 UTC: Staking opens to public
-- 20:00 UTC: First operator vault crosses 100K $LITNUP TVL
+- 20:00 UTC: Target milestone — first operator vault crosses 100K $LITNUP TVL (illustrative / forward-looking, not a commitment)
 
 ### TGE Day 1-7
 - Day 1: LBP continues; FDV likely overshoots fundamentals
@@ -68,7 +68,7 @@ This document outlines the calendar, the mechanics, the contingencies, and the e
 
 ### TGE Day 8
 - First buyback+burn execution
-- veAGENTIC voting power calculation kicks in (any locks made between Day 0 and 7 now count)
+- veLITNUP voting power calculation kicks in (any locks made between Day 0 and 7 now count)
 - First weekly transparency report
 
 ### TGE Day 14
@@ -77,7 +77,7 @@ This document outlines the calendar, the mechanics, the contingencies, and the e
 
 ### TGE Day 30
 - First quarterly transparency report (in-depth)
-- First slashing event likely happened (well-run protocol — first slash is usually around Day 20-40)
+- A first slashing event may have occurred by now (timing illustrative / forward-looking, not based on observed data)
 - v1.5 governance proposal considered (parameter-tuning only)
 
 ---
@@ -86,24 +86,25 @@ This document outlines the calendar, the mechanics, the contingencies, and the e
 
 **Total Supply: 1,000,000,000 $LITNUP (1B, capped, no inflation)**
 
-| Bucket | % | Amount | Vesting / Use |
+| Bucket | Amount | % | Vesting / Use |
 |---|---:|---:|---|
-| Public liquidity (LBP + AMM seed) | 3% | 30M | Fully liquid Day 0; LBP-weighted release over 72h |
-| Airdrop (genesis users) | 5% | 50M | Merkle, claim window 90 days; unclaimed → treasury |
-| Staking emissions (operator+staker) | 17% | 170M | 24-month linear via EmissionScheduler |
-| Treasury (governance) | 25% | 250M | 6mo cliff + 48mo linear; spend req. veAGENTIC vote |
-| Team + early contributors | 20% | 200M | 6mo cliff + 36mo linear; vest-into-stake default ON |
-| Advisors + ecosystem | 5% | 50M | 6mo cliff + 24mo linear; vest-into-stake default ON |
-| Seed investors | 10% | 100M | 12mo cliff + 24mo linear; vest-into-stake default ON |
-| Liquidity / partner reserve | 10% | 100M | Locked 24mo; release vote-gated |
-| Insurance fund seed | 5% | 50M | Locked 12mo; releasable to InsuranceFund post-mainnet |
+| Public sale | 50,000,000 | 5% | TGE participation |
+| Airdrop S1 | 100,000,000 | 10% | Merkle, claim window 90 days; unclaimed → treasury |
+| Initial DEX liquidity | 30,000,000 | 3% | Fully liquid Day 0; LBP-weighted release over 72h |
+| Ecosystem incentives | 170,000,000 | 17% | Staking/operator emissions via EmissionScheduler |
+| Team | 150,000,000 | 15% | 6mo cliff + 36mo linear; vest-into-stake default planned (roadmap) |
+| Investors (all rounds) | 150,000,000 | 15% | Vesting per round terms; vest-into-stake default planned (roadmap) |
+| Treasury (DAO) | 150,000,000 | 15% | Spend gated by veLITNUP vote |
+| Foundation reserve | 100,000,000 | 10% | Foundation-controlled reserve |
+| Future airdrops + community | 100,000,000 | 10% | Reserved for future community programs |
+| **Total** | **1,000,000,000** | **100%** | |
 
 **Float on Day 0:**
-- LBP + Aerodrome: ~30M (3%)
-- Airdrop claim eligibility: ~50M cumulative if 100% claimed (realistically ~25M in week 1)
+- LBP + Aerodrome (initial DEX liquidity): ~30M (3%)
+- Airdrop claim eligibility: up to ~100M cumulative if 100% claimed (realistically a fraction in week 1)
 - Operator/staker rewards: ~0 in week 1 (emission stream just started; small amounts)
 
-**Effective circulating Day 0: ~3-4% of total supply**
+**Effective circulating Day 0: low single-digit % of total supply (illustrative / target)**
 
 This intentionally low float prevents a price-overhang that would crash the launch. Early holders are concentrated in those who participated in the LBP at fair-value pricing.
 
@@ -186,7 +187,7 @@ This is published in `legal/market-maker-agreement.md` (signed copy). We will pu
 
 ## Airdrop design
 
-5% of supply is reserved for the genesis airdrop. We snapshot **Base mainnet activity** between **Q1 2026 and Q1 2026-end**, looking at:
+10% of supply (Airdrop S1, 100M) is reserved for the genesis airdrop. We snapshot **Base mainnet activity** between **Q1 2026 and Q1 2026-end**, looking at:
 
 - Aerodrome LP activity (weighted)
 - Hyperliquid trading volume (weighted; via Base bridge address)
@@ -207,11 +208,12 @@ Unclaimed tokens after 90 days return to treasury (governance-controlled).
 
 ## Founder & team token allocation
 
-- **Founder:** 8% of supply, 6-month cliff + 36-month linear, vest-into-stake ON, no exception
-- **Early team (3-5 people post-seed):** 8% of supply, 6-month cliff + 36-month linear, vest-into-stake ON
-- **Advisors:** 4% of supply, 6-month cliff + 24-month linear, vest-into-stake ON
+The Team allocation is **15% of supply (150M $LITNUP)** and the Investors (all rounds) allocation is **15% (150M)**, per the canonical allocation table above. Founder, team, and advisor sub-allocations all draw from the Team bucket; the internal split is not finalized and is not published here.
 
-These are equal-treatment with the seed-investor cohort (12mo cliff + 24mo linear there is intentionally tighter because investors put in capital). Team and founders accept a lighter cliff in exchange for the work they put in pre-revenue.
+- **Founder & team (Team bucket, 15% total):** 6-month cliff + 36-month linear; vest-into-stake default is planned (roadmap), not yet implemented.
+- **Investors (all rounds, 15% total):** vesting per round terms (cliffs for capital rounds are intentionally tighter); vest-into-stake default planned (roadmap).
+
+Team and founders accept a lighter cliff than capital-round investors in exchange for the work they put in pre-revenue.
 
 **Founder pledge (public):** I will not sell any team-allocated $LITNUP for at least 18 months post-TGE. After that, sales will only happen through the protocol's quarterly OTC window with full disclosure. This pledge is non-binding legally but enforceable socially: it will be tracked publicly and any breach is the founder's reputation.
 
@@ -232,7 +234,7 @@ To preempt confusion:
 ## Risk scenarios + contingencies
 
 ### Scenario A: Audit finds critical issue 2 weeks before launch
-**Action:** Delay TGE by minimum 6 weeks. Publish issue + remediation plan. Re-audit affected scope. We have 12+ months runway in the foundation, so a 6-week delay is not existentially risky.
+**Action:** Delay TGE by minimum 6 weeks. Publish issue + remediation plan. Re-audit affected scope. Target runway is intended to cover a multi-week delay without existential risk.
 
 ### Scenario B: Market crash 1 week before launch (BTC -30%)
 **Action:** Delay LBP by 2-4 weeks. Keep contract deployment + initial AMM seed live (low-volume, low-attention). Public re-launch when conditions stabilize. The protocol earns fees regardless of macro; we don't NEED a hot market to launch successfully.
@@ -244,7 +246,7 @@ To preempt confusion:
 **Action:** Run the public incident runbook. Publish the slash event with full attribution. Do NOT pause the protocol unless it's an oracle bug rather than a strategy failure.
 
 ### Scenario E: A regulator issues an opinion on $LITNUP
-**Action:** Pre-positioned legal team handles. Foundation board has a contingency-comms plan. We do NOT halt operations preemptively unless legally required.
+**Action:** Engage legal counsel (to be retained before mainnet). Foundation board has a contingency-comms plan. We do NOT halt operations preemptively unless legally required.
 
 ### Scenario F: Bridge / Base outage on Day 0
 **Action:** TGE proceeds on schedule. The contracts deployed on Base will be live; user-facing UX may degrade if Base sequencer is down. Aerodrome trading depends on Base; CEX listing goes ahead and provides off-Base price discovery. We tolerate up to 4h delay; beyond that, we issue a coordinated reschedule.
@@ -257,7 +259,7 @@ To preempt confusion:
 - Litepaper + whitepaper public (already are)
 - Weekly transparency reports
 - Operator interviews on testnet experience
-- Auditor public-comment period
+- Public-comment period on audit report(s), once an audit is engaged and completed
 
 **TGE Week 1:**
 - Daily public "what happened today" recap (max 200 words)
@@ -291,7 +293,7 @@ Success metrics we DO care about:
 - **Cumulative buyback+burn.** Real tokens removed from supply.
 - **Operator slashing rate.** A measure of mechanism design correctness.
 - **Time-from-unlock-to-sell on team/investor cohorts.** A measure of long-term alignment.
-- **veAGENTIC lock distribution.** Concentration vs. distribution of governance.
+- **veLITNUP lock distribution.** Concentration vs. distribution of governance.
 - **Audit-bounty payouts in 12 months.** A measure of the security surface.
 
 ---
@@ -300,13 +302,13 @@ Success metrics we DO care about:
 
 This list is the gating checklist that must be 100% green before we deploy mainnet contracts:
 
-- [ ] All audits complete; all critical findings remediated and re-audited
+- [ ] Independent audit(s) complete; all critical findings remediated and re-audited (audits planned before mainnet; none completed yet)
 - [ ] All testnet integration tests passing for 30+ consecutive days
-- [ ] Insurance fund seeded with at least 5% of supply
-- [ ] Foundation entity formed; opinion letters in hand
+- [ ] Insurance fund seeded (amount set by governance; funded from treasury/foundation allocations)
+- [ ] Foundation entity formed; legal opinion letters obtained (planned before mainnet)
 - [ ] Market-maker contract signed
 - [ ] CEX listing confirmed
-- [ ] Bug bounty live and at $250K cap
+- [ ] Bug bounty live on a public platform ahead of mainnet
 - [ ] Multisig signers (5-of-9) all hardware-key, geographically diverse, identity-verified
 - [ ] Timelock at 48h for all governance actions
 - [ ] PauseGuardian wired with explicit action whitelist; threshold 3-of-5

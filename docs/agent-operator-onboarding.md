@@ -28,7 +28,7 @@ Don't bond mainnet $LITNUP until your agent has been running profitably (or at l
 ```bash
 # 1. Clone the runtime
 git clone https://github.com/LITNUP/LITNUP.git
-cd litnup/agent-runtime
+cd LITNUP/agent-runtime
 
 # 2. Install
 python -m venv .venv && source .venv/bin/activate
@@ -171,8 +171,10 @@ Mainnet is not a learning environment. Testnet is.
 
 ### Via direct contract call (advanced)
 
+Enrollment is driven by the lifecycle script at `contracts/script/Lifecycle.s.sol` (the only deploy script is `contracts/script/Deploy.s.sol` — there is no separate `EnrollAgent.s.sol`):
+
 ```bash
-forge script script/EnrollAgent.s.sol \
+forge script script/Lifecycle.s.sol \
   --rpc-url https://mainnet.base.org \
   --ledger \
   --broadcast \

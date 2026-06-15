@@ -10,28 +10,28 @@ This version is organized by **who is asking**: stakers, operators, governance p
 
 ### Why would I stake $LITNUP on an agent?
 
-You earn a share of the protocol fees that agent collects from running its trading strategy. If the agent does well (positive PnL on real revenue, not on speculation), the share price of your vault deposit appreciates. You can withdraw your share at any time after a 7-day cooldown.
+You earn a share of the protocol fees that agent collects from running its trading strategy, paid to you as **USDC yield**. Your stake itself redeems at **principal only** — deposited $LITNUP is never inflated by the agent's PnL. PnL is reputation-only (it builds the agent's track record but does not change your redemption value). You can withdraw your principal at any time after a 7-day cooldown.
 
-In effect: you're an LP for an autonomous AI trader's strategy, with the AI providing the alpha and you providing the capital.
+In effect: you're funding an autonomous AI trader's strategy, with the AI providing the alpha and you providing the capital. You are rewarded in USDC out of the protocol fees that strategy generates, not by your stake growing in token terms.
 
 ### What's the realistic yield I can expect?
 
-Realistic, conservative range: **8-15% APY** during normal market regimes for well-run reference agents. This is similar to what well-run delta-neutral or basis-trade strategies earn on Hyperliquid HLP-style vaults.
+There is **no guaranteed or fixed yield**. Any APY figure you see is illustrative/target only, is variable, and is not a promise. Your yield is paid in **USDC** out of the protocol fees the agent's strategy actually generates — so it depends entirely on real trading performance and fee flow.
 
-We do NOT promise a yield. The protocol distributes only what agents actually earn from real trading. If an agent makes 0%, stakers earn 0%. If an agent loses, stakers lose.
+We do NOT promise a yield. The protocol distributes only what agents actually earn from real trading. If an agent generates no fees, stakers earn no yield. Note that your stake redeems at principal regardless — a loss does not reduce your principal, but it does mean little or no USDC yield.
 
 ### What's my downside?
 
 Three possibilities:
-1. **Strategy underperformance.** The agent loses money on trades. Your share price drops. Mitigation: pick a well-performing agent; diversify across multiple agents.
-2. **Drawdown slashing.** If the agent's vault hits 25% drawdown for one full attestation cycle (4 hours), 10% of the vault is slashed. You lose 10% of your stake. The remaining 90% continues to participate normally.
-3. **Smart contract bug.** An undisclosed contract bug could result in loss of stake. Mitigated by audits, bug bounty, and the insurance fund (which covers 50% of first-time slash losses post-mainnet).
+1. **Strategy underperformance.** The agent earns little or nothing, so your USDC yield is low or zero. Your principal is not reduced by trading losses (it redeems at principal), but you forgo the yield you were staking for. Mitigation: pick a well-performing agent; diversify across multiple agents.
+2. **Drawdown slashing.** If the agent's vault hits 25% drawdown for one full attestation cycle (4 hours), 10% of the vault is slashed. You lose 10% of your staked principal. The remaining 90% continues to participate normally.
+3. **Smart contract bug.** An undisclosed contract bug could result in loss of stake. Mitigated by a planned independent audit before mainnet, a bug bounty, and the insurance fund. (Note: an insurance-fund design that would cover a portion — e.g. 50% — of first-time slash losses is *planned/roadmap*, not currently implemented in the contracts.)
 
 ### What's the worst-case scenario?
 
 A complete-loss scenario for one staker: 100% of one vault is slashed in a series of consecutive 25% drawdown breaches without you exiting. With cooldown of 7 days, you have 7 days from when warnings start to exit. So this requires you to be inattentive for 7+ days while the strategy implodes.
 
-For comparison: this is similar to keeping money in a single hedge fund that goes to zero. The protocol-level risk is small (~5% of supply in the insurance fund covers protocol-wide losses if multiple vaults blow up simultaneously), but per-vault risk is real.
+For comparison: this is similar to keeping money in a single hedge fund that goes to zero. An insurance fund is intended to backstop protocol-wide losses if multiple vaults blow up simultaneously, but its loss-coverage behavior is *planned/roadmap* and not yet implemented in the contracts. Per-vault risk is real.
 
 ### Can I lose more than I deposited?
 
@@ -46,7 +46,7 @@ The Agent Catalog at /agents shows for each agent:
 - Drawdown history
 - Operator's bond (skin in the game)
 - Current TVL
-- Share price history
+- Cumulative PnL / yield-distribution history (reputation track record; does not change your principal redemption)
 
 Pick based on:
 1. **Operator bond size** — more bond = more skin in the game = more aligned
@@ -61,21 +61,21 @@ To prevent run-on-the-bank dynamics. If TVL could exit instantly on bad news, ev
 
 ### Can I unstake during a slashing event?
 
-You can initiate an unstake but it will only complete after the 7-day cooldown. If a slash happens during cooldown, your share value is reduced by the slash percentage at that moment.
+You can initiate an unstake but it will only complete after the 7-day cooldown. If a slash happens during cooldown, your staked principal is reduced by the slash percentage at that moment.
 
 ### What's "vest-into-stake"?
 
-If you receive vested $LITNUP tokens (e.g., as a team member, advisor, or seed investor), they auto-stake into a vault on unlock by default. You can:
+This is a *planned/roadmap* design intent — it is **not implemented in the current contracts**. As designed, if you receive vested $LITNUP tokens (e.g., as a team member, advisor, or seed investor), they would auto-stake into a vault on unlock by default, and you would be able to:
 - Override the default and have tokens go to your wallet
 - Pick which agent to back
 - Set a "monthly cash" portion that goes to wallet
 - Unstake at any time on the standard 7-day cooldown
 
-This is opt-out, not opt-in. See the blog post on vest-into-stake for the reasoning.
+The intent is opt-out rather than opt-in. Treat this as forward-looking until it ships on-chain.
 
 ### How do I claim staking rewards?
 
-Rewards accrue automatically by lifting your vault's share price. You don't claim — when you eventually unstake, you receive more $LITNUP than you deposited (assuming positive performance).
+Staking rewards are **USDC yield** that accrues to you as the protocol's fee revenue is distributed to stakers. You claim the accrued USDC from the vault via the public dashboard or SDK. Your $LITNUP principal stays as principal — it is never inflated by PnL, so unstaking returns the principal you deposited (less any slashing), separate from the USDC yield you claim.
 
 For governance / emission rewards, claim via the RewardsDistributor contract using the public dashboard or SDK.
 
@@ -88,14 +88,14 @@ For governance / emission rewards, claim via the RewardsDistributor contract usi
 1. Read `docs/agent-operator-onboarding.md`
 2. Run an agent on testnet for at least 30 days; demonstrate positive expected behavior
 3. Pass the operator-onboarding form: KYC + jurisdictional disclosure + strategy description
-4. Post a bond in $LITNUP (minimum currently 50,000 AGENTIC, ~$X at TGE pricing)
+4. Post a bond in $LITNUP (minimum currently 10,000 $LITNUP, configurable by governance)
 5. Submit metadata IPFS hash to the AgentRegistry
 6. Wait for council approval (informal, 24-48h)
 7. Stakers can begin staking on your agent
 
 ### What's the minimum bond?
 
-50,000 $LITNUP. This is governance-tunable.
+10,000 $LITNUP. This is governance-tunable.
 
 ### What does the bond do?
 
@@ -105,12 +105,13 @@ For governance / emission rewards, claim via the RewardsDistributor contract usi
 
 ### What fees do I earn as an operator?
 
-Of every protocol fee taken on your agent's positive PnL:
-- 50% goes to buyback+burn (reduces total supply, benefits all token holders)
-- ~25% goes to lift staker share price (your stakers benefit)
-- ~25% goes to you (you set this in `protocolFeeBps` at enrollment, with governance limits)
+The performance fee is **reported via a threshold-signed EIP-712 oracle attestation** (it is not trustlessly derived from raw on-chain PnL — see the oracle question below). Each collected fee is denominated in **USDC** and split per-attestation according to a `toBuybackBps` value bound in the signature (0–10000):
+- The buyback portion goes to BuybackBurn, which buys and burns $LITNUP on a DEX (reduces total supply, benefits all token holders)
+- The remainder is distributed to stakers as **USDC yield** (not as share-price appreciation; principal is never inflated)
 
-Your portion accrues on each attestation cycle (4 hours).
+Any specific split (e.g., 50/50) is illustrative/default, not a hardcoded protocol parameter — there is no global on-chain "buybackBps" governance setting. The operator's own share of fees is configured per your enrollment within governance limits.
+
+Fees accrue per attestation cycle (4 hours).
 
 ### What if my agent is under-performing?
 
@@ -134,13 +135,13 @@ You're responsible for:
 
 ### How does the oracle attestation work?
 
-Every 4 hours, your agent runtime computes its PnL since last attestation, signs an EIP-712 attestation with your oracle signer key, and broadcasts to the oracle co-signers (3-of-5). When 3 signatures collect, anyone can submit them on-chain to apply the attestation.
+Every 4 hours, your agent runtime computes its PnL since last attestation and an EIP-712 attestation is threshold-signed by independent oracle co-signers. The threshold is **3-of-5 on testnet**; it is configurable by governance, with a higher M-of-N targeted for mainnet. When enough signatures collect, anyone can submit them on-chain to apply the attestation.
 
-You don't have to be the oracle co-signer; any 3 of the 5 co-signers' signatures work. The co-signers run independent verification of your PnL claim before signing.
+Be aware this is a **trust assumption**: the reported PnL (and the resulting fee) is what the co-signer set attests to under EIP-712 — it is not trustlessly derived from raw on-chain PnL. The co-signers run independent verification of your PnL claim before signing.
 
 ### What if the oracle decides my reported PnL is wrong?
 
-If 3 co-signers don't sign, your attestation doesn't apply. Your vault's share price doesn't update. You don't earn fees for that period. This is the off-chain check on operator-reported numbers.
+If the signing threshold isn't met, your attestation doesn't apply. No fee is recorded and no USDC yield is distributed to stakers for that period, and you don't earn fees for that period. This is the off-chain check on operator-reported numbers.
 
 If you believe the oracle is wrong: post in the public Forum. The next governance cycle can address it.
 
@@ -154,15 +155,15 @@ Stakers in your vault can unstake as normal. They have the standard 7-day cooldo
 
 ## Governance participants
 
-### What is veAGENTIC?
+### What is veLITNUP?
 
-Vote-escrowed AGENTIC. Lock $LITNUP for up to 4 years; receive vote weight proportional to lock duration. Weight decays linearly to zero at unlock.
+Vote-escrowed $LITNUP. Lock $LITNUP for up to 4 years; receive vote weight proportional to lock duration. Weight decays linearly to zero at unlock.
 
 ### How do I vote?
 
 Two ways:
 1. **Snapshot.** Off-chain signal vote on the LITNUP Snapshot space (`litnup.eth`). Free.
-2. **On-chain Timelock.** After Snapshot passes, a proposer queues the action to the Timelock. Anyone with veAGENTIC can vote here too.
+2. **On-chain Timelock.** After Snapshot passes, a proposer queues the action to the Timelock. Anyone with veLITNUP can vote here too.
 
 ### What's the Timelock?
 
@@ -185,7 +186,7 @@ The protocol is BUSL-1.1 and lacks an upgrade pattern. Governance cannot:
 - Drawdown threshold (currently 25%) within a band [10%, 50%]
 - Slash size (currently 10%) within a band [3%, 30%]
 - Cooldown duration (currently 7 days) within a band [1 day, 30 days]
-- Per-vault cap (currently 1M AGENTIC)
+- Per-vault cap (currently 1M $LITNUP)
 - Protocol fee split between buyback+burn and stakers
 - Emission scheduler weights and recipients
 - Oracle signer set + threshold
@@ -203,14 +204,14 @@ Use templates in `governance/proposals/`. Each template defines structure, calld
 ### Can I delegate my vote?
 
 Yes. The DelegateRegistry contract lets you delegate by class:
-- `vote` class — your veAGENTIC weight is voted by your delegate
+- `vote` class — your veLITNUP weight is voted by your delegate
 - `claim` class — your claim transactions execute on your delegate's call
 
 You retain ownership; delegate just handles the action.
 
 ### What's the team's voting policy?
 
-Foundation treasury holds 25% of supply but votes only on Tier 1 (technical) proposals. We abstain on Tier 2/3 proposals affecting our own interests. We publish all our votes.
+The Foundation reserve holds 10% of supply and the DAO treasury holds 15% (per the published allocation), but the Foundation votes only on Tier 1 (technical) proposals. We abstain on Tier 2/3 proposals affecting our own interests. We publish all our votes.
 
 ---
 
@@ -225,10 +226,9 @@ Three layers:
 
 ### Where are the contract addresses?
 
-- Base Sepolia (testnet): `addresses.base-sepolia.json`
-- Base mainnet: `addresses.base.json` (post-TGE only)
+Deployed addresses live in the SDK at `sdk-typescript/src/addresses.ts`. Base Sepolia (testnet) addresses are populated there now; Base mainnet is not deployed yet (pending).
 
-The SDK auto-resolves by chainId; you don't need to manage addresses.
+The SDK auto-resolves by chainId from that module; you don't need to manage addresses manually.
 
 ### Are there integration grants?
 
@@ -268,7 +268,7 @@ Three differentiators:
 
 ### Who's the team?
 
-Solo founder (currently un-named in this template — fill at TGE). Open to expansion through the foundation hiring process post-TGE. Specific operator-cohort and advisor list published at `/about`.
+Arthur Romanov — sole founder and Chair of the LITNUP Foundation. Open to expansion through the foundation hiring process post-TGE. Specific operator-cohort and advisor list published at `/about`.
 
 ### What's the chain choice?
 
@@ -276,7 +276,7 @@ Base for mainnet (low fees + L2 scaling + EVM compatibility). Hyperliquid as pri
 
 ### When is launch?
 
-Target: Q4 2026 (after audits + 90 days testnet ramp). Specific date posted 7 days in advance once all gating items pass.
+Target: Q4 2026 (after independent audit(s) planned before mainnet + 90 days testnet ramp). The protocol is currently testnet-only (Base Sepolia); mainnet is not deployed. Specific date posted 7 days in advance once all gating items pass.
 
 ### Can I get an interview?
 
@@ -295,15 +295,16 @@ We do approximately 1 podcast / interview per week post-TGE. Contact press@litnu
 
 ### What's the legal structure?
 
-- Cayman Islands Foundation (operating entity)
-- Delaware C-Corp (US development subsidiary)
-- Foundation holds the IP, treasury, and contracts; C-Corp employs US-based contributors
+- LITNUP Foundation, Cayman Islands (operating entity) — currently **in formation**
+- Foundation is intended to hold the IP, treasury, and contracts
+
+(Any additional operating subsidiaries are not finalized; see the flagged note below.)
 
 ### Is $LITNUP a security?
 
-We have legal opinions in multiple jurisdictions (US, EU, UK, Singapore, Cayman) supporting that $LITNUP is a utility token: it grants protocol access, governance rights, and pay-to-earn-from-stake utility. It is not equity in any company. The foundation holds 25% but is not a shareholder.
+We do **not** currently hold any legal opinions; independent legal opinions are **planned**, not completed. The intended design is for $LITNUP to function as a utility token: it grants protocol access, governance rights, and staking utility. It is not equity in any company, and the Foundation is not a shareholder. This is our design intent, not a legal conclusion.
 
-We will publish each opinion publicly. We comply with the laws of each jurisdiction we operate in. Where opinion is ambiguous, we err on the side of stricter compliance.
+We intend to publish any opinions publicly once obtained, and to comply with the laws of each jurisdiction we operate in. Where the position is ambiguous, we err on the side of stricter compliance.
 
 ### How do you handle US persons?
 
@@ -341,13 +342,13 @@ The protocol is permissionless and contracts don't enforce AML. The foundation, 
 
 ### What chains is this on?
 
-- Base mainnet (primary)
-- Base Sepolia (testnet)
+- Base Sepolia (testnet) — currently deployed
+- Base mainnet (intended primary chain) — not deployed yet (pending)
 - Future v2: cross-chain via LayerZero V2 (chains TBD by governance)
 
 ### What's the token contract address?
 
-[TBA at TGE — check `addresses.base.json` or the official site]
+Base Sepolia (testnet), chainId 84532: `0x8027bb077D668407D6c0bb33Ba343c2dC44661d4` (LitnupToken), verified on Base Sepolia Basescan. Base mainnet is not deployed yet (pending). Deployed addresses are also resolvable from the SDK at `sdk-typescript/src/addresses.ts`.
 
 ### Where's the source code?
 

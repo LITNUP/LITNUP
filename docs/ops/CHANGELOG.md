@@ -22,7 +22,7 @@ Format:
 - `incident-runbook.md` v1
 - `post-mortem-template.md` v1 (template, not a policy doc; revisions don't require AAIP)
 
-**Approval:** Foundation board internal review prior to public publication. Not yet ratified by veAGENTIC vote (requires post-TGE governance to ratify).
+**Approval:** Foundation board internal review prior to public publication. Not yet ratified by veLITNUP vote (requires post-TGE governance to ratify).
 
 **Effective:** 2026-05-09 (publication date).
 

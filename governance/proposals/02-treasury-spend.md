@@ -89,7 +89,7 @@ For Tier 2/3 (timelocked):
 | Routine (≤$25k/item, ≤$200k/month) | 2-of-5 ops multisig | None |
 | Large operational ($25k-$250k) | 3-of-5 ops + 24h notice | Public notice posted |
 | Strategic ($250k-$2M) | 5-of-9 board + 7-day notice | Reasoning published |
-| Constitutional (>$2M) | veAGENTIC vote (60% / 67%) | 14-day notice + 48h timelock |
+| Constitutional (>$2M) | veLITNUP vote (60% / 67%) | 14-day notice + 48h timelock |
 
 ---
 

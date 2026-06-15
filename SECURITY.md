@@ -15,7 +15,7 @@
 ### Preferred channels (in order)
 
 1. **Immunefi bounty** (when live): https://immunefi.com/bounty/litnup
-2. **Email**: `security@litnup.xyz` (PGP key below)
+2. **Email**: `security@litnup.io` (PGP key below)
 3. **Direct to founders**: DM `@LITNUP` on X with a request for a private channel
 
 ### What to include
@@ -60,8 +60,10 @@ When we have valid disclosures, we'll list them here (with reporter consent).
 
 ```
 -----BEGIN PGP PUBLIC KEY BLOCK-----
-[ Replace this block with your real PGP public key. Generate via:
-  gpg --gen-key, then gpg --armor --export security@litnup.xyz ]
+[ A PGP public key for security@litnup.io will be published here before
+  mainnet. Generate via: gpg --gen-key, then
+  gpg --armor --export security@litnup.io
+  Until then, request a secure channel via the email above. ]
 -----END PGP PUBLIC KEY BLOCK-----
 ```
 
@@ -71,11 +73,11 @@ When we have valid disclosures, we'll list them here (with reporter consent).
 
 Things we already know about and don't need re-reported:
 
-- **Multi-sig oracle is a centralization vector.** v1 is 5-of-7; we are migrating to 13-of-21 then to ZK-proof attestations in v2. This is documented in the litepaper.
+- **Multi-sig oracle is a centralization vector.** The performance fee is *reported* via a threshold-signed EIP-712 attestation from independent signers (it is not trustlessly derived from raw on-chain PnL — this is an explicit trust assumption). The current testnet deployment is **3-of-5** (see `contracts/deployments/84532.json`). The M-of-N threshold and signer set are governance-configurable, and a higher M-of-N is targeted for mainnet. This is documented in the litepaper.
 - **PaperVenue is paper.** Of course it is.
 - **No insurance fund yet.** Will be seeded post-mainnet from fees.
 - **HyperliquidVenue is a STUB.** It will not place real orders. The signing flow requires implementation before live use, behind explicit env-var opt-in.
-- **No production deployment script.** `deploy/Deploy.s.sol` is testnet-only; mainnet requires a multisig deployer and a more careful deploy script.
+- **Mainnet deployment requires a hardened handoff.** `contracts/script/Deploy.s.sol` is the deploy script used for testnet. Mainnet must not be deployed from a raw private key: it requires a Safe (multisig) deployer, with ownership/admin of all contracts handed off to the governance Timelock immediately after deployment. This hardened handoff is a prerequisite before any mainnet launch.
 
 ---
 
