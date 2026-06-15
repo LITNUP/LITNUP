@@ -22,7 +22,7 @@ jobs:
       run:
         working-directory: contracts
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
@@ -55,7 +55,7 @@ jobs:
     name: Slither static analysis
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
@@ -70,7 +70,7 @@ jobs:
           git clone --depth 1 --branch v1.9.4 https://github.com/foundry-rs/forge-std lib/forge-std
 
       - name: Run Slither (advisory — surfaces findings as annotations, does not block)
-        uses: crytic/slither-action@v0.4.0
+        uses: crytic/slither-action@v0.4.2
         with:
           target: contracts/
           slither-config: contracts/slither.config.json
