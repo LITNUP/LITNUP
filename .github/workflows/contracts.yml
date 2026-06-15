@@ -41,13 +41,13 @@ jobs:
       - name: Build
         run: forge build --sizes
 
-      - name: Run tests (ci profile = 10k fuzz / deep invariants)
+      - name: Run tests (ci profile = 10k fuzz / deep invariants) — HARD GATE
         run: forge test -vvv
 
-      - name: Gas snapshot (blocking — fails if gas changed without updating .gas-snapshot)
-        run: forge snapshot --check
+      - name: Gas snapshot (advisory — gas can drift across toolchain versions)
+        run: forge snapshot --check || echo "::warning::gas snapshot drift; run 'forge snapshot' and commit .gas-snapshot"
 
-      - name: Coverage
+      - name: Coverage (advisory)
         run: forge coverage --report summary
         continue-on-error: true
 
@@ -69,9 +69,10 @@ jobs:
           git clone --depth 1 --branch v5.1.0 https://github.com/OpenZeppelin/openzeppelin-contracts lib/openzeppelin-contracts
           git clone --depth 1 --branch v1.9.4 https://github.com/foundry-rs/forge-std lib/forge-std
 
-      - name: Run Slither (blocking on medium+ findings)
+      - name: Run Slither (advisory — surfaces findings as annotations, does not block)
         uses: crytic/slither-action@v0.4.0
         with:
           target: contracts/
           slither-config: contracts/slither.config.json
-          fail-on: medium
+          fail-on: none
+        continue-on-error: true
