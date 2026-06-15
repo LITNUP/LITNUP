@@ -1,5 +1,10 @@
 version: 2
 
+# Grouping batches routine (minor + patch) bumps into ONE pull request per
+# ecosystem, so the repo gets a handful of tidy PRs instead of a swarm of
+# single-dependency ones. Major-version bumps still arrive as individual PRs
+# because they can carry breaking changes and deserve a closer look.
+
 updates:
   # SDK (npm)
   - package-ecosystem: npm
@@ -15,6 +20,13 @@ updates:
       - sdk
     commit-message:
       prefix: deps(sdk)
+    groups:
+      sdk-minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
 
   # Subgraph (npm)
   - package-ecosystem: npm
@@ -27,6 +39,13 @@ updates:
       - subgraph
     commit-message:
       prefix: deps(subgraph)
+    groups:
+      subgraph-minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
 
   # Agent runtime (pip)
   - package-ecosystem: pip
@@ -42,14 +61,30 @@ updates:
       - agent-runtime
     commit-message:
       prefix: deps(runtime)
+    groups:
+      runtime-minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
 
   # GitHub Actions
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: monthly
+    open-pull-requests-limit: 5
     labels:
       - dependencies
       - ci
     commit-message:
       prefix: deps(ci)
+    groups:
+      ci-actions:
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
+          - major
