@@ -24,7 +24,7 @@ contract RewardsDistributorTest is Test {
 
         vm.startPrank(admin);
         token.approve(address(dist), type(uint256).max);
-        dist.registerChannel(CHANNEL_VE, "veAGENTIC weekly");
+        dist.registerChannel(CHANNEL_VE, "veLITNUP weekly");
         vm.stopPrank();
     }
 

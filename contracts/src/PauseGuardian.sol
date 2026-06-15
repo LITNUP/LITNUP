@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.24;
 
-import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
+import {AccessControlEnumerable} from "@openzeppelin/contracts/access/extensions/AccessControlEnumerable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /// @title PauseGuardian
@@ -24,7 +24,7 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol
 ///         (target, selector) requires a 48h timelock proposal. So even if all
 ///         five guardian keys are compromised, the worst they can do is pause
 ///         pre-approved targets. They cannot grant themselves new powers.
-contract PauseGuardian is AccessControl, ReentrancyGuard {
+contract PauseGuardian is AccessControlEnumerable, ReentrancyGuard {
     bytes32 public constant GUARDIAN_ROLE   = keccak256("GUARDIAN_ROLE");
     bytes32 public constant WHITELIST_ROLE  = keccak256("WHITELIST_ROLE"); // held by Timelock
 
@@ -109,7 +109,10 @@ contract PauseGuardian is AccessControl, ReentrancyGuard {
     }
 
     function setThreshold(uint8 newThreshold) external onlyRole(WHITELIST_ROLE) {
-        if (newThreshold == 0) revert InvalidThreshold();
+        // Bound by the live guardian count — otherwise governance could set the
+        // threshold above the number of guardians, making it impossible to ever
+        // reach quorum and bricking the emergency pause/unpause path entirely.
+        if (newThreshold == 0 || newThreshold > getRoleMemberCount(GUARDIAN_ROLE)) revert InvalidThreshold();
         threshold = newThreshold;
         emit ThresholdUpdated(newThreshold);
     }

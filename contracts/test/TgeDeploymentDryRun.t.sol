@@ -31,7 +31,7 @@ import {MockERC20}          from "./mocks/MockERC20.sol";
 ///   4. The first staker can stake
 ///   5. The first attestation cycle applies
 ///   6. The first fee is taken + the first buyback fires
-///   7. veAGENTIC locks function correctly
+///   7. veLITNUP locks function correctly
 ///   8. The EmissionScheduler streams to recipients
 ///   9. The Timelock enforces its delay
 ///  10. The PauseGuardian whitelist works
@@ -199,7 +199,7 @@ contract TgeDeploymentDryRun is Test {
         assertEq(totalShares, 10_000 ether);
 
         // ============================================================
-        // PHASE 5 — First veAGENTIC lock
+        // PHASE 5 — First veLITNUP lock
         // ============================================================
         emit log_string("--- PHASE 5: Governance genesis lock ---");
 

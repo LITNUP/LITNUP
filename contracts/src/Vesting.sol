@@ -71,7 +71,10 @@ contract Vesting is AccessControl, ReentrancyGuard {
         if (beneficiary == address(0) || amount == 0 || durationSeconds == 0) revert InvalidParams();
         if (cliffSeconds > durationSeconds) revert InvalidParams();
         Schedule storage s = schedules[beneficiary];
-        if (s.totalAmount > 0) revert ScheduleAlreadyExists();
+        // Reject re-creation for any beneficiary with an existing record — including a
+        // schedule that was revoked before its cliff (totalAmount becomes 0 there, which
+        // would otherwise silently re-enable createSchedule and reset `revoked`).
+        if (s.totalAmount > 0 || s.revoked) revert ScheduleAlreadyExists();
 
         schedules[beneficiary] = Schedule({
             totalAmount: amount,

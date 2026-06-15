@@ -158,6 +158,13 @@ contract EmissionScheduler is AccessControl, ReentrancyGuard {
     /// @dev Lock the emissions accrued since the last checkpoint into each active recipient's
     ///      `credited` balance at the CURRENT weights, then advance the settled marker.
     function _settleAll() internal {
+        // Only checkpoint while weights fully sum to 100%. If weights are incomplete
+        // (e.g. governance is configuring recipients incrementally, or one was removed),
+        // advancing settledEmitted would permanently strand the un-weighted fraction of
+        // the accrued delta. Leaving settledEmitted untouched keeps those emissions
+        // claimable once weights reach 10000 — consistent with pull()/claimable(), which
+        // already gate on totalWeightBps == 10_000.
+        if (totalWeightBps != 10_000) return;
         uint256 emitted = emittedToDate();
         uint256 delta = emitted - settledEmitted;
         if (delta == 0) return;

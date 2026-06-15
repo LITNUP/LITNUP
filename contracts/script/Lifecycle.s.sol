@@ -41,10 +41,25 @@ contract Lifecycle is Script {
         int256 pnlDelta = int256(500 ether);
         bytes32 digest = _digest(oracle, agentId, pnlDelta, feePayer, epoch, deadline);
 
+        // PerformanceOracle._verifySignatures requires signatures concatenated in
+        // strictly ascending recovered-signer-address order. Sort the keys by their
+        // derived address first, otherwise applyAttestation reverts DuplicateSigner
+        // whenever SK0/SK1/SK2 don't happen to map to ascending addresses.
+        uint256[3] memory sks = [vm.envUint("SK0"), vm.envUint("SK1"), vm.envUint("SK2")];
+        for (uint256 i = 1; i < 3; i++) {
+            uint256 key = sks[i];
+            address ka = vm.addr(key);
+            uint256 j = i;
+            while (j > 0 && vm.addr(sks[j - 1]) > ka) {
+                sks[j] = sks[j - 1];
+                j--;
+            }
+            sks[j] = key;
+        }
         bytes[] memory sigs = new bytes[](3);
-        sigs[0] = _sign(vm.envUint("SK0"), digest);
-        sigs[1] = _sign(vm.envUint("SK1"), digest);
-        sigs[2] = _sign(vm.envUint("SK2"), digest);
+        sigs[0] = _sign(sks[0], digest);
+        sigs[1] = _sign(sks[1], digest);
+        sigs[2] = _sign(sks[2], digest);
 
         vm.broadcast(pk);
         oracle.applyAttestation(agentId, pnlDelta, 0, 0, feePayer, epoch, deadline, sigs);
