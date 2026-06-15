@@ -28,18 +28,18 @@ const ZERO = '0x0000000000000000000000000000000000000000' as const;
 // Deployed to Base Sepolia (chainId 84532) on 2026-06-15. See contracts/deployments/84532.json.
 // MerkleAirdrop is deployed per airdrop season (not in the core deploy) — left as ZERO.
 const BASE_SEPOLIA: ContractAddresses = {
-  litnupToken: '0xD37458934255e9F4858A3E8C104b016716c558d1',
-  agentRegistry: '0x4D4dE869e9a155A43CD80C1b8a71088bfC337176',
-  stakingVault: '0xa08Dd6479cfDcC06a2E6777c627EA9483847238D',
-  performanceOracle: '0xeD4ba8D90Af146FbfcFAbe60b320940a980C37fE',
-  buybackBurn: '0x64aca73C3D7E11f3B6455dae513FB9Ad0A047f03',
-  votingEscrow: '0x560da62460b5e8F9B748cFA9c4D3E8E8BaB591F5',
+  litnupToken: '0x8027bb077D668407D6c0bb33Ba343c2dC44661d4',
+  agentRegistry: '0xDdd34BdcCbC28a137f514b949274A8fDdBF20dE2',
+  stakingVault: '0xdad52a9c40240269943b7ED451a4b02eB595b225',
+  performanceOracle: '0x1a8318dd3315C8C259177cd477940F33799D0272',
+  buybackBurn: '0x4B2d6604efdd707CaF96AbA2C65Ee726dAC136D4',
+  votingEscrow: '0x8347fAa4c62637a00c96a5F5554Fb27c412D210a',
   merkleAirdrop: ZERO,
-  vesting: '0xc907F9038163F33BA8D992769343F10A068ae331',
-  insuranceFund: '0xFe740A3F89175A287c7f2c474e227aE8591dFc05',
-  timelock: '0x6E859b5001f61a520962918d65dF64ca7A3eE727',
-  delegateRegistry: '0xbFDC1279A6E165E3BaceB604DF2AA7B08af1e83A',
-  emissionScheduler: '0x74f7F6F0B4376D3992048F56312347363C2Ae942',
+  vesting: '0x2154fDB056475c0e2169fEE7E31D85Bc32990F0f',
+  insuranceFund: '0xa3a96128DB5578c4AC474e8D3490FBd13e92f420',
+  timelock: '0xdD0c734Eb90B369BA7fcbFBb45ecb9859c8251aC',
+  delegateRegistry: '0xB0961EE07380019Ea09D2f7FB0e8e38143138955',
+  emissionScheduler: '0xb85A9D387227A9138ddfE594e8deAC6f8A50aD99',
 };
 
 const BASE_MAINNET: ContractAddresses = {
