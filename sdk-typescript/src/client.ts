@@ -14,6 +14,9 @@ import {
   type Network,
 } from './addresses.js';
 
+// Re-export Network so consumers (index.ts, react.ts) can import it from the client entrypoint.
+export type { Network } from './addresses.js';
+
 import {
   litnupTokenAbi,
   agentRegistryAbi,
@@ -118,7 +121,7 @@ export class LITNUP {
         abi: stakingVaultAbi,
         functionName: 'vaults',
         args: [i],
-      })) as readonly [bigint, bigint, bigint, bigint];
+      })) as readonly [bigint, bigint, bigint, bigint, bigint, bigint];
       total += v[0];
     }
     return total;
@@ -194,7 +197,7 @@ export class LITNUP {
         abi: stakingVaultAbi,
         functionName: 'vaults',
         args: [agentId],
-      })) as readonly [bigint, bigint, bigint, bigint];
+      })) as readonly [bigint, bigint, bigint, bigint, bigint, bigint];
 
       const sharePrice = (await this.publicClient.readContract({
         address: this.addresses.stakingVault,
@@ -295,7 +298,7 @@ export class LITNUP {
       abi: stakingVaultAbi,
       functionName: 'stakers',
       args: [agentId, staker],
-    })) as readonly [bigint, bigint, bigint];
+    })) as readonly [bigint, bigint, bigint, bigint, bigint];
     const shares = s[0];
     const pendingShares = s[2];
     if (shares === 0n && pendingShares === 0n) return null;

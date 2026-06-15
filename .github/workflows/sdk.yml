@@ -28,11 +28,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: npm
-          cache-dependency-path: sdk-typescript/package-lock.json
+          # No npm cache: this is an npm workspace with no committed lockfile in the subdir,
+          # so caching against sdk-typescript/package-lock.json failed the job at setup.
 
       - name: Install
-        run: npm ci || npm install
+        run: npm install --no-audit --no-fund
 
       - name: Typecheck
         run: npm run typecheck
