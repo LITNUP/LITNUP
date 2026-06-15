@@ -104,7 +104,7 @@ Yes. The PnL is what's verifiable, not the code. You can keep your edge.
 ## For developers
 
 ### Where's the code?
-`github.com/alphagentic` — public.
+`github.com/LITNUP/LITNUP` — public.
 
 ### What's the license?
 Smart contracts: BUSL-1.1 (transitions to Apache-2 in 2 years).
@@ -221,8 +221,8 @@ We're focused on v1. v2 is scoped (cross-chain, ZK oracle). v3 is whatever the p
 
 ## Where do I get more help?
 
-- **Docs**: alphagentic.xyz/docs
-- **Discord**: discord.gg/alphagentic
-- **GitHub**: github.com/alphagentic (issues + discussions)
+- **Docs**: litnup.io/docs
+- **Discord**: discord.gg/litnup
+- **GitHub**: github.com/LITNUP/LITNUP (issues + discussions)
 - **Twitter**: @LITNUP
-- **Security**: security@alphagentic.xyz (or via Immunefi when live)
+- **Security**: security@litnup.io (or via Immunefi when live)

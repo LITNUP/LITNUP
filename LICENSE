@@ -1,4 +1,4 @@
-AlphAgentic — Multi-licensed source
+LITNUP — Multi-licensed source
 
 Different parts of this repository ship under different licenses. The path-prefix
 table below is authoritative.
@@ -31,20 +31,20 @@ Below are the full texts of the relevant licenses.
 BUSINESS SOURCE LICENSE 1.1 (for contracts/src/**)
 ================================================================================
 
-Licensor:                AlphAgentic Foundation Ltd. (Cayman Islands)
-Licensed Work:           AlphAgentic protocol smart contracts
-                         The Licensed Work is © 2026 AlphAgentic Foundation Ltd.
+Licensor:                LITNUP Foundation (Cayman Islands)
+Licensed Work:           LITNUP protocol smart contracts
+                         The Licensed Work is © 2026 LITNUP Foundation
 Additional Use Grant:    You may make production use of the Licensed Work, provided
                          such use does not include offering the Licensed Work to
                          third parties on a hosted or embedded basis in order to
-                         compete with AlphAgentic's protocol offering.
+                         compete with LITNUP's protocol offering.
 Change Date:             Three years from the file's date of first publication
                          (no later than 2028-05-05 for files published before that
                          date)
 Change License:          Apache-2.0
 
 For information about alternative licensing arrangements for the Licensed Work,
-please contact licensing@alphagentic.xyz.
+please contact licensing@litnup.io.
 
 Notice
 
@@ -59,7 +59,7 @@ License text copyright (c) 2017 MariaDB Corporation Ab, All Rights Reserved.
 APACHE LICENSE, VERSION 2.0 (for everything else listed as Apache-2.0)
 ================================================================================
 
-Copyright 2026 AlphAgentic Foundation Ltd.
+Copyright 2026 LITNUP Foundation
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -77,7 +77,7 @@ limitations under the License.
 MIT LICENSE (for contracts/test/**, contracts/script/**, deploy/**)
 ================================================================================
 
-Copyright (c) 2026 AlphAgentic Foundation Ltd.
+Copyright (c) 2026 LITNUP Foundation
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -116,7 +116,7 @@ Full license text: https://creativecommons.org/licenses/by/4.0/legalcode
 CREATIVE COMMONS ATTRIBUTION-NONCOMMERCIAL 4.0 (for brand/**)
 ================================================================================
 
-The AlphAgentic mark + wordmark may be used for editorial, news, and analytical
+The LITNUP mark + wordmark may be used for editorial, news, and analytical
 purposes (e.g., a journalist writing about us, a chart referencing the project)
 without prior permission. Any commercial use — including in another product's
 UI, in marketing materials promoting a competing service, in merchandise, or in
@@ -134,14 +134,14 @@ is permitted for users with explicit access to this repository; redistribution,
 quotation, or use of the contents in any external context is prohibited
 without prior written permission.
 
-Contact: legal@alphagentic.xyz
+Contact: legal@litnup.io
 
 ================================================================================
 TRADEMARK
 ================================================================================
 
-"AlphAgentic" and the AlphAgentic logo are trademarks of AlphAgentic
-Foundation Ltd. Use of these marks in commerce requires written permission.
+"LITNUP" and the LITNUP logo are trademarks of LITNUP
+Foundation. Use of these marks in commerce requires written permission.
 Editorial / journalistic use is permitted under fair-use principles.
 
 ================================================================================
@@ -149,10 +149,10 @@ QUESTIONS
 ================================================================================
 
 For licensing inquiries, dual-licensing requests, or trademark questions:
-  licensing@alphagentic.xyz
+  licensing@litnup.io
 
 For contributions back to the project:
   See CONTRIBUTING.md
 
 For security disclosures:
-  security@alphagentic.xyz (or via Immunefi when live)
+  security@litnup.io (or via Immunefi when live)

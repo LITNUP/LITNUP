@@ -1,4 +1,4 @@
-# AlphAgentic Subgraph Schema
+# LITNUP Subgraph Schema
 # The Graph node indexes Base Sepolia + Base mainnet contracts and exposes the
 # entities below for fast querying by the dApp / SDK / dashboards.
 

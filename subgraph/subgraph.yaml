@@ -1,6 +1,6 @@
 specVersion: 1.0.0
-description: AlphAgentic — agents, vaults, attestations, fees, burns
-repository: https://github.com/alphagentic/alphagentic
+description: LITNUP — agents, vaults, attestations, fees, burns
+repository: https://github.com/LITNUP/LITNUP
 schema:
   file: ./schema.graphql
 

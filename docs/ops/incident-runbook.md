@@ -170,7 +170,7 @@ Status: under active investigation
 Affected: [TBD or known scope]
 Action: [pause status / what we've done]
 Next update: [time]
-Status page: status.alphagentic.xyz
+Status page: status.litnup.io
 ```
 
 ### Template 2: Hourly update (T+1h, T+2h, ...)
@@ -195,7 +195,7 @@ Root cause: [one line]
 User impact: [exact numbers if any]
 Compensation: [details]
 Post-mortem: [date]
-Status page: status.alphagentic.xyz
+Status page: status.litnup.io
 ```
 
 ### Template 4: Post-mortem (T+14 days)
@@ -224,7 +224,7 @@ See `post-mortem-template.md`.
 | PagerDuty | On-call rotation | Ops lead |
 | Signal `#incident` | Comm channel | Founder |
 | Status page (statuspage.io) | Public comms | Comms lead |
-| Twitter @alphagentic | Public comms | Comms lead |
+| Twitter @LITNUP | Public comms | Comms lead |
 
 ---
 

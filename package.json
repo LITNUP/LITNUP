@@ -1,12 +1,12 @@
 {
-  "name": "alphagentic",
+  "name": "litnup",
   "version": "0.1.0",
   "private": true,
   "description": "LITNUP — the verification layer underneath the AI agent economy. Monorepo for contracts, agent runtime, SDK, subgraph, and web.",
-  "homepage": "https://alphagentic.xyz",
+  "homepage": "https://litnup.io",
   "repository": {
     "type": "git",
-    "url": "https://github.com/alphagentic/alphagentic.git"
+    "url": "https://github.com/LITNUP/LITNUP.git"
   },
   "license": "SEE LICENSE IN LICENSE",
   "engines": {
@@ -37,14 +37,14 @@
 
     "subgraph:codegen": "cd subgraph && graph codegen",
     "subgraph:build": "cd subgraph && graph build",
-    "subgraph:deploy": "cd subgraph && graph deploy --product hosted-service alphagentic/protocol",
+    "subgraph:deploy": "cd subgraph && graph deploy --product hosted-service litnup/litnup",
 
     "web:serve": "cd web && python -m http.server 8000",
 
     "all:test": "npm run test:contracts && npm run test:sdk && npm run agent:test"
   },
   "keywords": [
-    "alphagentic",
+    "litnup",
     "ai-agents",
     "verification",
     "ethereum",

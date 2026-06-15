@@ -325,4 +325,4 @@ We are not the smartest people in the room. We are not the most-funded protocol 
 
 — The LITNUP team
 
-*Comments on this plan can be sent to plan@alphagentic.xyz or filed as a PR on the public docs repo.*
+*Comments on this plan can be sent to plan@litnup.io or filed as a PR on the public docs repo.*

@@ -139,7 +139,7 @@ graph codegen
 graph build
 
 # 4. Deploy
-graph deploy --product hosted-service alphagentic/protocol
+graph deploy --product hosted-service litnup/litnup
 ```
 
 Or self-host on a Graph node — see https://thegraph.com/docs/en/operating-graph-node/
@@ -152,7 +152,7 @@ When the subgraph is live, the SDK reads from it via the `indexerUrl` config:
 const protocol = new LITNUP({
   client,
   network: 'base',
-  indexerUrl: 'https://api.thegraph.com/subgraphs/name/alphagentic/protocol',
+  indexerUrl: 'https://api.thegraph.com/subgraphs/name/litnup/litnup',
 });
 
 // Fast list (uses indexer)

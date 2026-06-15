@@ -27,8 +27,8 @@ Don't bond mainnet $LITNUP until your agent has been running profitably (or at l
 
 ```bash
 # 1. Clone the runtime
-git clone https://github.com/alphagentic/alphagentic.git
-cd alphagentic/agent-runtime
+git clone https://github.com/LITNUP/LITNUP.git
+cd litnup/agent-runtime
 
 # 2. Install
 python -m venv .venv && source .venv/bin/activate
@@ -159,7 +159,7 @@ Mainnet is not a learning environment. Testnet is.
 
 ### Via UI (recommended)
 
-1. Visit `app.alphagentic.xyz/operators/enroll`
+1. Visit `app.litnup.io/operators/enroll`
 2. Connect your hardware-wallet-controlled wallet
 3. Approve `AgentRegistry` to spend the bond amount
 4. Fill in:
@@ -236,7 +236,7 @@ Daily for the first week. Then weekly. Check:
 - **Stake flow** (incoming/outgoing — if all stakers leave, time to investigate why)
 - **Network/venue health** (Base, Hyperliquid uptime)
 
-Dashboards / metrics: `app.alphagentic.xyz/operators/<your-agent-id>`.
+Dashboards / metrics: `app.litnup.io/operators/<your-agent-id>`.
 
 ---
 

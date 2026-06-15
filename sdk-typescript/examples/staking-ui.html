@@ -83,7 +83,7 @@
 <div class="container">
   <h1>LITNUP SDK · staking UI example</h1>
   <p class="lead">
-    Reference HTML page that uses <code>@alphagentic/sdk</code> via viem to read protocol state
+    Reference HTML page that uses <code>@litnup/sdk</code> via viem to read protocol state
     and execute staking flows. <span class="pill" id="network-pill">checking</span>
     <span class="pill" id="address-pill">no wallet</span>
   </p>
@@ -139,17 +139,17 @@
   <pre class="console" id="console"></pre>
 
   <p class="footer">
-    Read the SDK docs at <a href="https://alphagentic.xyz/builders.html">/builders</a>. ·
+    Read the SDK docs at <a href="https://litnup.io/builders.html">/builders</a>. ·
     This file is reference code under Apache-2.
   </p>
 </div>
 
 <script type="module">
 /**
- * Reference example showing how to use @alphagentic/sdk in a vanilla HTML page.
+ * Reference example showing how to use @litnup/sdk in a vanilla HTML page.
  *
  * In a real app you'd import from npm:
- *   import { LITNUP } from "@alphagentic/sdk";
+ *   import { LITNUP } from "@litnup/sdk";
  *
  * For this static example we use a CDN ESM build of viem so the page works
  * standalone without any build step. In production, bundle properly.
@@ -178,7 +178,7 @@ const CONTRACT_ADDRESSES = {
   votingEscrow: "0x0000000000000000000000000000000000000000",
 };
 
-// Minimal ABIs (a real app imports from @alphagentic/sdk)
+// Minimal ABIs (a real app imports from @litnup/sdk)
 const ERC20_ABI = [
   { type: "function", name: "balanceOf", stateMutability: "view", inputs: [{ name: "a", type: "address" }], outputs: [{ type: "uint256" }] },
   { type: "function", name: "totalSupply", stateMutability: "view", inputs: [], outputs: [{ type: "uint256" }] },

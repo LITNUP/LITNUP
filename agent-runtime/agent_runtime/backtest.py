@@ -22,7 +22,7 @@ Usage (programmatic):
     print(result.summary())
 
 Usage (CLI):
-    alphagentic-cli backtest --strategy momentum --asset BTC \
+    litnup-cli backtest --strategy momentum --asset BTC \
         --start 2024-01-01 --end 2024-12-31 --initial-equity 10000
 
 CSV format expected:
@@ -393,7 +393,7 @@ def write_report(result: BacktestResult, output_dir: str | Path) -> Path:
 
 
 # ============================================================
-# CLI ENTRYPOINT (used by alphagentic-cli backtest)
+# CLI ENTRYPOINT (used by litnup-cli backtest)
 # ============================================================
 
 def cli_run(strategy_name: str, asset: str, start: str, end: str,

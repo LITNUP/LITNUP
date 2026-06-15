@@ -7,7 +7,7 @@ body:
       value: |
         Thanks for taking the time to file a bug report. The clearer the repro, the faster we fix.
 
-        **Security issues:** if you found a smart contract vulnerability, do NOT open a public issue. Email security@alphagentic.xyz or report via [Immunefi](https://immunefi.com).
+        **Security issues:** if you found a smart contract vulnerability, do NOT open a public issue. Email security@litnup.io or report via [Immunefi](https://immunefi.com).
 
   - type: dropdown
     id: component

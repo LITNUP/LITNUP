@@ -1,5 +1,5 @@
 {
-  "name": "@alphagentic/sdk",
+  "name": "@litnup/sdk",
   "version": "0.1.0",
   "description": "TypeScript SDK for LITNUP — staking, agent operator flows, attestation verification.",
   "type": "module",
@@ -30,7 +30,7 @@
     "test:watch": "vitest"
   },
   "keywords": [
-    "alphagentic",
+    "litnup",
     "agentic",
     "ai-agents",
     "ethereum",
@@ -42,10 +42,10 @@
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/alphagentic/alphagentic.git",
+    "url": "https://github.com/LITNUP/LITNUP.git",
     "directory": "sdk-typescript"
   },
-  "homepage": "https://alphagentic.xyz/builders.html",
+  "homepage": "https://litnup.io/builders.html",
   "peerDependencies": {
     "viem": "^2.21.0",
     "react": ">=18.0.0",

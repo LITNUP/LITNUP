@@ -1,4 +1,4 @@
-# @alphagentic/sdk
+# @litnup/sdk
 
 TypeScript SDK for LITNUP. Read protocol state, stake on agents, enroll new agents, and verify EIP-712 oracle attestations from any browser or Node environment.
 
@@ -9,11 +9,11 @@ Built on [viem](https://viem.sh) (peer dep) — no `ethers.js` legacy.
 ## Install
 
 ```bash
-npm install @alphagentic/sdk viem
+npm install @litnup/sdk viem
 # or
-pnpm add @alphagentic/sdk viem
+pnpm add @litnup/sdk viem
 # or
-bun add @alphagentic/sdk viem
+bun add @litnup/sdk viem
 ```
 
 ## Quick start — read protocol state
@@ -21,7 +21,7 @@ bun add @alphagentic/sdk viem
 ```ts
 import { createPublicClient, http } from 'viem';
 import { base } from 'viem/chains';
-import { LITNUP } from '@alphagentic/sdk';
+import { LITNUP } from '@litnup/sdk';
 
 const client = createPublicClient({
   chain: base,
@@ -47,7 +47,7 @@ console.log(agent);
 
 ```ts
 import { createWalletClient, custom, parseEther } from 'viem';
-import { LITNUP } from '@alphagentic/sdk';
+import { LITNUP } from '@litnup/sdk';
 
 const wallet = createWalletClient({
   chain: base,
@@ -74,7 +74,7 @@ console.log('Staked:', stakeTx);
 ## Quick start — verify an attestation off-chain
 
 ```ts
-import { verifyAttestation } from '@alphagentic/sdk/attestation';
+import { verifyAttestation } from '@litnup/sdk/attestation';
 
 const isValid = await verifyAttestation({
   attestation: {
@@ -148,4 +148,4 @@ Apache-2.0. See LICENSE in repo root.
 
 ## Contributing
 
-PRs welcome. Issues for bugs and proposed APIs at github.com/alphagentic.
+PRs welcome. Issues for bugs and proposed APIs at github.com/LITNUP/LITNUP.

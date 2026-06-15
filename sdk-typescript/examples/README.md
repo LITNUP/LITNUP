@@ -1,6 +1,6 @@
 # SDK examples
 
-Standalone reference implementations showing how to use `@alphagentic/sdk` and the contracts directly.
+Standalone reference implementations showing how to use `@litnup/sdk` and the contracts directly.
 
 ## staking-ui.html
 

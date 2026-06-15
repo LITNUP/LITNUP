@@ -2,7 +2,7 @@ name: ⚠️  Suspected security issue (low-severity / public-disclosure path)
 description: |
   Use this ONLY for low-severity issues you are comfortable disclosing publicly.
   For anything that could lose user funds, freeze user funds, or compromise oracle attestations,
-  use Immunefi instead: https://immunefi.com/bounty/alphagentic
+  use Immunefi instead: https://immunefi.com/bounty/litnup
 labels: ["security:public-disclosure", "needs-triage"]
 body:
   - type: markdown
@@ -12,7 +12,7 @@ body:
 
         If your finding is **critical, high, or medium** severity per the [Immunefi severity classification](https://immunefi.com/severity-classification/),
         DO NOT file this issue publicly. File via Immunefi:
-        - https://immunefi.com/bounty/alphagentic — paid up to $250K
+        - https://immunefi.com/bounty/litnup — paid up to $250K
 
         Critical = direct fund loss, frozen funds, oracle integrity, governance bypass.
         High     = significant fund loss conditional on attacker actions, slashing griefing, fee leakage.

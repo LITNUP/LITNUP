@@ -1,4 +1,4 @@
-# AlphAgentic Agent Runtime — isolated docker-compose
+# LITNUP Agent Runtime — isolated docker-compose
 #
 # Designed to run alongside your existing KVM2 services WITHOUT touching them.
 # - Own network namespace (no port conflicts)
@@ -18,8 +18,8 @@ services:
     build:
       context: ..
       dockerfile: deploy/Dockerfile.agent-runtime
-    image: alphagentic-agent:latest
-    container_name: alphagentic-agent-momentum
+    image: litnup-agent:latest
+    container_name: litnup-agent-momentum
     env_file:
       - ../agent-runtime/.env
     environment:
@@ -51,8 +51,8 @@ services:
     build:
       context: ..
       dockerfile: deploy/Dockerfile.agent-runtime
-    image: alphagentic-agent:latest
-    container_name: alphagentic-agent-meanrev
+    image: litnup-agent:latest
+    container_name: litnup-agent-meanrev
     env_file:
       - ../agent-runtime/.env
     environment:

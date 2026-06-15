@@ -161,7 +161,7 @@ Vote-escrowed AGENTIC. Lock $LITNUP for up to 4 years; receive vote weight propo
 ### How do I vote?
 
 Two ways:
-1. **Snapshot.** Off-chain signal vote on the LITNUP Snapshot space (`alphagentic.eth`). Free.
+1. **Snapshot.** Off-chain signal vote on the LITNUP Snapshot space (`litnup.eth`). Free.
 2. **On-chain Timelock.** After Snapshot passes, a proposer queues the action to the Timelock. Anyone with veAGENTIC can vote here too.
 
 ### What's the Timelock?
@@ -220,7 +220,7 @@ Foundation treasury holds 25% of supply but votes only on Tier 1 (technical) pro
 
 Three layers:
 1. **Smart contract level.** Read state from public view functions; submit txs via your own wallet logic
-2. **TypeScript SDK.** `@alphagentic/sdk` (and `@alphagentic/sdk/react` for hooks)
+2. **TypeScript SDK.** `@litnup/sdk` (and `@litnup/sdk/react` for hooks)
 3. **The Graph subgraph.** Query indexed events for analytics / dashboards
 
 ### Where are the contract addresses?
@@ -244,7 +244,7 @@ If you need to fork the protocol earlier, contact the foundation. We'll consider
 
 ### How do I file a bug?
 
-- For non-security bugs: GitHub Issues at `github.com/alphagentic/protocol`
+- For non-security bugs: GitHub Issues at `github.com/LITNUP/LITNUP`
 - For security bugs: Immunefi at the official bounty URL. **Do not** file security issues on GitHub — that's public.
 
 ---
@@ -280,7 +280,7 @@ Target: Q4 2026 (after audits + 90 days testnet ramp). Specific date posted 7 da
 
 ### Can I get an interview?
 
-We do approximately 1 podcast / interview per week post-TGE. Contact press@alphagentic.xyz with: outlet name, expected publish date, audience size, sample of past interviews.
+We do approximately 1 podcast / interview per week post-TGE. Contact press@litnup.io with: outlet name, expected publish date, audience size, sample of past interviews.
 
 ### What's NOT for press?
 
@@ -351,22 +351,22 @@ The protocol is permissionless and contracts don't enforce AML. The foundation, 
 
 ### Where's the source code?
 
-`github.com/alphagentic/protocol` (smart contracts, runtime, SDK, docs, marketing, governance — single monorepo).
+`github.com/LITNUP/LITNUP` (smart contracts, runtime, SDK, docs, marketing, governance — single monorepo).
 
 ### Where's the official communication?
 
-- Twitter/X: `@alphagentic` (official, verified)
-- Forum: `forum.alphagentic.xyz`
-- Discord: `discord.gg/alphagentic`
-- Email: `team@alphagentic.xyz`
+- Twitter/X: `@LITNUP` (official, verified)
+- Forum: `forum.litnup.io`
+- Discord: `discord.gg/litnup`
+- Email: `team@litnup.io`
 
 We do NOT use Telegram for official announcements. Any Telegram channel claiming to be official is a scam.
 
 ### Where can I get help?
 
-- Read the docs: `docs.alphagentic.xyz`
-- Forum: `forum.alphagentic.xyz` (slow, thoughtful answers)
-- Discord: `discord.gg/alphagentic` (faster, less precise)
-- Github issues: `github.com/alphagentic/protocol/issues` (technical only)
+- Read the docs: `docs.litnup.io`
+- Forum: `forum.litnup.io` (slow, thoughtful answers)
+- Discord: `discord.gg/litnup` (faster, less precise)
+- Github issues: `github.com/LITNUP/LITNUP/issues` (technical only)
 
 We do NOT do customer support via DMs. If someone DMs you offering help, it's a scam.

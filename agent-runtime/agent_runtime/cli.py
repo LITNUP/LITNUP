@@ -1,21 +1,21 @@
-"""alphagentic-cli — operator-facing command-line tool for LITNUP.
+"""litnup-cli — operator-facing command-line tool for LITNUP.
 
 Designed for operators running their own agents. Wraps the most-common workflows
 into typed subcommands. Uses Click for argument parsing + Rich for output.
 
 Usage examples:
-    alphagentic-cli init                        # Scaffold a new operator repo
-    alphagentic-cli config show
-    alphagentic-cli paper-trade --strategy momentum --asset BTC --duration 1h
-    alphagentic-cli backtest --strategy momentum --asset BTC --start 2025-01-01
-    alphagentic-cli enroll --bond 50000 --metadata-uri ipfs://... --network base-sepolia
-    alphagentic-cli oracle-sign --epoch 12 --pnl-delta 1234
-    alphagentic-cli vault status --agent-id 7
-    alphagentic-cli operator stats
-    alphagentic-cli monitor --agent-id 7
+    litnup-cli init                        # Scaffold a new operator repo
+    litnup-cli config show
+    litnup-cli paper-trade --strategy momentum --asset BTC --duration 1h
+    litnup-cli backtest --strategy momentum --asset BTC --start 2025-01-01
+    litnup-cli enroll --bond 50000 --metadata-uri ipfs://... --network base-sepolia
+    litnup-cli oracle-sign --epoch 12 --pnl-delta 1234
+    litnup-cli vault status --agent-id 7
+    litnup-cli operator stats
+    litnup-cli monitor --agent-id 7
 
 Configuration is loaded from `.env` in the working directory + optional
-`alphagentic.toml`. Network defaults to `base-sepolia`.
+`litnup.toml`. Network defaults to `base-sepolia`.
 """
 from __future__ import annotations
 
@@ -66,10 +66,10 @@ def _require_env(key: str) -> str:
 def _network_config(network: str) -> dict:
     """Resolve network config: rpc_url + contract addresses."""
     cfg_paths = [
-        Path("alphagentic.toml"),
-        Path(__file__).parent.parent / "alphagentic.toml",
+        Path("litnup.toml"),
+        Path(__file__).parent.parent / "litnup.toml",
     ]
-    # For now we use env-var conventions; alphagentic.toml support is roadmap
+    # For now we use env-var conventions; litnup.toml support is roadmap
     presets = {
         "base-sepolia": {
             "rpc_url": os.getenv("BASE_SEPOLIA_RPC_URL", "https://sepolia.base.org"),
@@ -148,7 +148,7 @@ def init(target_dir, strategy):
 
     Creates:
       .env.example       Environment template
-      alphagentic.toml   Operator config
+      litnup.toml   Operator config
       strategies/        Custom strategy directory
       logs/              Run logs (gitignored)
       .gitignore
@@ -158,7 +158,7 @@ def init(target_dir, strategy):
 
     files = {
         ".env.example": _ENV_TEMPLATE,
-        "alphagentic.toml": _TOML_TEMPLATE.format(strategy=strategy),
+        "litnup.toml": _TOML_TEMPLATE.format(strategy=strategy),
         ".gitignore": _GITIGNORE,
         "strategies/.gitkeep": "",
         "logs/.gitkeep": "",
@@ -177,7 +177,7 @@ def init(target_dir, strategy):
         "Next steps:\n"
         f"  1. cd {target_dir}\n"
         "  2. cp .env.example .env  (and fill in values)\n"
-        "  3. alphagentic-cli paper-trade --strategy momentum --asset BTC --duration 1h\n",
+        "  3. litnup-cli paper-trade --strategy momentum --asset BTC --duration 1h\n",
         title="ready",
         border_style="green",
     ))
@@ -339,7 +339,7 @@ def enroll(ctx, bond, metadata_uri, protocol_fee_bps, dry_run):
         return
 
     CONSOLE.print("[yellow]note[/yellow]: live enroll requires the operator to have approved "
-                  "the AgentRegistry to spend $LITNUP. Run `alphagentic-cli token approve` first.")
+                  "the AgentRegistry to spend $LITNUP. Run `litnup-cli token approve` first.")
     CONSOLE.print("[red]not yet implemented[/red] — the enroll() web3 call will land in v0.2; "
                   "for now use the public Foundry script.")
 
@@ -541,7 +541,7 @@ ASSET=BTC
 """
 
 _TOML_TEMPLATE = """\
-# alphagentic.toml — operator config
+# litnup.toml — operator config
 [operator]
 name = ""
 strategy = "{strategy}"

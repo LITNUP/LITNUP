@@ -115,7 +115,7 @@ Since the repo is local, two options:
 ```bash
 # from your laptop, in D:\LITNUP Token\
 rsync -avz --exclude '.venv' --exclude '__pycache__' \
-  agent-runtime/ user@your-kvm:/home/user/alphagentic-agent/
+  agent-runtime/ user@your-kvm:/home/user/litnup-agent/
 ```
 
 **Option B: tarball + scp**
@@ -135,10 +135,10 @@ cd agent-runtime
 The Dockerfile is in `deploy/Dockerfile.agent-runtime`. Move it next to the agent-runtime code:
 
 ```bash
-cd /home/user/alphagentic-agent
+cd /home/user/litnup-agent
 # (Dockerfile is in this same directory after deploy)
 
-docker build -t alphagentic-agent .
+docker build -t litnup-agent .
 # This takes 1-2 minutes; nothing else on your system is touched
 ```
 
@@ -229,8 +229,8 @@ After deploy, copy the addresses into:
 ### If anything breaks with the agent container
 ```bash
 docker-compose down
-docker rmi alphagentic-agent
-rm -rf /home/user/alphagentic-agent
+docker rmi litnup-agent
+rm -rf /home/user/litnup-agent
 ```
 That fully removes the agent. Your KVM2 services are untouched.
 

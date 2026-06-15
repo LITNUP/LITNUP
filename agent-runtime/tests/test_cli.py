@@ -1,4 +1,4 @@
-"""Smoke tests for the alphagentic-cli."""
+"""Smoke tests for the litnup-cli."""
 from __future__ import annotations
 
 import os
@@ -25,7 +25,7 @@ def test_init_scaffolds(tmp_path, runner):
     res = runner.invoke(cli, ["--quiet", "init", "--dir", str(tmp_path), "--strategy", "momentum"])
     assert res.exit_code == 0
     assert (tmp_path / ".env.example").exists()
-    assert (tmp_path / "alphagentic.toml").exists()
+    assert (tmp_path / "litnup.toml").exists()
     assert (tmp_path / ".gitignore").exists()
     assert (tmp_path / "strategies").is_dir()
     assert (tmp_path / "logs").is_dir()
