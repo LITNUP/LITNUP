@@ -385,7 +385,7 @@ The Protocol is intended to be operated by the LITNUP Foundation, a Cayman Islan
 
 The $LITNUP token is intended to be a utility token with the on-chain functions described in §3.3. **No legal opinions currently exist; counsel review and formal token-classification opinions are planned** before mainnet, and the intended utility-token classification is subject to applicable counsel review in each relevant jurisdiction (it should not be relied upon as a present legal conclusion). Sale and marketing exclude U.S. persons and sanctioned jurisdictions.
 
-A separate Marshall Islands or Delaware entity may be used as a development subsidiary, with operations governed under arms-length licensing or services agreements with the Foundation.
+A separate development subsidiary (**planned / in progress — not yet formed**) may be established, with operations to be governed under arms-length licensing or services agreements with the Foundation. No such subsidiary exists today.
 
 Full legal analysis: [`plan/legal-checklist.md`](../plan/legal-checklist.md).
 

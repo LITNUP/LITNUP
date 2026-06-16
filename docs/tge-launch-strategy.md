@@ -213,7 +213,7 @@ The Team allocation is **15% of supply (150M $LITNUP)** and the Investors (all r
 - **Founder & team (Team bucket, 15% total):** 6-month cliff + 36-month linear; vest-into-stake default is planned (roadmap), not yet implemented.
 - **Investors (all rounds, 15% total):** vesting per round terms (cliffs for capital rounds are intentionally tighter); vest-into-stake default planned (roadmap).
 
-Team and founders accept a lighter cliff than capital-round investors in exchange for the work they put in pre-revenue.
+The team and founder accept a lighter cliff than capital-round investors in exchange for the work they put in pre-revenue.
 
 **Founder pledge (public):** I will not sell any team-allocated $LITNUP for at least 18 months post-TGE. After that, sales will only happen through the protocol's quarterly OTC window with full disclosure. This pledge is non-binding legally but enforceable socially: it will be tracked publicly and any breach is the founder's reputation.
 

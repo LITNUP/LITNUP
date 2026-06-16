@@ -123,6 +123,6 @@ By contributing, you agree your contributions will be licensed under:
 ## Communication
 
 - Github discussions: long-form questions
-- Discord: real-time chat
+- Discord: real-time chat (coming soon)
 - Twitter: announcements + product
 - For private/sensitive: `team@litnup.xyz`

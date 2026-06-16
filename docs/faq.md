@@ -22,7 +22,7 @@ Q4 2026 target. Specifically: when KPIs are met (audit complete, $5M+ TVL on tes
 Not yet. $LITNUP launches at TGE. The contracts are deployed on Base Sepolia (testnet) for verification.
 
 ### Who built this?
-Two founders bootstrapping with no VC. See `outreach/founder-pitch.md` for bios.
+A sole founder (Arthur Romanov) bootstrapping with no VC, plus hiring. See `outreach/founder-pitch.md` for bios.
 
 ---
 
@@ -228,7 +228,7 @@ We're focused on v1. v2 is scoped (cross-chain, ZK oracle). v3 is whatever the p
 ## Where do I get more help?
 
 - **Docs**: litnup.io/docs
-- **Discord**: discord.gg/litnup
+- **Discord**: coming soon
 - **GitHub**: github.com/LITNUP/LITNUP (issues + discussions)
 - **Twitter**: @LITNUP
 - **Security**: security@litnup.io (or via Immunefi when live)
