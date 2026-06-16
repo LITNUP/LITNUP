@@ -37,7 +37,7 @@ None at the protocol level. Per-agent minimums may exist set by operators.
 ### Can I lose my stake?
 Your stake redeems at principal only — agent PnL never changes your redemption value (PnL is reputation-only, tracked on-chain as `cumulativePnl`). The on-chain invariant is that the vault always holds at least the sum of all stakers' principal in $LITNUP. The risk to your principal is slashing:
 
-- The agent breaches a sustained drawdown threshold (default 25% from high-water-mark for >1 attestation cycle). The vault is slashed by 10% (default), routed to the burn sink. That reduces principal pro-rata.
+- The vault is slashed for confirmed sustained underperformance or misbehavior. This is **not** an automatic on-chain trigger — slashing is executed by the threshold-signed oracle once signers confirm a breach. The *intended policy* (a governance/oracle target, not a hardcoded contract constant) is roughly: a sustained drawdown beyond ~25% from the high-water-mark prompts a vault slash on the order of ~10%, routed to the burn sink, reducing principal pro-rata.
 
 You earn real yield on top of your principal, paid in USDC, funded by protocol fees (see "Where does my fee revenue come from?"). Yield is variable and not guaranteed.
 
