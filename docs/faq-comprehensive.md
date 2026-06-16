@@ -358,7 +358,7 @@ Base Sepolia (testnet), chainId 84532: `0x8027bb077D668407D6c0bb33Ba343c2dC44661
 
 - Twitter/X: `@LITNUP` (official, verified)
 - Forum: `forum.litnup.io`
-- Discord: coming soon
+- Discord: https://discord.gg/Enr6BabmF
 - Email: `team@litnup.io`
 
 We do NOT use Telegram for official announcements. Any Telegram channel claiming to be official is a scam.
@@ -367,7 +367,7 @@ We do NOT use Telegram for official announcements. Any Telegram channel claiming
 
 - Read the docs: `docs.litnup.io`
 - Forum: `forum.litnup.io` (slow, thoughtful answers)
-- Discord: coming soon (faster, less precise)
+- Discord: https://discord.gg/Enr6BabmF (faster, less precise)
 - Github issues: `github.com/LITNUP/LITNUP/issues` (technical only)
 
 We do NOT do customer support via DMs. If someone DMs you offering help, it's a scam.

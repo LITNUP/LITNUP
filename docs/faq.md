@@ -228,7 +228,7 @@ We're focused on v1. v2 is scoped (cross-chain, ZK oracle). v3 is whatever the p
 ## Where do I get more help?
 
 - **Docs**: litnup.io/docs
-- **Discord**: coming soon
+- **Discord**: https://discord.gg/Enr6BabmF
 - **GitHub**: github.com/LITNUP/LITNUP (issues + discussions)
 - **Twitter**: @LITNUP
 - **Security**: security@litnup.io (or via Immunefi when live)
